@@ -29,12 +29,12 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
 ALLOWED_HOSTS = [
-    "backend-host.com", 
     "localhost",
     "127.0.0.1",
+    "cv-ready-ai-tt3p.vercel.app",
 ]
 
-# Supabase connection
+
 DATABASES = {
     'default': dj_database_url.config(default=os.getenv("SUPABASE_DATABASE_URL"))
 }
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://cv-ready-ai-tt3p.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True 
