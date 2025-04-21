@@ -163,8 +163,11 @@ def upload_file(request):
     Expects: 'file' in request.FILES and 'x-user-id' in headers.
     Returns: JSON response with feedback or error message.
     """
-
-    file = request.FILES.get("file")
+    
+    file = print("📥 Upload route hit")
+    print("📎 Headers:", request.headers)
+    print("📎 FILES:", request.FILES)
+    request.FILES.get("file")
 
     if not file:
         return JsonResponse({"error": "No file uploaded"}, status=400)
