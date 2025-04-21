@@ -55,6 +55,8 @@ INSTALLED_APPS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://cv-ready-ai-tt3p.vercel.app",
+    "https://cv-ready-ai-tt3p-cas40krkp-sahil24680s-projects.vercel.app", 
+     
 ]
 
 CORS_ALLOW_CREDENTIALS = True 
