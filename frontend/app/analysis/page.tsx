@@ -1,8 +1,5 @@
 "use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useResumeContext } from "@/contexts/ResumeContext";
-import { useSession } from "@supabase/auth-helpers-react";
 import {
   BarChart,
   Bar,

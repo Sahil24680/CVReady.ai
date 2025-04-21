@@ -2,7 +2,6 @@
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/solid";
 import { signup } from "@/app/utils/supabase/action"; 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { toast} from "react-toastify";
 export default function SignupPage() {
   const router = useRouter();

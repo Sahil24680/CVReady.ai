@@ -1,13 +1,11 @@
 "use client";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 import { toast} from "react-toastify";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/solid";
 import { login } from "@/app/utils/supabase/action"; 
 import { useRouter } from "next/navigation";
 import {checkProfileExists} from '@/app/utils/checkProfileExists'
 export default function LoginPage() {
-  const searchParams = useSearchParams();
+
   const router = useRouter();
   const handleLogin = async (formData: FormData) => {
     const result = await login(formData);

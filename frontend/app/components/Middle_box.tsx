@@ -1,6 +1,6 @@
 "use client";
 import { ResumeRecord } from "@/types/resume";
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useResumeContext } from "@/contexts/ResumeContext";
 import Progressbar from "./Progress_bar";
 import WelcomeMessage from "./WelcomeMessage";

@@ -58,7 +58,7 @@ const EvaluationModal = () => {
                 rel="noopener noreferrer"
                 className="text-[#06367a] hover:text-[#093d7a] ml-1 underline"
               >
-                Jake’s LaTeX Resume Template
+                Jake&rsquo;s LaTeX Resume Template
               </a>
               . While optional, it's widely used in tech and helps highlight
               content clearly.
