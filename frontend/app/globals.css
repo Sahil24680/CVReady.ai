@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-twitter-blue: #1da1f2;
+}
+
+@layer utilities {
+  .bg-twitter-blue {
+    background-color: var(--color-twitter-blue);
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-in-out;
+  }
+  .animate-fadeOut {
+    animation: fadeOut 0.4s ease-in-out forwards;
+  }
+}
