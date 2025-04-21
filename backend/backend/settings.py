@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "cv-ready-ai-tt3p.vercel.app",
+    "cvready-backend.onrender.com",
 ]
 
 
