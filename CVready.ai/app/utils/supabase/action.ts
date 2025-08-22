@@ -71,3 +71,17 @@ export async function uploadProfilePicture(userId: string, file: File) {
     .eq("id", userId);
   return dbError ? { error: dbError } : { success: true, url: publicUrl };
 }
+
+export async function getUser() {
+  const supabase = await createClient()
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) {
+      return { error: error.message }
+    }
+    return data.user
+  } catch (error) {
+    // @ts-ignore
+    return { error: error.message }
+  }
+}

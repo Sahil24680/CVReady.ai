@@ -85,6 +85,7 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
           resume_name: row.Resume_name,
           openai_feedback: row.openai_feedback,
           created_at: formatDate(row.created_at),
+          Role:row.Role
         }));
 
         setResumeData(structuredData);

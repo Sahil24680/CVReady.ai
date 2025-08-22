@@ -8,7 +8,13 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import Side_bar from "@/app/components/Side_bar";
-
+import { AppSidebar } from "@/components/app-sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 /**
  * Root layout component that wraps the entire app.
  *
@@ -26,22 +32,26 @@ export default function RootLayout({
   const pathname = usePathname();
   const isAuthRoute = pathname.startsWith("/auth");
 
-
   return (
     <html lang="en">
       <body className="min-h-screen flex  overflow-hidden">
-      
         {isAuthRoute ? (
           <main className="flex-1">{children}</main>
         ) : (
-          
           <ResumeProvider>
             <ModalProvider>
-            <Side_bar />
-            <main className="flex-1">{children}</main>
+              <SidebarProvider >
+                <AppSidebar />
+                <SidebarTrigger className="text-white"  />
+                <SidebarInset >
+                  <main >
+                    
+                    {children}
+                  </main>
+                </SidebarInset>
+              </SidebarProvider>
             </ModalProvider>
           </ResumeProvider>
-          
         )}
         <ToastContainer
           position="top-center"
@@ -49,7 +59,6 @@ export default function RootLayout({
           closeOnClick={true}
           closeButton={false}
         />
-       
       </body>
     </html>
   );

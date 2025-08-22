@@ -30,7 +30,7 @@ const Side_bar = () => {
   const router = useRouter();
   const { profileData, FetchingProfile } = useResumeContext();
   const { openEvaluation } = useModal();
-
+  
   const NavButton = ({ icon: Icon, label, path, onClick }: NavButtonProps) => {
     const baseClasses =
       "flex items-center gap-2 p-2 rounded-md text-white hover:bg-white/20 transition-colors duration-200 mt-4 w-full justify-center cursor-pointer";

@@ -1,6 +1,7 @@
 "use client";
 import { useModal } from "@/contexts/ModalContext";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+import { FileText, Brain, CheckCircle, TrendingUp, Award } from "lucide-react";
+import Modal from "./Modal"; // adjust import path if different
 
 /**
  * Evaluation Modal
@@ -11,77 +12,163 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
  * 
  */
 
-
 const EvaluationModal = () => {
   const { showEvaluation, closeEvaluation } = useModal();
 
-  if (!showEvaluation) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow w-fit relative animate-fadeIn space-y-6 max-w-3xl">
-        <XMarkIcon
-          onClick={closeEvaluation}
-          className="w-6 h-6 absolute top-3 right-3 text-gray-500 hover:text-black cursor-pointer"
-        />
-
-        <h1 className="flex justify-center text-gray-900 font-bold text-3xl">
-          🧠 How It Works
-        </h1>
-
-        <h2 className="text-gray-800 font-semibold text-2xl">
-          The AI analyzes your resume like a Big Tech recruiter, focusing on
-          three core areas:
-        </h2>
-
-        <ul className="list-disc list-inside text-gray-700 text-lg space-y-5 leading-relaxed">
-          <li>
-            <strong>Big Tech alignment</strong> — Are your skills, experience,
-            and projects aligned with what Big Tech expects (e.g., full-stack
-            development, internships, real-world impact)? Are you showcasing
-            relevance and scope?
-          </li>
-          <li>
-            <strong>Resume clarity</strong> — The AI doesn’t evaluate your
-            formatting or layout, but instead looks at how clearly your
-            achievements are described. Are you using strong action verbs,
-            measurable results, and a concise, impact-driven tone? It also
-            checks whether your bullet points reflect best practices like the
-            STAR format — not fluff or filler.
-            <br />
-            <span className="text-[17px] text-gray-600 block mt-2">
-              🎁 <strong>Bonus:</strong> If you’re just starting out or want a
-              clean layout, consider using
-              <a
-                href="https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#06367a] hover:text-[#093d7a] ml-1 underline"
-              >
-                Jake&rsquo;s LaTeX Resume Template
-              </a>
-              . While optional, it's widely used in tech and helps highlight
-              content clearly.
-            </span>
-          </li>
-          <li>
-            <strong>Technical depth</strong> — Are you demonstrating an
-            understanding of system design, core data structures, and coding
-            patterns? This includes hints of LeetCode-style thinking even within
-            project summaries.
-          </li>
-        </ul>
-
-        <div className="text-[17px] text-gray-600 border-t pt-4 leading-relaxed">
-          💬 <strong>Side Note:</strong>
-          <br />
-          This feedback is meant as guidance — not a final verdict. It does{" "}
-          <strong>not</strong> assume you've done any LeetCode or behavioral
-          interview prep. If you already have, feel free to skip those
-          suggestions. Every resume — and every path to Big Tech — is unique.
+    <Modal
+      isOpen={showEvaluation}
+      onClose={closeEvaluation}
+      title=""
+      panelClassName="p-0" 
+    >
+      <section className="space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-8 relative animate-pulse">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/8 via-transparent to-indigo-600/8 rounded-3xl -m-8 blur-3xl"></div>
+          <div className="relative space-y-6">
+            <div className="inline-flex items-center justify-center space-x-3 mb-6">
+              <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div>
+              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+              <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse delay-75"></div>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent leading-tight tracking-tight">
+              AI Resume Analysis
+            </h1>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mx-auto"></div>
+            <p className="text-gray-600 text-xl max-w-3xl mx-auto leading-relaxed font-medium">
+              Experience our intelligent resume evaluation system that provides comprehensive feedback and actionable insights in seconds
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
+
+        {/* Timeline */}
+        <div className="relative">
+          {/* Timeline line */}
+          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-600 to-indigo-600"></div>
+          
+          <div className="space-y-8">
+            {[
+              {
+                time: "0-5 seconds",
+                title: "Document Upload & Parsing",
+                description: "Your resume is securely uploaded and our AI begins parsing the document structure, extracting text, and identifying key sections.",
+                icon: <FileText className="w-5 h-5" />,
+                status: "upload"
+              },
+              {
+                time: "5-15 seconds", 
+                title: "Content Analysis & Extraction",
+                description: "Advanced NLP algorithms analyze your content, identify skills, experiences, achievements, and assess the overall quality of information presented.",
+                icon: <Brain className="w-5 h-5" />,
+                status: "processing"
+              },
+              {
+                time: "15-30 seconds",
+                title: "ATS & Formatting Review",
+                description: "We check ATS compatibility, evaluate formatting consistency, and ensure your resume meets modern technical standards.",
+                icon: <CheckCircle className="w-5 h-5" />,
+                status: "checking"
+              },
+              {
+                time: "30-45 seconds",
+                title: "Scoring & Benchmarking",
+                description: "Your resume is scored against industry standards and compared with successful profiles in your field and experience level.",
+                icon: <TrendingUp className="w-5 h-5" />,
+                status: "scoring"
+              },
+              {
+                time: "45-60 seconds",
+                title: "Report Generation",
+                description: "Comprehensive feedback report is generated with specific recommendations, improvement suggestions, and actionable insights.",
+                icon: <Award className="w-5 h-5" />,
+                status: "complete"
+              }
+            ].map((item, index) => (
+              <div key={index} className="relative flex items-start gap-6">
+                {/* Timeline dot */}
+                <div className="relative z-10 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg">
+                  {item.icon}
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 pb-8">
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                        {item.time}
+                      </span>
+                      <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                    </div>
+                    <p className="text-gray-600 leading-relaxed">{item.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Scoring Criteria Section */}
+        <div className="space-y-6">
+          <h3 className="text-xl font-bold text-gray-900 border-b border-indigo-200 pb-2">
+            Scoring Criteria
+          </h3>
+          
+          <div className="space-y-4">
+            {[
+              { category: "Content Quality", weight: "35%", color: "bg-emerald-500" },
+              { category: "ATS Optimization", weight: "25%", color: "bg-blue-600" },
+              { category: "Formatting & Structure", weight: "20%", color: "bg-sky-500" },
+              { category: "Keyword Relevance", weight: "20%", color: "bg-amber-500" }
+            ].map((criterion, index) => (
+              <div key={index} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-gray-900">{criterion.category}</span>
+                  <span className="text-sm text-gray-500">{criterion.weight}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full ${criterion.color}`} 
+                    style={{ width: criterion.weight }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Score ranges */}
+          <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+            <h4 className="font-semibold text-gray-900">Score Ranges</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-emerald-600 font-medium">Excellent (90-100)</span>
+                <span className="text-gray-500">Ready to apply</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-blue-600 font-medium">Good (75-89)</span>
+                <span className="text-gray-500">Minor improvements</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-amber-500 font-medium">Needs Work (60-74)</span>
+                <span className="text-gray-500">Several improvements</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-red-500 font-medium">Poor (0-59)</span>
+                <span className="text-gray-500">Major revision needed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-lg text-white text-center">
+          <h4 className="text-xl font-bold mb-2">Ready to Get Your Score?</h4>
+          <p className="opacity-90">
+            Upload your resume now and receive detailed feedback in under 60 seconds
+          </p>
+        </div>
+      </section>
+    </Modal>
   );
 };
 

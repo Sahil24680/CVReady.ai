@@ -1,10 +1,13 @@
 "use client";
+import { useState } from "react";
 import { ResumeRecord } from "@/types/resume";
 import { HardDriveUpload } from "lucide-react";
 import { FolderIcon } from "@heroicons/react/24/solid";
 import { useResumeContext } from "@/contexts/ResumeContext";
 import { supabase } from "@/app/utils/supabase/client";
 import { toast } from "react-toastify";
+import Modal from "./Modal";
+import RolePickerModal from "./Uploadmodal";
 import Skeleton from "react-loading-skeleton";
 
 /**
@@ -20,6 +23,7 @@ import Skeleton from "react-loading-skeleton";
 interface Rightbox_props {
   setSelectedResume: React.Dispatch<React.SetStateAction<ResumeRecord | null>>;
 }
+type Role = "Frontend Engineer" | "Backend Engineer" | "Full-Stack Engineer";
 const MAX_FILE_SIZE_MB = 1;
 const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
 const ALLOWED_MIME_TYPES = [
@@ -27,15 +31,18 @@ const ALLOWED_MIME_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
 const RightBar = ({ setSelectedResume }: Rightbox_props) => {
+  const [open, setOpen] = useState(false);
   const { resumeData, refreshResumes, FetchingResume } = useResumeContext();
 
   /**
    * Handles file input change. Validates file size, type, and MIME type.
    * Sends the resume to the backend API for analysis and refreshes resume list.
    */
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
+  const handleUpload = async ({
+    role,
+    file,
+  }: { role: Role; file?: File | null }) => {
+   
     if (!file) {
       toast.error("Please select a file to upload.");
       return;
@@ -57,6 +64,7 @@ const RightBar = ({ setSelectedResume }: Rightbox_props) => {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("role", role);
 
     // keep the auth check exactly as you had it
     const {
@@ -71,14 +79,14 @@ const RightBar = ({ setSelectedResume }: Rightbox_props) => {
       );
       return;
     }
-
+   
     await toast.promise(
       fetch("/api/upload", {
         method: "POST",
         body: formData,
         headers: { "x-user-id": user.id },
       }).then(async (res) => {
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 200));
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data?.error || "Upload failed.");
@@ -101,16 +109,19 @@ const RightBar = ({ setSelectedResume }: Rightbox_props) => {
 
   return (
     <div className="w-full h-full bg-white rounded-lg p-4 flex flex-col space-y-2">
-     {/* Upload */}
-     <label className="w-full h-1/3 bg-[#f5f9fd] flex flex-col items-center justify-center rounded-lg space-y-2 cursor-pointer hover:bg-[#e8f1fb] transition">
+      {/* Upload */}
+      <label
+        onClick={() => setOpen(true)}
+        className="w-full h-1/3 bg-[#f5f9fd] flex flex-col items-center justify-center rounded-lg space-y-2 cursor-pointer hover:bg-[#e8f1fb] transition"
+      >
         <HardDriveUpload className="w-10 h-10 text-[#4382da]" />
         <span className="text-[#8ea6c4] font-bold text-lg">Upload File</span>
-        <input
-          type="file"
-          className="hidden"
-          accept=".pdf,.docx"
-          onChange={handleUpload}
-        />
+        <RolePickerModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onSubmit={handleUpload}
+      />
+        
       </label>
 
       {/* Uploaded Resumes */}

@@ -1,5 +1,10 @@
 "use client";
 import { supabase } from "@/app/utils/supabase/client";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MiddleBox from "@/app/components/Middle_box";
@@ -21,20 +26,17 @@ export default function Home_page() {
   const [selectedResume, setSelectedResume] = useState<ResumeRecord | null>(
     null
   );
- 
 
   return (
-    <div className="h-screen    bg-[#ebf2fc]">
+    <div className="h-screen bg-[#ebf2fc]">
       <div className="flex h-full min-h-0">
-      <EvaluationModal />
+        <EvaluationModal />
         {/* Center box */}
         <div className=" w-full  md:w-4/5 p-6 bg-[#ebf2fc] ">
-        
           <MiddleBox
             selectedResume={selectedResume}
             setSelectedResume={setSelectedResume}
           />
-         
         </div>
 
         {/* Right side bar */}

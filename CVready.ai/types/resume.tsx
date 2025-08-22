@@ -16,6 +16,7 @@ export interface ResumeRecord {
   resume_name: string;
   created_at: string;
   openai_feedback: FeedbackData;
+  Role: string;
 }
 
 export interface User_profile {

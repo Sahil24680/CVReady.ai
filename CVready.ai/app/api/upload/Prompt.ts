@@ -1,4 +1,4 @@
-import { z } from "zod";
+
 
 // Big model prompt (unchanged from your original buildAnalysisPrompt)
 export function buildAnalysisPrompt(): string {
@@ -12,7 +12,7 @@ Speak directly to the candidate using second-person voice (“you”, “your”
 ---
 
 Your task:
-1) Assign **big_tech_readiness_score (1–10)** and **resume_format_score (1–10)**.
+1) Assign **big_tech_readiness_score (1–10)**.
 2) Provide **3–5 personalized improvement tips**; each tip must be 3–6 sentences (≈80–140 words) with a Big Tech reference where relevant.
 3) Write **Final Thoughts** as one paragraph, 5–8 sentences, starting with a fact from the résumé in *italics* and ending on an uplifting note.
 4) List **strengths** and **weaknesses** as arrays of strings, each entry 2–3 sentences with a 3–6-word résumé quote in *italics* as evidence.
@@ -28,7 +28,6 @@ Return exactly:
 {
   "feedback": {
     "big_tech_readiness_score": 0,
-    "resume_format_score": 0,
     "strengths": ["..."],
     "weaknesses": ["..."],
     "tips": ["..."],
@@ -41,23 +40,33 @@ Return exactly:
 // Small model grading prompt
 export function buildGraderPrompt(): string {
   return `
-Return STRICT JSON only:
+Return STRICT JSON only with this shape:
 
 {
   "scores": { "format": 0-5, "impact": 0-5, "tech_depth": 0-5, "projects": 0-5 },
   "focus_areas": ["format"|"impact"|"tech_depth"|"projects"],
   "weak_bullets": [
     { "section": "experience|projects|education|summary|skills", "idx": 0, "reason": "short phrase or empty string" }
-  ]
+  ],
+  "format_checks": {
+    "sections_present": { "experience": bool, "projects": bool, "education": bool, "skills": bool },
+    "tense_consistency": bool,
+    "bullet_style_consistency": bool,
+    "ats_safe": bool,
+    "contact_complete": bool,
+    "length_density_ok": bool,
+    "skills_normalized": bool
+  }
 }
 
 Rules:
-- All fields are REQUIRED (if no weak bullets, return []).
-- If a reason is thin, set "" (empty string).
-- Keep focus_areas to 1–3 weakest categories.
+- Consider only the uploaded resume content.
+- Fractions are in [0,1], not percents.
+- Be conservative: if uncertain, return false or a lower fraction.
 - No prose beyond required fields.
 `;
 }
+
 
 // Scope wrapper for the deep pass
 export function buildScopedPrompt(baseTemplate: string, grade: {
