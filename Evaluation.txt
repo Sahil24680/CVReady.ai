@@ -1,0 +1,23 @@
+How your Readiness score is graded
+
+Final score (/10) = Role Fit (/7) + Format (/3)
+
+Role Fit (/7) = Rubric (/4) + ATS (/3)
+
+Rubric (/4): We compare your résumé to role-specific rubrics.
+Strong (clear usage + result/metric) = full credit (1.0)
+Moderate (clear usage, no metric) = partial credit (0.5)
+Mention (vague or skills-list only) = minimal credit (0.1)
+
+ATS (/3): We check for evidenced use of key tools/skills.
+• Core (first 6 keywords) = 85% of the ATS score
+• Nice-to-have (next 4)   = 15% of the ATS score
+• We only count items shown in Experience/Projects (not just listed in Skills).
+
+Role Fit is converted to an integer 1–7 by rounding down (no rounding up).
+
+Format (/3): Presentation, structure, ATS-friendliness, and consistency—scaled from our format check and added on top of Role Fit.
+
+Example: Rubric 2.6/4 + ATS 1.8/3 = 4.4/7 → Role Fit = 4 (floored).
+Format 8/10 → +2.4/3. Final = 6.4/10.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
