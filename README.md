@@ -25,10 +25,14 @@ Unlike keyword-based ATS scanners, it uses a **two-model pipeline** with **GPT-4
   - Lists of **weak bullets** with reasons (e.g., “No metrics provided for improvements”).  
 
 - 🟢 **Step 2 – RAG Context Building**  
-  Weak bullets are passed to the **RAG layer**, which searches curated rubrics, recruiter examples, ATS keywords, job descriptions, and rewrite patterns.  
-  For example:  
-  - Rubric: *Good full‑stack bullets show end‑to‑end ownership with measurable results (UI → API → DB).*  
-  - Rewrite Pattern: *Before: Worked on full‑stack app → After: Built notes app (Next.js + Postgres) and cut query time 420ms → 180ms.*  
+  Weak bullets are passed to the **RAG layer**, which searches curated rubrics, recruiter examples, ATS keywords, and rewrite patterns specific to the role the user chose.  
+
+  **Example (Backend Role):**  
+  - **Weak bullet (input):** *"Improved caching system."*  
+  - **Rubric guidance:** Backend bullets should highlight measurable performance wins and safe rollouts.  
+  - **Rewrite pattern:** *Before: Improved caching → After: Optimized Redis cache and reduced API latency from 320ms to 140ms across 50k+ daily requests.*  
+  - **RAG output:** Suggests rewriting the bullet as:  
+    *"Optimized Redis caching layer, cutting API latency by 56% for 50k+ daily requests and improving system reliability during peak load."*  
 
 - 🟢 **Step 3 – Role-Specific Analysis with GPT-4**  
   The retrieved context + weak bullets are then passed to **GPT-4**, which provides recruiter-style advice specific to the role (e.g., Frontend, Backend, Full-Stack).  
@@ -44,17 +48,18 @@ This layered design makes the system **cost-efficient and more accurate**: GPT-4
 
 ---
 
-## 📊 Accuracy, Cost & Latency Metrics
+## 📊 Accuracy, Cost & Feedback Quality Metrics
 
 I benchmarked the résumé analysis pipeline **before vs after GPT-4-mini + RAG + sanity checks**:
 
-| Metric                | Before (GPT-4 only) | After (GPT-4-mini + RAG + GPT-4) | Improvement |
-|------------------------|---------------------|-----------------------------------|-------------|
-| Accuracy (skill extraction) | 74.3% | 90.1% | +15.8% |
-| Accuracy (project scope)    | 70.5% | 87.4% | +16.9% |
-| Consistency across runs     | ±18% variance | ±6% variance | 3× more stable |
-| Avg. latency per résumé     | 5.2s | 4.4s | –15% |
-| Avg. cost per analysis      | $0.0265 | $0.0189 | –29% |
+| Metric                        | Before (GPT-4 only) | After (GPT-4-mini + RAG + GPT-4) | Improvement |
+|-------------------------------|---------------------|-----------------------------------|-------------|
+| Accuracy (skill extraction)   | 74.3%               | 90.1%                             | +15.8% |
+| Accuracy (project scope)      | 70.5%               | 87.4%                             | +16.9% |
+| Consistency across runs       | ±18% variance       | ±6% variance                      | 3× more stable |
+| Avg. latency per résumé       | ~5.2s               | ~5.2s                             | — (no change) |
+| Avg. cost per analysis        | $0.0265             | $0.0189                           | –29% |
+| Feedback quality (subjective) | Generic suggestions | Role-specific, recruiter-style     | Major upgrade |
 
 ### Cost Savings by Résumé Type
 
@@ -65,9 +70,10 @@ I benchmarked the résumé analysis pipeline **before vs after GPT-4-mini + RAG 
 | **Weak**    | 0.0300        | 0.0287        | 0.0013       | **4.3%**    |
 
 **Key Takeaways**
-- Using GPT-4-mini for grading reduced **average cost per analysis by ~30%**.  
-- Accuracy improved **15–17%** thanks to RAG injecting recruiter rubrics and rewrite patterns.  
-- Variance dropped 3×, making scores **deterministic and consistent**.  
+- Accuracy improved **15–17%** thanks to GPT-4-mini grading + RAG context.  
+- Outputs became **3× more consistent** across runs.  
+- Cost dropped by ~30% due to using GPT-4-mini for strict grading.  
+- Feedback went from **generic** (e.g., “add more technical depth”) to **specific & role-aware** (e.g., *“For backend roles, emphasize Redis caching optimizations and measurable outcomes”*).
 
 ---
 
@@ -77,8 +83,8 @@ To prevent bad inputs and GPT hallucinations, the system enforces:
 
 - ✅ **File validation** – only PDF accepted, size limits enforced.  
 - ✅ **Empty input guard** – rejects blank/corrupted uploads.  
-- ✅ **Score bounds** – scores always mapped 0–5.  
-- ✅ **Schema enforcement** – GPT output validated via JSON schema.  
+- ✅ **Score bounds** – scores always mapped 0–10.  
+- ✅ **Schema enforcement** – GPT output validated via zod schema.  
 - ✅ **Consistency checks** – multiple runs averaged if variance > threshold.  
 
 These keep feedback **structured, safe, and recruiter-like**.
@@ -104,7 +110,7 @@ cd CVReady.ai
 
 # env setup
 cp .env.example .env.local
-# add OPENAI_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+# add OPENAI_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE( when you want to store embeddings in the vector database. See scripts/Create_Embeddings.ts for the dommand to run it.)
 
 npm install
 npm run dev   # http://localhost:3000
@@ -175,12 +181,12 @@ This project became a way for me to give back to my fellow students while leveli
 
 ---
 
-## 🗺 Roadmap
+## 🔮 Planned Improvements
 
-- [ ] Job-specific matching (Google SWE vs Amazon SDE-I feedback).  
-- [ ] LinkedIn profile integration.  
-- [ ] Export feedback reports as PDF.  
-- [ ] Multi-résumé comparison dashboard.  
+- [ ] Expand RAG dataset with higher-quality recruiter examples and rubrics.  
+- [ ] Broaden coverage to more fields (e.g., Cloud Engineering, Cybersecurity) so feedback is role-specific across domains.  
+- [ ] Add AI-powered résumé rewrite suggestions based on Job Descriptions (JD alignment).  
+
 
 ---
 
