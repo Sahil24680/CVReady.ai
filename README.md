@@ -44,7 +44,7 @@ This layered design makes the system **cost-efficient and more accurate**: GPT-4
 
 ## 🔍 Demo
 
-🎥 [Watch the demo video on Loom] to be added
+🎥 [Watch the demo video on Loom] https://www.loom.com/share/ff230261c9c74653bab7755c1c5c6dd7?sid=b5858272-a963-4102-93d5-eaaac01b4cb0
 
 ---
 
@@ -110,8 +110,7 @@ cd CVReady.ai
 
 # env setup
 cp .env.example .env.local
-# add OPENAI_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE( when you want to store embeddings in the vector database. See scripts/Create_Embeddings.ts for the dommand to run it.)
-
+# add OPENAI_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE (used only when storing embeddings into the vector database; see scripts/Create_Embeddings.ts for how to run the ingestion script).
 npm install
 npm run dev   # http://localhost:3000
 ```

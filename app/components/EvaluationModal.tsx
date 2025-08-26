@@ -11,7 +11,7 @@ import {
   Shield,
   BarChart3,
 } from "lucide-react";
-import Modal from "./Modal"; // adjust import path if different
+import Modal from "./Modal"; 
 
 /**
  * Evaluation Modal

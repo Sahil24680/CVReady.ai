@@ -78,15 +78,15 @@ const User_progress = () => {
 
             return {
               Resume_name: resumeName,
-              // keep original timestamp if you need it elsewhere
+           
               dateISO: dt.toISOString(),
-              day, // <-- normalized to YYYY-MM-DD (local day)
+              day, 
               Bigtech_readiness:
                 resume?.openai_feedback?.feedback?.big_tech_readiness_score ??
                 0,
               Resume_format:
                 resume?.openai_feedback?.feedback?.resume_format_score ?? 0,
-              _ts: dt.getTime(), // used to keep the latest per day
+              _ts: dt.getTime(), 
             };
           })
           .filter(Boolean)
