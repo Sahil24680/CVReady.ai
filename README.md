@@ -17,12 +17,9 @@ CVReady.ai helps students and early-career engineers **evaluate and improve thei
 
 Unlike keyword-based ATS scanners, it uses a **two-model pipeline** with **GPT-4-mini** and **GPT-4** for efficiency and accuracy:  
 
-- 🟢 **Step 1 – Strict Grading with GPT-4-mini**  
-  The smaller model handles **formatting checks, focus area identification, and weak bullet detection**.  
-  Example outputs include:  
-  - Scores for format, impact, technical depth, and projects.  
-  - Highlighted **focus areas** (e.g., “impact”, “projects”).  
-  - Lists of **weak bullets** with reasons (e.g., “No metrics provided for improvements”).  
+- 🟢 Step 1 – Strict JSON Grading (GPT-4-mini)
+A conservative small-model pass returns format, impact, tech depth, projects (0–5 each) and always surfaces 3–5 weak bullets with 12–25 word reasons. It also picks 1–3 focus areas (the lowest subscores) that strictly guide coaching.
+The grader penalizes clones, missing deployment/testing, absent metrics, unclear scope/ownership, and format issues. This prevents score inflation and forces concrete, fixable feedback.
 
 - 🟢 **Step 2 – RAG Context Building**  
   Weak bullets are passed to the **RAG layer**, which searches curated rubrics, recruiter examples, ATS keywords, and rewrite patterns specific to the role the user chose.  
@@ -35,10 +32,32 @@ Unlike keyword-based ATS scanners, it uses a **two-model pipeline** with **GPT-4
     *"Optimized Redis caching layer, cutting API latency by 56% for 50k+ daily requests and improving system reliability during peak load."*  
 
 - 🟢 **Step 3 – Role-Specific Analysis with GPT-4**  
-  The retrieved context + weak bullets are then passed to **GPT-4**, which provides recruiter-style advice specific to the role (e.g., Frontend, Backend, Full-Stack).  
+  The retrieved context + weak bullets are then passed to GPT-4, which provides role-specific, evidence-driven coaching limited to your lowest scoring focus areas.  
   Example: Instead of saying “add more technical depth,” it may suggest *“For backend roles, emphasize Redis performance optimizations and safe rollouts.”*  
 
 This layered design makes the system **cost-efficient and more accurate**: GPT-4-mini handles cheap but strict scoring, while GPT-4 focuses only on role-specific recruiter-quality feedback.
+
+
+## 🎯 Scoring Method (Stricter, Evidence-Based)
+
+**Readiness (1–7)** is computed by the deep pass using **evidence-only** skills and role rubrics:
+- Skills are credited **only when supported by a 3–6 word quote** from your Experience/Projects (prevents keyword stuffing).
+- Role rubrics contribute most of the score; ATS keywords contribute only if **evidenced**.
+
+**Explicit penalties** (applied before mapping to the final 1–10):
+- No metrics anywhere: **–1.0**
+- No deployment/testing/CI for full-stack roles: **–0.5**
+- Repetitive “clone” projects / weak variety: **–0.5**
+- Role mismatch (requested role vs content): **–0.5**
+- Failed format checks (tense/bullets/length/skills normalization): **–0.5 each** (max **–1.5**)
+
+**Final score (1–10)** = evidence-based readiness (remapped non-linearly) **+ a capped format boost**  
+- Format helps but is **capped** so presentation can’t mask weak content.  
+- **Deficit cap:** more focus areas ⇒ lower ceiling.  
+- **Exemplary gate:** **9.5–10** requires strong evidence (multiple metrics, **≥3** distinct projects, and deployment/testing).
+
+*Outcome: weak/average resumes land ~**5–7**, strong ones **8–9**, and **10** is rare.*
+
 
 ---
 
@@ -185,7 +204,6 @@ This project became a way for me to give back to my fellow students while leveli
 - [ ] Expand RAG dataset with higher-quality recruiter examples and rubrics.  
 - [ ] Broaden coverage to more fields (e.g., Cloud Engineering, Cybersecurity) so feedback is role-specific across domains.  
 - [ ] Add AI-powered résumé rewrite suggestions based on Job Descriptions (JD alignment).  
-
 
 ---
 

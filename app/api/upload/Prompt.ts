@@ -53,7 +53,7 @@ Return STRICT JSON only with this shape:
   "scores": { "format": 0-5, "impact": 0-5, "tech_depth": 0-5, "projects": 0-5 },
   "focus_areas": ["format"|"impact"|"tech_depth"|"projects"],
   "weak_bullets": [
-    { "section": "experience|projects|education|summary|skills", "idx": 0, "reason": "10-25 words; specific why it's weak (never empty)" }
+    { "section": "experience|projects|education|summary|skills", "idx": 0, "reason": "12-25 words; specific why it's weak (metric/tech/scope/outcome). No fluff." }
   ],
   "format_checks": {
     "sections_present": { "experience": bool, "projects": bool, "education": bool, "skills": bool },
@@ -66,15 +66,20 @@ Return STRICT JSON only with this shape:
   }
 }
 
-Rules:
-- Output 2–5 weak_bullets unless the resume is truly exemplary (all scores >= 4 AND all format_checks true).
-- Return 1–3 items in focus_areas: choose the weakest categories by scores.
-- "reason" MUST be non-empty and specific (10–25 words) — cite what's missing (metric/tech/scope/outcome).
-- If unsure, provide your best-effort reason; do NOT omit the bullet.
-- Be conservative ONLY for format_checks booleans; do not suppress weak_bullets purely due to uncertainty.
+Rules (BE STRICT):
+- Default posture is conservative: scores of 2–3 are common; 4 requires strong evidence; 5 is rare.
+- Always return 3–5 weak_bullets. Return only 2 IFF all four scores >= 4.5 AND all format_checks are true.
+- focus_areas must be the 1–3 **lowest** scoring categories (ties → include both).
+- "reason" must cite what's missing (metric/tech/scope/outcome) and refer to the bullet in plain words.
+- If uncertain, err toward **lower** scores; do not suppress weak_bullets.
+- For "projects": penalize clones, unclear ownership, no deployment/testing mention, or missing scale.
+- For "tech_depth": penalize lack of stack specifics (framework + API + DB), no perf/security, or no architecture hints.
+- For "impact": penalize absent metrics (time, cost, perf, users), vague verbs, or no outcomes.
+- For "format": penalize density, inconsistent style/tense, missing contact/sections, or ATS-unsafe elements.
 - No prose beyond required fields.
 `;
 }
+
 
 
 

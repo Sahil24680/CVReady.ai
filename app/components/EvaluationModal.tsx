@@ -45,7 +45,7 @@ const EvaluationModal = () => {
     },
     {
       name: "ATS Keywords",
-      description: "Core tech keywords with evidence (based on rolee)",
+      description: "Core tech keywords with evidence (based on role). Skills are credited only when proven by a 3–6 word quote.",
       weight: "Core 6 keywords: 0.85 | Nice-to-have 4: 0.15",
       score: Math.min(3, bigTechScore * 0.4),
       maxScore: 3,
@@ -148,7 +148,7 @@ const EvaluationModal = () => {
                 time: "30-45 seconds",
                 title: "Scoring & Benchmarking",
                 description:
-                  "Your resume is scored against industry standards and compared with successful profiles in your field and experience level.",
+                "We score using role rubrics with evidence-only skills and apply explicit penalties (e.g., no metrics, no deploy/tests, clone repetition) to prevent inflation.",
                 icon: <TrendingUp className="w-5 h-5" />,
                 status: "scoring",
               },
@@ -216,7 +216,7 @@ const EvaluationModal = () => {
                 </span>
               </div>
               <p className="text-gray-600 mb-6">
-                AI-powered analysis of technical content and depth
+              Computed from role rubrics and evidence-only skills (credited only with a 3–6 word quote from Experience/Projects) plus explicit penalties.
               </p>
               <div className="space-y-4">
                 {bigTechComponents.map((component, index) => (
