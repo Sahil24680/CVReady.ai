@@ -121,6 +121,13 @@ These keep feedback **structured, safe, and recruiter-like**.
 ```
 ---
 
+### 🧱 Architecture: Client data fetching
+- Added **TanStack Query v5** for per-user caching (`['resumes', userId]`)
+- Auth-aware loading (tri-state) prevents empty-state flash on hard reload
+- Background refetch + cache invalidation for refresh (keeps data visible)
+- Dedupes cross-view requests (e.g., 3 components → 1 API call, ~−67%)
+
+
 ## 🚀 Quick start (local)
 
 ```bash

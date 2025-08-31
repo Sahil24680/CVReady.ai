@@ -10,12 +10,20 @@ import {
 import { ResumeRecord, User_profile } from "@/types/resume";
 import { supabase } from "@/app/utils/supabase/client";
 
+/* 🔽 NEW: react-query imports */
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+
 /**
  * Global context for managing resume and profile data.
  *
- * Features:
+ * Features (now powered by React Query):
  * - Fetches resume and profile data from Supabase
- * - Provides loading state and refresh functionality
+ * - Provides loading state and refresh functionality (via cache invalidation)
  * - Shares data across the app using React Context
  */
 type ResumeContextType = {
@@ -29,99 +37,118 @@ type ResumeContextType = {
 
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
 
-export const ResumeProvider = ({ children }: { children: ReactNode }) => {
-  const [FetchingResume, setFetchingResume] = useState(true);
-  const [FetchingProfile, setFetchingProfile] = useState(true);
-  const [resumeData, setResumeData] = useState<ResumeRecord[]>([]);
-  const [profileData, setProfileData] = useState<User_profile | null>(null);
-  const [resumeRefreshTrigger, setResumeRefreshTrigger] = useState(false);
-  const [profileRefreshTrigger, setProfileRefreshTrigger] = useState(false);
+/* util preserved */
+function formatDate(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
 
-  const refreshResumes = () => setResumeRefreshTrigger((prev) => !prev);
-  const refreshProfile = () => setProfileRefreshTrigger((prev) => !prev);
+/* 🔽 NEW: userId is read once here and passed down to queries */
+function useAuthUserId() {
+   // undefined = still checking, string = logged in, null = logged out
+   const [userId, setUserId] = useState<string | null | undefined>(undefined);
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      console.log("[DEBUG][ResumeContext] Synced session:", data.session);
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null);
+      // (kept) debug line parity with your old log
+      console.log("[DEBUG][ResumeContext] Synced session user:", data.user);
     });
   }, []);
 
-  function formatDate(isoString: string): string {
-    const date = new Date(isoString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  }
+  return userId;
+}
 
-  useEffect(() => {
-    setFetchingResume(true);
-    const getResumes = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      console.log("[DEBUG][getResumes] Current user:", user);
-      if (!user) {
-        console.error("User not logged in");
-        setFetchingResume(false);
-        return;
-      }
-
+/* 🔽 NEW: resumes query (replaces manual useEffect) */
+function useResumesQuery(userId: string | null) {
+  return useQuery({
+    queryKey: ["resumes", userId],
+    enabled: !!userId, // don't run until we know the user
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("Resume_datas")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId!)
         .order("created_at", { ascending: false });
 
       if (error) {
         console.error("❌ Supabase error:", error.message);
-        setFetchingResume(false);
-        return;
+        throw error;
       }
 
-      if (data) {
-        const structuredData: ResumeRecord[] = data.map((row) => ({
+      const structured: ResumeRecord[] =
+        data?.map((row: any) => ({
           id: row.id,
           resume_name: row.Resume_name,
           openai_feedback: row.openai_feedback,
           created_at: formatDate(row.created_at),
-          Role:row.Role
-        }));
+          Role: row.Role,
+        })) ?? [];
 
-        setResumeData(structuredData);
-      }
-      setFetchingResume(false);
-    };
+      return structured;
+    },
+  });
+}
 
-    getResumes();
-  }, [resumeRefreshTrigger]);
-
-  useEffect(() => {
-    const getProfile = async () => {
-      setFetchingProfile(true);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        console.error("User not logged in");
-        return;
-      }
-
+/* 🔽 NEW: profile query (replaces manual useEffect) */
+function useProfileQuery(userId: string | null) {
+  return useQuery({
+    queryKey: ["profile", userId],
+    enabled: !!userId,
+    queryFn: async () => {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", userId!)
         .maybeSingle();
+
       if (profileError) {
         console.error("❌ Supabase profile error:", profileError.message);
-      } else {
-        setProfileData(profile);
+        throw profileError;
       }
-      setFetchingProfile(false);
-    };
+      return (profile as User_profile) ?? null;
+    },
+  });
+}
 
-    getProfile();
-  }, [profileRefreshTrigger]);
+export const ResumeProvider = ({ children }: { children: ReactNode }) => {
+  /* 🔽 NEW: we host our own QueryClient so other files don’t change */
+  const [queryClient] = useState(() => new QueryClient());
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ResumeProviderInner>{children}</ResumeProviderInner>
+    </QueryClientProvider>
+  );
+};
+
+/* 🔽 NEW: inner provider holds the context values but uses react-query under the hood */
+function ResumeProviderInner({ children }: { children: ReactNode }) {
+  const userId = useAuthUserId();
+  const qc = useQueryClient();
+
+  // Queries replace useEffect + local arrays
+  const resumesQ = useResumesQuery(userId ?? null);
+  const profileQ = useProfileQuery(userId ?? null);
+  const waitingForAuth = userId === undefined;
+
+  const initialResumesLoad = !!userId && resumesQ.isPending && !resumesQ.data;
+  const initialProfileLoad = !!userId && profileQ.isPending && !profileQ.data;
+  
+  const FetchingResume  = waitingForAuth || initialResumesLoad;
+  const FetchingProfile = waitingForAuth || initialProfileLoad;
+  
+
+  const resumeData  = resumesQ.data ?? [];
+  const profileData = profileQ.data ?? null;
+
+  const refreshResumes = () => { if (userId) qc.invalidateQueries({ queryKey: ["resumes", userId] }) };
+  const refreshProfile = () => { if (userId) qc.invalidateQueries({ queryKey: ["profile", userId] }) };
+
 
   return (
     <ResumeContext.Provider
@@ -137,7 +164,7 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </ResumeContext.Provider>
   );
-};
+}
 
 export const useResumeContext = () => {
   const context = useContext(ResumeContext);
