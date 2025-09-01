@@ -47,7 +47,7 @@ function formatDate(isoString: string): string {
   });
 }
 
-/* 🔽 NEW: userId is read once here and passed down to queries */
+
 function useAuthUserId() {
    // undefined = still checking, string = logged in, null = logged out
    const [userId, setUserId] = useState<string | null | undefined>(undefined);
@@ -55,7 +55,6 @@ function useAuthUserId() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUserId(data.user?.id ?? null);
-      // (kept) debug line parity with your old log
       console.log("[DEBUG][ResumeContext] Synced session user:", data.user);
     });
   }, []);
@@ -63,7 +62,7 @@ function useAuthUserId() {
   return userId;
 }
 
-/* 🔽 NEW: resumes query (replaces manual useEffect) */
+// resumes query 
 function useResumesQuery(userId: string | null) {
   return useQuery({
     queryKey: ["resumes", userId],
@@ -94,7 +93,7 @@ function useResumesQuery(userId: string | null) {
   });
 }
 
-/* 🔽 NEW: profile query (replaces manual useEffect) */
+// profile query 
 function useProfileQuery(userId: string | null) {
   return useQuery({
     queryKey: ["profile", userId],
@@ -115,8 +114,8 @@ function useProfileQuery(userId: string | null) {
   });
 }
 
+// Provides React Query and resume/profile context to all child components
 export const ResumeProvider = ({ children }: { children: ReactNode }) => {
-  /* 🔽 NEW: we host our own QueryClient so other files don’t change */
   const [queryClient] = useState(() => new QueryClient());
 
   return (
@@ -126,7 +125,7 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-/* 🔽 NEW: inner provider holds the context values but uses react-query under the hood */
+// Helper used by ResumeProvider: fetches data with React Query and exposes it through context
 function ResumeProviderInner({ children }: { children: ReactNode }) {
   const userId = useAuthUserId();
   const qc = useQueryClient();
@@ -166,6 +165,7 @@ function ResumeProviderInner({ children }: { children: ReactNode }) {
   );
 }
 
+// Hook to access resume/profile context — must be used inside <ResumeProvider>
 export const useResumeContext = () => {
   const context = useContext(ResumeContext);
   if (!context) {
