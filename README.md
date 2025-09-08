@@ -193,11 +193,11 @@ flowchart TB
 ### Client data fetching
 
 -   Added **TanStack Query v5** for per-user caching
-    (`['resumes', userId]`)\
--   Auth-aware loading prevents empty-state flash on reload\
--   Background refetch + cache invalidation keeps data fresh\
+    (`['resumes', userId]`)
+-   Auth-aware loading prevents empty-state flash on reload
+-   Background refetch + cache invalidation keeps data fresh
 -   Dedupes cross-view requests (e.g., 3 components → 1 API call,
-    \~−67%)
+    \~ −67%)
 
 ------------------------------------------------------------------------
 
@@ -281,13 +281,13 @@ optimization, and multi-model pipelines.**
 ## ⛰️ Key Technical Challenges Solved
 
 -   **Schema enforcement for GPT** -- Ensured strict JSON responses with
-    `zod`.\
+    `zod`.
 -   **Multi-model pipeline** -- Reduced cost \~30% and improved accuracy
-    15--17%.\
+    15--17%.
 -   **RAG integration** -- Surfaced role-specific recruiter rubrics,
-    avoided generic advice.\
+    avoided generic advice.
 -   **Consistency checks** -- Controlled variance for reproducible
-    feedback.\
+    feedback.
 -   **Scalable fetching** -- Used `TanStack Query v5` for efficient
     caching and deduplication.
 
@@ -295,12 +295,9 @@ optimization, and multi-model pipelines.**
 
 ## 🌐 Planned Improvements
 
--   Expand RAG dataset with recruiter-curated rubrics.\
--   Add more fields (Cloud, Cybersecurity, ML Engineering).\
--   AI-powered résumé rewriting aligned to job descriptions.\
--   Multi-tenant org mode for universities/bootcamps.\
--   Recruiter dashboard with cohort-level analytics.\
--   ATS integration for job portals and LinkedIn.
+-   Expand RAG dataset with recruiter-curated rubrics.
+-   Add more fields (Cloud, Cybersecurity, ML Engineering).
+-   AI-powered résumé rewriting aligned to job descriptions.
 
 ------------------------------------------------------------------------
 
