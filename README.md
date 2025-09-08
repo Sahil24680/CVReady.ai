@@ -155,14 +155,31 @@ To prevent bad inputs and GPT hallucinations, the system enforces:
 
 ```mermaid
 flowchart TB
-    A[Frontend – Next.js 14 + Tailwind] -->|Upload Resume| B[Supabase: Auth · Postgres · Storage]
+    %% Top: user entry
+    A[Frontend — Next.js 14 + Tailwind] -->|Upload Résumé| B[Supabase<br/>Auth · Postgres · Storage]
 
+    %% Ingest branches
+    B --> B1[Storage<br/>PDF Blob]
+    B --> B2[Postgres<br/>Upload Metadata]
+
+    %% Mini model grading first
     B --> C[GPT-4-mini<br/>Strict JSON Grading]
     C -->|Extract Weak Bullets + Focus Areas| D[RAG Layer<br/>Rubrics · Examples · Keywords · Rewrite Patterns]
+
+    %% RAG retrieval source (side branch)
+    D --- V[(Vector DB / Embeddings<br/>Rubrics · Examples · Keywords · Patterns)]
+
+    %% Big model coaching
     D -->|Augmented Context| E[GPT-4<br/>Role-Specific Coaching]
 
-    E --> G[Scoring Layer<br/>Evidence-Based Readiness + Penalties]
-    G --> H[Frontend Dashboard<br/>Recruiter-Style Feedback]
+    %% Scoring AFTER final model
+    E --> F[Scoring Layer<br/>Evidence-Based Readiness + Penalties]
+
+    %% STORE before display
+    F --> S[Persist Results in Supabase<br/>Scores · Feedback · Artifacts]
+
+    %% Finally render to UI
+    S --> H[Frontend Dashboard<br/>Recruiter-Style Feedback & Progress]
 ```
 
 ------------------------------------------------------------------------
