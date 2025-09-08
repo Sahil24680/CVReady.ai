@@ -31,8 +31,7 @@ CVReady.ai helps students and early-career engineers **evaluate and
 improve their résumés for Big Tech roles**.
 
 Unlike keyword-based ATS scanners, it uses a **two-model pipeline** with
-**GPT-4-mini** and **GPT-4** for efficiency and
-[accuracy]{style="color:#0fa37f; font-weight:bold"}:
+**GPT-4-mini** and **GPT-4** for efficiency and **accuracy**:
 
 -   **Step 1 -- Strict JSON Grading (GPT-4-mini)**\
     Small-model pass returns **format**, **impact**, **tech depth**, and
@@ -48,9 +47,8 @@ Unlike keyword-based ATS scanners, it uses a **two-model pipeline** with
     140ms across 50k+ daily requests."
 
 -   **Step 3 -- Role-Specific Analysis with GPT-4**\
-    GPT-4 uses RAG context to provide [recruiter-quality
-    feedback]{style="color:#06367a; font-weight:bold"} focused only on
-    lowest scoring areas.
+    GPT-4 uses RAG context to provide **recruiter-quality feedback**
+    focused only on lowest scoring areas.
 
 This layered design makes the system **cost-efficient, accurate, and
 role-specific**.
@@ -152,7 +150,7 @@ To prevent bad inputs and GPT hallucinations, the system enforces:
 -   File validation -- only PDF accepted, size limits enforced\
 -   Empty input guard -- rejects blank/corrupted uploads\
 -   Score bounds -- always mapped 0--10\
--   Schema enforcement -- GPT output validated with zod\
+-   Schema enforcement -- GPT output validated with `zod`\
 -   Consistency checks -- multiple runs averaged if variance \>
     threshold
 
@@ -272,14 +270,14 @@ optimization, and multi-model pipelines.**
 ## ⛰️ Key Technical Challenges Solved
 
 -   **Schema enforcement for GPT** -- Ensured strict JSON responses with
-    zod.\
+    `zod`.\
 -   **Multi-model pipeline** -- Reduced cost \~30% and improved accuracy
     15--17%.\
 -   **RAG integration** -- Surfaced role-specific recruiter rubrics,
     avoided generic advice.\
 -   **Consistency checks** -- Controlled variance for reproducible
     feedback.\
--   **Scalable fetching** -- Used TanStack Query v5 for efficient
+-   **Scalable fetching** -- Used `TanStack Query v5` for efficient
     caching and deduplication.
 
 ------------------------------------------------------------------------
