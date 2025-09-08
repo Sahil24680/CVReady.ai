@@ -1,4 +1,4 @@
-# 📚 CVReady.ai -- AI Resume Coach & Big-Tech Readiness Dashboard
+# 🚀 CVReady.ai -- AI Resume Coach & Big-Tech Readiness Dashboard
 
 *A full-stack **Next.js 14 (App Router)** project with **Supabase +
 GPT-4 + GPT-4-mini + RAG** that analyzes résumés like a Big-Tech
@@ -25,37 +25,39 @@ recruiter and tracks student progress.*
 
 ------------------------------------------------------------------------
 
-## What it does
+## 💡 What it does
 
 CVReady.ai helps students and early-career engineers **evaluate and
 improve their résumés for Big Tech roles**.
 
 Unlike keyword-based ATS scanners, it uses a **two-model pipeline** with
-**GPT-4-mini** and **GPT-4** for efficiency and accuracy:
+**GPT-4-mini** and **GPT-4** for efficiency and
+[accuracy]{style="color:#0fa37f; font-weight:bold"}:
 
 -   **Step 1 -- Strict JSON Grading (GPT-4-mini)**\
-    Small-model pass returns format, impact, tech depth, and project
-    scores (0--5 each). Always surfaces 3--5 weak bullets with 12--25
-    word reasons, and highlights 1--3 lowest focus areas.
+    Small-model pass returns **format**, **impact**, **tech depth**, and
+    **project scores** (0--5 each). Always surfaces 3--5 weak bullets
+    with concise reasons, and highlights 1--3 lowest focus areas.
 
 -   **Step 2 -- RAG Context Building**\
-    Weak bullets are matched against curated rubrics, recruiter
-    examples, keywords, and rewrite patterns.\
+    Weak bullets are matched against curated **rubrics**, recruiter
+    examples, and **rewrite patterns**.\
     *Example:*\
     *Before:* "Improved caching system."\
     *After:* "Optimized Redis cache, reducing API latency from 320ms to
     140ms across 50k+ daily requests."
 
 -   **Step 3 -- Role-Specific Analysis with GPT-4**\
-    GPT-4 uses RAG context to provide recruiter-quality feedback focused
-    only on lowest scoring areas.
+    GPT-4 uses RAG context to provide [recruiter-quality
+    feedback]{style="color:#06367a; font-weight:bold"} focused only on
+    lowest scoring areas.
 
 This layered design makes the system **cost-efficient, accurate, and
 role-specific**.
 
 ------------------------------------------------------------------------
 
-## The Problem
+## ⚠️ The Problem
 
 Most students and early-career engineers struggle to know if their
 résumé is truly **Big Tech ready**.\
@@ -66,7 +68,7 @@ misleading feedback.
 
 ------------------------------------------------------------------------
 
-## Why CVReady.ai is Different
+## 🧭 Why CVReady.ai is Different
 
 CVReady.ai bridges this gap by combining **strict evidence-based
 grading** with **role-specific recruiter-style coaching**.\
@@ -77,7 +79,7 @@ ownership.**
 
 ------------------------------------------------------------------------
 
-## Scoring Method (Stricter, Evidence-Based)
+## 📊 Scoring Method (Stricter, Evidence-Based)
 
 **Readiness (1--7)** is computed by the deep pass using
 **evidence-only** skills and role rubrics:
@@ -92,8 +94,7 @@ ownership.**
 - No deployment/testing/CI (for full-stack): --0.5\
 - Repetitive clone projects: --0.5\
 - Role mismatch: --0.5\
-- Format issues (tense, bullet length, skills normalization): --0.5 each
-(max --1.5)
+- Format issues: --0.5 each (max --1.5)
 
 **Final Score (1--10)** = evidence-based readiness (remapped) + capped
 format boost.\
@@ -103,14 +104,14 @@ format boost.\
 
 ------------------------------------------------------------------------
 
-## Demo
+## 🎥 Demo
 
-🎥 [Watch the demo
+▶️ [Watch the demo
 video](https://www.loom.com/share/ff230261c9c74653bab7755c1c5c6dd7?sid=b5858272-a963-4102-93d5-eaaac01b4cb0)
 
 ------------------------------------------------------------------------
 
-## Accuracy, Cost & Feedback Quality Metrics
+## 📈 Accuracy, Cost & Feedback Quality Metrics
 
   ----------------------------------------------------------------------------
   Metric                 Before (GPT-4  After (GPT-4-mini +      Improvement
@@ -144,7 +145,7 @@ video](https://www.loom.com/share/ff230261c9c74653bab7755c1c5c6dd7?sid=b5858272-
 
 ------------------------------------------------------------------------
 
-## Sanity Checks
+## 🧪 Sanity Checks
 
 To prevent bad inputs and GPT hallucinations, the system enforces:
 
@@ -157,7 +158,7 @@ To prevent bad inputs and GPT hallucinations, the system enforces:
 
 ------------------------------------------------------------------------
 
-## System Architecture
+## 🏛️ System Architecture
 
 ``` mermaid
 flowchart TD
@@ -169,7 +170,7 @@ flowchart TD
 
 ------------------------------------------------------------------------
 
-## Repo layout
+## 🗂️ Repo layout
 
     .
     ├─ app/           # Next.js App Router pages
@@ -191,7 +192,7 @@ flowchart TD
 
 ------------------------------------------------------------------------
 
-## Quick start (local)
+## ⚡ Quick start (local)
 
 ``` bash
 git clone https://github.com/Sahil24680/CVReady.ai.git
@@ -206,7 +207,7 @@ npm run dev   # http://localhost:3000
 
 ------------------------------------------------------------------------
 
-## Common scripts
+## 🛠️ Common scripts
 
   Command                             Task
   ----------------------------------- --------------------------
@@ -216,7 +217,7 @@ npm run dev   # http://localhost:3000
 
 ------------------------------------------------------------------------
 
-## Environment variables
+## 🔐 Environment variables
 
   Key                               Purpose
   --------------------------------- -------------------
@@ -228,7 +229,7 @@ npm run dev   # http://localhost:3000
 
 ------------------------------------------------------------------------
 
-## Important files
+## 🗂️ Important files
 
   Path                               Role
   ---------------------------------- --------------------------------
@@ -243,7 +244,7 @@ npm run dev   # http://localhost:3000
 
 ------------------------------------------------------------------------
 
-## Example Before/After RAG
+## 🔄 Example Before/After RAG
 
 **Without RAG**\
 \> "Your résumé is missing technical depth. Try adding more projects."
@@ -255,7 +256,7 @@ modeling, 3) deployment on AWS EC2."
 
 ------------------------------------------------------------------------
 
-## Motivation
+## 🌱 Motivation
 
 When mentoring incoming CS students, one question kept coming up:
 
@@ -268,7 +269,7 @@ optimization, and multi-model pipelines.**
 
 ------------------------------------------------------------------------
 
-## Key Technical Challenges Solved
+## ⛰️ Key Technical Challenges Solved
 
 -   **Schema enforcement for GPT** -- Ensured strict JSON responses with
     zod.\
@@ -283,7 +284,7 @@ optimization, and multi-model pipelines.**
 
 ------------------------------------------------------------------------
 
-## Planned Improvements
+## 🌐 Planned Improvements
 
 -   Expand RAG dataset with recruiter-curated rubrics.\
 -   Add more fields (Cloud, Cybersecurity, ML Engineering).\
@@ -294,7 +295,7 @@ optimization, and multi-model pipelines.**
 
 ------------------------------------------------------------------------
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 Thanks to my peers and mentees who inspired this project by asking: *"Is
 my résumé Big Tech ready?"*
