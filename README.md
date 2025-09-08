@@ -96,8 +96,8 @@ ownership.**
 
 **Final Score (1--10)** = evidence-based readiness (remapped) + capped
 format boost.\
-- Weak/average résumés: **5--7**\
-- Strong résumés: **8--9**\
+- Weak/average résumés: **5-7**
+- Strong résumés: **8-9**
 - Rare 10s require metrics, ≥3 projects, and deployments.
 
 ------------------------------------------------------------------------
