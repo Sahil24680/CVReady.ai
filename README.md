@@ -87,12 +87,12 @@ ownership.**
 -   Role rubrics dominate the score; ATS keywords count only if
     **evidenced**.
 
-**Penalties:**\
-- No metrics: --1.0\
-- No deployment/testing/CI (for full-stack): --0.5\
-- Repetitive clone projects: --0.5\
-- Role mismatch: --0.5\
-- Format issues: --0.5 each (max --1.5)
+**Penalties:**
+- No metrics: -1.0
+- No deployment/testing/CI (for full-stack): -0.5
+- Repetitive clone projects: --0.5
+- Role mismatch: -0.5
+- Format issues: -0.5 each (max -1.5)
 
 **Final Score (1--10)** = evidence-based readiness (remapped) + capped
 format boost.\
