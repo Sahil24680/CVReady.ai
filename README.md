@@ -94,7 +94,7 @@ ownership.**
 - Role mismatch: -0.5
 - Format issues: -0.5 each (max -1.5)
 
-**Final Score (1--10)** = evidence-based readiness (remapped) + capped
+**Final Score (1-10)** = evidence-based readiness (remapped) + capped
 format boost.\
 - Weak/average résumés: **5-7**
 - Strong résumés: **8-9**
@@ -109,37 +109,32 @@ video](https://www.loom.com/share/ff230261c9c74653bab7755c1c5c6dd7?sid=b5858272-
 
 ------------------------------------------------------------------------
 
-## 📈 Accuracy, Cost & Feedback Quality Metrics
+## 📊 Accuracy, Cost & Feedback Quality Metrics
 
-  ----------------------------------------------------------------------------
-  Metric                 Before (GPT-4  After (GPT-4-mini +      Improvement
-                         only)          RAG + GPT-4)             
-  ---------------------- -------------- ------------------------ -------------
-  Accuracy (skill        74.3%          90.1%                    +15.8%
-  extraction)                                                    
+I benchmarked the résumé analysis pipeline **before vs after GPT-4-mini + RAG + sanity checks**:
 
-  Accuracy (project      70.5%          87.4%                    +16.9%
-  scope)                                                         
-
-  Consistency across     ±18% variance  ±6% variance             3× more
-  runs                                                           stable
-
-  Avg. latency per       \~5.2s         \~5.2s                   ---
-  résumé                                                         
-
-  Avg. cost per analysis \$0.0265       \$0.0189                 --29%
-
-  Feedback quality       Generic        Role-specific,           Major upgrade
-                                        recruiter-style          
-  ----------------------------------------------------------------------------
+| Metric                        | Before (GPT-4 only) | After (GPT-4-mini + RAG + GPT-4) | Improvement |
+|-------------------------------|---------------------|-----------------------------------|-------------|
+| Accuracy (skill extraction)   | 74.3%               | 90.1%                             | +15.8% |
+| Accuracy (project scope)      | 70.5%               | 87.4%                             | +16.9% |
+| Consistency across runs       | ±18% variance       | ±6% variance                      | 3× more stable |
+| Avg. latency per résumé       | ~5.2s               | ~5.2s                             | — (no change) |
+| Avg. cost per analysis        | $0.0265             | $0.0189                           | –29% |
+| Feedback quality (subjective) | Generic suggestions | Role-specific, recruiter-style     | Major upgrade |
 
 ### Cost Savings by Résumé Type
 
-  Resume Type   Old Cost ($) | New Cost ($)   Savings (%)   
-  ------------- ----------------------------- ------------- -----------
-  Strong        0.0218                        0.0098        **55.0%**
-  Average       0.0265                        0.0200        **24.5%**
-  Weak          0.0300                        0.0287        **4.3%**
+| Resume Type | Old Cost ($) | New Cost ($) | Savings ($) | Savings (%) |
+| ----------- | ------------- | ------------- | ------------ | ----------- |
+| **Strong**  | 0.0218        | 0.0098        | 0.0120       | **55.0%**   |
+| **Average** | 0.0265        | 0.0200        | 0.0065       | **24.5%**   |
+| **Weak**    | 0.0300        | 0.0287        | 0.0013       | **4.3%**    |
+
+**Key Takeaways**
+- Accuracy improved **15–17%** thanks to GPT-4-mini grading + RAG context.  
+- Outputs became **3× more consistent** across runs.  
+- Cost dropped by ~30% due to using GPT-4-mini for strict grading.  
+- Feedback went from **generic** (e.g., “add more technical depth”) to **specific & role-aware** (e.g., *“For backend roles, emphasize Redis caching optimizations and measurable outcomes”*).
 
 ------------------------------------------------------------------------
 
