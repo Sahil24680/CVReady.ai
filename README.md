@@ -155,11 +155,11 @@ To prevent bad inputs and GPT hallucinations, the system enforces:
 
 ```mermaid
 flowchart TD
-    A[Frontend – Next.js 14 + Tailwind] -->|Upload Resume| B[Supabase: Auth · Postgres · Storage]
-    B -->|Resume Data| C[GPT-4-mini: Strict JSON Grading]
-    C -->|Weak Bullets + Focus Areas| D[RAG Layer: Rubrics · Examples · Keywords · Rewrite Patterns]
-    D -->|Context + Weak Bullets| E[GPT-4: Role-Specific Coaching]
-    E -->|Recruiter-Style Feedback| F[Frontend Dashboard]
+    A[Frontend – Next.js 14 + Tailwind] -->|Auth + Data| B[Supabase: Auth · Postgres · Storage]
+    B -->|Vector Embeddings| C[RAG Layer: Rubrics · Examples · Keywords]
+    C -->|Weak bullets + context| D[GPT-4 Role-Specific Coaching]
+    A -->|Display Results| E[Recruiter-Style Feedback Dashboard]
+```
 
 ------------------------------------------------------------------------
 
