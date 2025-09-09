@@ -142,12 +142,13 @@ I benchmarked the résumé analysis pipeline **before vs after GPT-4-mini + RAG 
 
 To prevent bad inputs and GPT hallucinations, the system enforces:
 
--   File validation -- only PDF accepted, size limits enforced\
--   Empty input guard -- rejects blank/corrupted uploads\
--   Score bounds -- always mapped 0--10\
--   Schema enforcement -- GPT output validated with `zod`\
+-   File validation -- only PDF accepted, size limits enforced
+-   Empty input guard -- rejects blank/corrupted uploads
+-   Score bounds -- always mapped 0-10
+-   Schema enforcement -- GPT output validated with `zod`
 -   Consistency checks -- multiple runs averaged if variance \>
     threshold
+-   Per-user mutex for uploads — atomic CAS flag (RLS-scoped); released in `finally`
 
 ------------------------------------------------------------------------
 

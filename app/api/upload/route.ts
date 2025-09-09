@@ -20,7 +20,12 @@ import { type Role } from "@/app/utils/rag/retrieve";
 import { FeedbackSchema } from "@/lib/schemas";
 import { validateSinglePagePdf } from "./validatePdf";
 import { zodTextFormat } from "openai/helpers/zod";
-import { getUser } from "@/app/utils/supabase/action";
+import {
+  getUser,
+  request_lock,
+  set_request_lock,
+  release_request_lock,
+} from "@/app/utils/supabase/action";
 import {
   buildAnalysisPrompt,
   buildGraderPrompt,
@@ -36,6 +41,8 @@ const openai = new OpenAI({ apiKey: OPENAI_CONF.API_KEY });
 
 // ---------------------- HANDLER ----------------------
 export async function POST(req: Request) {
+  let userId: string | null = null;
+  let lockHeld = false;
   try {
     // Quick sanity logging for critical envs + model selection
     console.log("[upload] env check", {
@@ -67,10 +74,33 @@ export async function POST(req: Request) {
     }
 
     const user = await getUser();
-
     if ("error" in user || !user?.id) {
       return NextResponse.json({ error: "Missing user ID" }, { status: 401 });
     }
+    userId = user.id;
+
+    try {
+      await request_lock(userId);
+    } catch (e: any) {
+      console.error("[upload] request_lock bootstrap failed:", e);
+
+      return NextResponse.json(
+        {
+          error: "We couldn’t start your upload. Please try again.",
+        },
+        { status: 500 }
+      );
+    }
+    const gotLock = await set_request_lock(userId);
+    if (!gotLock) {
+      return NextResponse.json(
+        {
+          error: "You already have a resume processing. Please wait.",
+        },
+        { status: 409 }
+      );
+    }
+    lockHeld = true;
 
     // 1) Upload file once to OpenAI Files and reuse the file_id for both passes
     const uploaded = await openai.files.create({
@@ -206,7 +236,7 @@ export async function POST(req: Request) {
     const { error: dbErr } = await supabase.from("Resume_datas").insert({
       Resume_name: file.name,
       openai_feedback: feedback,
-      user_id: user.id,
+      user_id: userId,
       created_at: new Date().toISOString(),
       Role: role,
     });
@@ -220,9 +250,24 @@ export async function POST(req: Request) {
   } catch (err: any) {
     // Catch-all to avoid leaking stack traces to client; log server-side
     console.error("❌ /api/upload error:", err);
+
     return NextResponse.json(
       { error: err?.message || "Something went wrong" },
       { status: 500 }
     );
+  } finally {
+    if (lockHeld && userId) {
+      try {
+        await release_request_lock(userId);
+      } catch (e) {
+        console.error("[upload] lock release error:", e);
+        return NextResponse.json(
+          {
+            error: "Error please contact support.",
+          },
+          { status: 500 }
+        );
+      }
+    }
   }
 }

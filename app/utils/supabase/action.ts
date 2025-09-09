@@ -73,15 +73,72 @@ export async function uploadProfilePicture(userId: string, file: File) {
 }
 
 export async function getUser() {
-  const supabase = await createClient()
+  const supabase = await createClient();
   try {
-    const { data, error } = await supabase.auth.getUser()
+    const { data, error } = await supabase.auth.getUser();
     if (error) {
-      return { error: error.message }
+      return { error: error.message };
     }
-    return data.user
+    return data.user;
   } catch (error) {
     // @ts-ignore
-    return { error: error.message }
+    return { error: error.message };
   }
+}
+
+export async function request_lock(userId: string): Promise<boolean> {
+  const supabase = await createClient();
+
+  // 1) Check if a row exists for this user
+  const { data: existing, error: selectError } = await supabase
+    .from("request_lock")
+    .select("is_available")
+    .eq("user_id", userId)
+    .single();
+
+  if (selectError && selectError.code !== "PGRST116") {
+    // PGRST116 = no rows found
+    console.error("[request_lock] Unexpected selectError:", selectError);
+    throw selectError;
+  }
+
+  // 2) If no row exists -> create one with is_available = true
+  if (!existing) {
+    const { error: insertError } = await supabase
+      .from("request_lock")
+      .insert({ user_id: userId, is_available: true });
+
+    if (insertError) throw insertError;
+    return true; // brand new user -> available
+  }
+
+  return !existing.is_available;
+}
+
+
+export async function set_request_lock(userId: string): Promise<boolean> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("request_lock")
+    .update({ is_available: false })
+    .eq("user_id", userId)
+    .eq("is_available", true)
+    .select("user_id"); 
+
+  if (error) {
+    console.error("[set_request_lock] update error:", error);
+    throw error;
+  }
+
+  return !!data?.length; // true = lock acquired; false = being used
+}
+
+export async function release_request_lock(userId: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("request_lock")
+    .update({ is_available: true })
+    .eq("user_id", userId);
+  if (error) console.error("[release_request_lock] release error:", error);
 }
