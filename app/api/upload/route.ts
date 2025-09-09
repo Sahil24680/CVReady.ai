@@ -1,5 +1,6 @@
 export const runtime = "nodejs";
 import { buildContext } from "@/app/utils/rag/context";
+import { safe } from "@/lib/safe";
 import {
   computeFormatScore,
   DEFAULT_FORMAT_CHECKS,
@@ -79,19 +80,17 @@ export async function POST(req: Request) {
     }
     userId = user.id;
 
-    try {
-      await request_lock(userId);
-    } catch (e: any) {
-      console.error("[upload] request_lock bootstrap failed:", e);
-
+    // Check if theres a lock row for this user; create if not
+    const lockInit = await safe(() => request_lock(userId as string));
+    if (!lockInit.success) {
+      console.error("[upload] request_lock bootstrap failed:", lockInit.error);
       return NextResponse.json(
-        {
-          error: "We couldn’t start your upload. Please try again.",
-        },
+        { error: "We couldn't start your upload. Please try again." },
         { status: 500 }
       );
     }
-    const gotLock = await set_request_lock(userId);
+
+    const gotLock = await set_request_lock(userId as string);
     if (!gotLock) {
       return NextResponse.json(
         {
@@ -109,8 +108,7 @@ export async function POST(req: Request) {
     });
 
     // 2) MINI PASS — grading & routing
-    let grading: GradeV2;
-    try {
+    const gradeResult = await safe(async () => {
       const gradeResp = await openai.responses.parse({
         model: SMALL_MODEL,
         temperature: 0.2,
@@ -133,16 +131,20 @@ export async function POST(req: Request) {
       });
 
       if (!gradeResp.output_parsed) {
-        console.error("Null parsed grading");
-        throw new Error("We couldn’t process your resume. Please try again.");
+        throw new Error("We couldn't process your resume. Please try again.");
       }
-      grading = gradeResp.output_parsed as GradeV2;
+      return gradeResp.output_parsed as GradeV2;
+    });
+
+    let grading: GradeV2;
+    if (gradeResult.success) {
+      grading = gradeResult.data;
       console.log("=== SMALL MODEL OUTPUT ===");
       console.log("[grader] parsed grading", JSON.stringify(grading, null, 2));
-    } catch (e) {
+    } else {
       console.warn(
         "[upload] Grader pass failed, falling back to default scope.",
-        e
+        gradeResult.error
       );
       grading = {
         scores: { format: 3, impact: 3, tech_depth: 3, projects: 3 },
@@ -151,6 +153,8 @@ export async function POST(req: Request) {
         format_checks: DEFAULT_FORMAT_CHECKS,
       };
     }
+
+    // Deterministic format score from checklist (0–3)
     const deterministicFormatScore = computeFormatScore(
       grading.format_checks ?? DEFAULT_FORMAT_CHECKS
     );
@@ -170,18 +174,19 @@ export async function POST(req: Request) {
         ? 1500
         : 1800; // fullest budget when several areas are weak
 
-    // 3.5 Rag block
-    const CONTEXT = await buildContext(role, grading).catch((e) => {
+    // 3.5 RAG block
+    const contextRes = await safe(() => buildContext(role, grading));
+    const CONTEXT = contextRes.success ? contextRes.data : "";
+    if (!contextRes.success) {
       console.warn(
         "[upload] RAG retrieval failed; continuing without CONTEXT",
-        e
+        contextRes.error
       );
-      return "";
-    });
+    }
     console.log("[upload] CONTEXT length", CONTEXT.length);
     console.log("context:", CONTEXT);
 
-    // 4) DEEP PASS — use scope guardrails + your original template
+    // 4) DEEP PASS — scope guardrails +  template
     const scopedTemplate =
       buildScopedPrompt(TEMPLATE, { ...grading, role }) +
       (CONTEXT ? `\n\n${CONTEXT}` : "");
@@ -215,7 +220,7 @@ export async function POST(req: Request) {
     );
     // Overwrite the numeric score we return/store
     parsed.feedback.big_tech_readiness_score = finalReadiness;
-    //This is to add the resume_format scroe to the feedback block
+    // This is to add the resume_format score to the feedback block
     const feedback = {
       ...parsed,
       feedback: {
@@ -225,18 +230,20 @@ export async function POST(req: Request) {
     };
 
     // 5) Clean up file from OpenAI
-    try {
-      await openai.files.delete(uploaded.id);
-    } catch {
-      console.warn("[upload] Could not delete OpenAI file (safe to ignore).");
+    const delRes = await safe(() => openai.files.delete(uploaded.id));
+    if (!delRes.success) {
+      console.warn(
+        "[upload] Could not delete OpenAI file (safe to ignore).",
+        delRes.error
+      );
     }
 
-    // 6)Insert the data into the DB
+    // 6) Insert the data into the DB
     const supabase = await createSbServer();
     const { error: dbErr } = await supabase.from("Resume_datas").insert({
       Resume_name: file.name,
       openai_feedback: feedback,
-      user_id: userId,
+      user_id: userId as string,
       created_at: new Date().toISOString(),
       Role: role,
     });
@@ -250,23 +257,16 @@ export async function POST(req: Request) {
   } catch (err: any) {
     // Catch-all to avoid leaking stack traces to client; log server-side
     console.error("❌ /api/upload error:", err);
-
     return NextResponse.json(
       { error: err?.message || "Something went wrong" },
       { status: 500 }
     );
   } finally {
     if (lockHeld && userId) {
-      try {
-        await release_request_lock(userId);
-      } catch (e) {
-        console.error("[upload] lock release error:", e);
-        return NextResponse.json(
-          {
-            error: "Error please contact support.",
-          },
-          { status: 500 }
-        );
+      // release_request_lock
+      const rel = await safe(() => release_request_lock(userId as string));
+      if (!rel.success) {
+        console.error("[upload] lock release error:", rel.error);
       }
     }
   }

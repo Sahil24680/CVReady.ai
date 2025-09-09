@@ -13,15 +13,16 @@ export type SafeError = {
 
 export type Safe<T> = SafeSuccess<T> | SafeError;
 
+// If T is Promise<X>, return Promise<Safe<X>>; otherwise return Safe<T>.
 export type SafeResult<T> = T extends Promise<infer U>
   ? Promise<Safe<U>>
   : Safe<T>;
 
+// If T looks like SafeSuccess<U>, return U (the data type); otherwise return never.
 export type SafeValue<T> = T extends SafeSuccess<infer U> ? U : never;
 
-export type SafeReturnType<T extends (...args: any[]) => any> = SafeValue<
-  Awaited<ReturnType<T>>
->;
+// For a function type T, take its return type, unwrap Promise if needed, then extract the SafeSuccess data type inside.
+export type SafeReturnType<T extends (...args: any[]) => any> = SafeValue<Awaited<ReturnType<T>>>;
 
 export function safeSuccess<T>(data: T): SafeSuccess<T> {
   return { success: true, data: data };
@@ -64,6 +65,8 @@ export function safeError(
  * }
  * ```
  */
+
+// Run any function (sync or async) and return {success, data} or {success: false, ...} instead of throwing.
 export function safe<T extends (...args: any[]) => any>(
   fn: T,
   ...args: Parameters<T>
