@@ -47,7 +47,7 @@ const Profile = ({ profileData, refresh, isLoading }: ProfileProps) => {
         data: { user },
         error,
       } = await supabase.auth.getUser();
-      console.log("Logged in Supabase user:", user);
+      console.error("Logged in Supabase user:", user);
       if (error || !user) {
         console.error(
           "Failed to fetch user:",
@@ -114,7 +114,7 @@ const Profile = ({ profileData, refresh, isLoading }: ProfileProps) => {
 
     if (error) {
       toast.error("Failed to upload picture.");
-      console.log("ERROR", error);
+      console.error("ERROR", error);
     } else {
       toast.success("Profile picture updated!");
       refresh();

@@ -23,7 +23,7 @@ import { validateSinglePagePdf } from "./validatePdf";
 import { zodTextFormat } from "openai/helpers/zod";
 import {
   getUser,
-  request_lock,
+  request_lock_and_tokens,
   set_request_lock,
   release_request_lock,
 } from "@/app/utils/supabase/action";
@@ -81,14 +81,35 @@ export async function POST(req: Request) {
     userId = user.id;
 
     // Check if theres a lock row for this user; create if not
-    const lockInit = await safe(() => request_lock(userId as string));
+    const lockInit = await safe(() =>
+      request_lock_and_tokens(userId as string)
+    );
     if (!lockInit.success) {
-      console.error("[upload] request_lock bootstrap failed:", lockInit.error);
+      console.error("[upload] lock bootstrap failed:", lockInit.error);
       return NextResponse.json(
         { error: "We couldn't start your upload. Please try again." },
         { status: 500 }
       );
     }
+
+    const { is_available, tokens } = lockInit.data;
+
+    // Rate limit first
+    if (tokens <= 0) {
+      return NextResponse.json(
+        { error: "You’re out of runs. Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    if (!is_available) {
+      return NextResponse.json(
+        { error: "You already have a resume processing. Please wait." },
+        { status: 409 }
+      );
+    }
+
+   
 
     const gotLock = await set_request_lock(userId as string);
     if (!gotLock) {

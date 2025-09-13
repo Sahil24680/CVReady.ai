@@ -30,12 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAuthRoute = pathname.startsWith("/auth");
+  const isAuthRoute_or_landing_page = pathname.startsWith("/auth") || pathname.startsWith("/home");
 
   return (
     <html lang="en">
       <body className="min-h-screen flex  overflow-hidden">
-        {isAuthRoute ? (
+        {isAuthRoute_or_landing_page ? (
           <main className="flex-1">{children}</main>
         ) : (
           <ResumeProvider>
