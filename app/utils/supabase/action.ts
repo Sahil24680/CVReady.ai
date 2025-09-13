@@ -86,52 +86,66 @@ export async function getUser() {
   }
 }
 
-export async function request_lock(userId: string): Promise<boolean> {
+export async function request_lock_and_tokens(userId: string) {
   const supabase = await createClient();
 
-  // 1) Check if a row exists for this user
-  const { data: existing, error: selectError } = await supabase
+  const { data: row, error } = await supabase
     .from("request_lock")
-    .select("is_available")
+    .select("is_available, tokens_remaining")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
 
-  if (selectError && selectError.code !== "PGRST116") {
-    // PGRST116 = no rows found
-    console.error("[request_lock] Unexpected selectError:", selectError);
-    throw selectError;
+  if (error) {
+    console.error("[request_lock_and_tokens] select error:", error);
+    throw error;
   }
 
-  // 2) If no row exists -> create one with is_available = true
-  if (!existing) {
-    const { error: insertError } = await supabase
+  if (!row) {
+    const { data: created, error: insertErr } = await supabase
       .from("request_lock")
-      .insert({ user_id: userId, is_available: true });
+      .insert({ user_id: userId, is_available: true, tokens_remaining: 3 })
+      .select("is_available, tokens_remaining")
+      .single();
 
-    if (insertError) throw insertError;
-    return true; // brand new user -> available
+    if (insertErr) throw insertErr;
+    return {
+      is_available: created!.is_available,
+      tokens: created.tokens_remaining,
+    };
   }
 
-  return !existing.is_available;
+  return { is_available: row.is_available, tokens: row.tokens_remaining };
 }
 
-
-export async function set_request_lock(userId: string): Promise<boolean> {
+export async function set_request_lock(userId: string) {
   const supabase = await createClient();
-
+  // set the lock
   const { data, error } = await supabase
     .from("request_lock")
     .update({ is_available: false })
     .eq("user_id", userId)
     .eq("is_available", true)
-    .select("user_id"); 
+    .select("tokens_remaining")
+    .maybeSingle();
 
-  if (error) {
-    console.error("[set_request_lock] update error:", error);
-    throw error;
+  if (error) throw error;
+  if (!data) return false;
+
+  // decrement token
+  const { error: decErr } = await supabase
+    .from("request_lock")
+    .update({ tokens_remaining: data.tokens_remaining - 1 })
+    .eq("user_id", userId);
+
+  if (decErr) {
+    // prevent a stuck lock if decrement fails
+    await supabase
+      .from("request_lock")
+      .update({ is_available: true })
+      .eq("user_id", userId);
+    throw decErr;
   }
-
-  return !!data?.length; // true = lock acquired; false = being used
+  return true;
 }
 
 export async function release_request_lock(userId: string): Promise<void> {

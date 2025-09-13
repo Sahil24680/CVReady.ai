@@ -55,7 +55,6 @@ function useAuthUserId() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUserId(data.user?.id ?? null);
-      console.log("[DEBUG][ResumeContext] Synced session user:", data.user);
     });
   }, []);
 
