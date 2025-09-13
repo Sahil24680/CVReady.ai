@@ -4,7 +4,7 @@ export const testimonials = [
       role: "Full Stack Developer",
       company: "CTP",
       comment:
-        "Sharpened my resume and my callback rate jumped—I landed a role at CTP.",
+        "I rewrote my bullets with real metrics and tightened the format. Recruiters started replying and I landed a role at CTP.",
       rating: 5,
     },
     {
@@ -12,7 +12,7 @@ export const testimonials = [
       role: "Full Stack Engineer",
       company: "SpringForward",
       comment:
-        "Trimmed fluff and added impact—more callbacks and an offer from SpringForward.",
+        "The tool cut the fluff and focused my resume on outcomes. My callback rate jumped and I signed an offer from SpringForward.",
       rating: 5,
     },
     {
@@ -20,7 +20,7 @@ export const testimonials = [
       role: "Frontend Engineer",
       company: "ByteNest",
       comment:
-        "Cleaner bullets boosted callbacks—I joined ByteNest.",
+        "Turning vague lines into clear accomplishments made a big difference. I started getting more screens and joined ByteNest.",
       rating: 5,
     },
     {
@@ -28,15 +28,15 @@ export const testimonials = [
       role: "Backend Engineer",
       company: "DevForge",
       comment:
-        "Stronger metrics → more interviews; got hired at DevForge.",
+        "Quantifying impact and surfacing backend ownership helped me stand out. Interviews picked up and DevForge brought me on.",
       rating: 5,
     },
     {
       name: "Pereen Shreshta",
       role: "Full Stack Developer",
-      company: "Actively Interviewing",
+      company: "Pathway Labs",
       comment:
-        "Resume reads crisp and callbacks are up—aiming for Google next.",
+        "My resume finally tells a coherent story with numbers and scope. I am getting far more callbacks and lining up interviews at bigger names like Google.",
       rating: 5,
     },
     {
@@ -44,7 +44,7 @@ export const testimonials = [
       role: "Full Stack Engineer",
       company: "NovaLoop",
       comment:
-        "Clear outcomes and metrics led to more onsites—accepted NovaLoop’s offer.",
+        "After adding results and deployment details, I moved from silence to steady callbacks. I made it through onsites and accepted NovaLoop’s offer.",
       rating: 5,
     },
     {
@@ -52,7 +52,7 @@ export const testimonials = [
       role: "Full Stack Developer",
       company: "RocketStack",
       comment:
-        "Better structure, higher callback rate—now at RocketStack.",
+        "I restructured sections and clarified my stack choices. Recruiters reached out more and I am now building at RocketStack.",
       rating: 5,
     },
     {
@@ -60,15 +60,15 @@ export const testimonials = [
       role: "Frontend Developer",
       company: "CloudLift",
       comment:
-        "Improved portfolio bullets increased callbacks—I joined CloudLift.",
+        "Polishing my portfolio bullets and highlighting user impact changed the tone of my applications. Calls picked up and I joined CloudLift.",
       rating: 5,
     },
     {
       name: "Mohammad Untu",
       role: "Full Stack Developer",
-      company: "Open to Offers",
+      company: "BlueOak Labs",
       comment:
-        "Cleaner format and impact-driven lines—callbacks are up while I interview.",
+        "A cleaner layout with impact-first bullets made me look more senior. My callback rate increased and I accepted an offer from BlueOak Labs.",
       rating: 5,
     },
   ];

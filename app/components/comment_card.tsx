@@ -31,7 +31,7 @@ interface CommentCardProps {
                 ))}
               </div>
             </div>
-            <p className="text-xs text-gray-500 mb-2">{role} at {company}</p>
+            <p className="text-xs text-gray-500 mb-2">{role}  {company}</p>
             <p className="text-sm text-gray-700 leading-relaxed">{comment}</p>
           </div>
         </div>
