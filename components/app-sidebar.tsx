@@ -1,6 +1,5 @@
 "use client";
-
-import * as React from "react";
+import { useEffect,useState } from "react";
 import {
   HomeIcon,
   ChartBarIcon,
@@ -13,40 +12,46 @@ import {
   SidebarContent,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { useModal } from "@/contexts/ModalContext"; // Import your modal context
+import { useModal } from "@/contexts/ModalContext";
 import { useResumeContext } from "@/contexts/ResumeContext";
+import { supabase } from "@/app/utils/supabase/client";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { openEvaluation } = useModal(); // Get the openEvaluation function
-  const { profileData, FetchingProfile } = useResumeContext();
-  const username= profileData?.first_name || profileData?.last_name
-    ? `${profileData?.first_name ?? ""} ${profileData?.last_name ?? ""}`.trim()
-    : "User";
+  const { openEvaluation } = useModal();
+  const { profileData } = useResumeContext();
 
-  const userEmail = "";
-  const userAvatar = profileData?.profile_picture!;
-  profileData?.profile_picture || "/avatars/default-avatar.png"; // put a default in /public/avatars/
-  // Instead of just data, we inject a click handler for Evaluation
+  // get name the same way you had it
+  const username =
+    profileData?.first_name || profileData?.last_name
+      ? `${profileData?.first_name ?? ""} ${profileData?.last_name ?? ""}`.trim()
+      : "User";
+
+
+  const [userEmail, setUserEmail] = useState<string>("");
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (active && !error && data?.user?.email) {
+        setUserEmail(data.user.email);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // keep your avatar logic; ensure fallback at usage
+  const userAvatar = profileData?.profile_picture;
+
   const navMain = [
-    {
-      title: "Dashboard",
-      url: "/",
-      icon: HomeIcon,
-      isActive: true,
-    },
-    {
-      title: "Analysis",
-      url: "/analysis",
-      icon: ChartBarIcon,
-    },
-    {
-      title: "Evaluation",
-      icon: InformationCircleIcon,
-      onClick: openEvaluation,
-    },
+    { title: "Dashboard", url: "/", icon: HomeIcon, isActive: true },
+    { title: "Analysis", url: "/analysis", icon: ChartBarIcon },
+    { title: "Evaluation", icon: InformationCircleIcon, onClick: openEvaluation },
   ];
 
   return (
-    <Sidebar   variant="inset" className="bg-[#06367a] text-white" {...props}>
+    <Sidebar variant="inset" className="bg-[#06367a] text-white" {...props}>
       <SidebarContent>
         <NavMain items={navMain} />
       </SidebarContent>
@@ -54,8 +59,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser
           user={{
             name: username,
-            email: "m@example.com",
-            avatar:userAvatar,
+            email: userEmail || "", 
+            avatar: userAvatar || "/avatars/default-avatar.png",
           }}
         />
       </SidebarFooter>
