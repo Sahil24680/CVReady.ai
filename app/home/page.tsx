@@ -543,13 +543,13 @@ export default function HomePage() {
         </section>
 
         {/* testimonials + marquee */}
-        <section id="testimonials" className="py-24 scroll-mt-24">
+        <section id="testimonials" className="py-24 scroll-mt-24 hidden lg:block">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-16 text-center">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
               Success Stories
             </h2>
             <p className="text-xl text-gray-600">
-              Join thousands who landed their dream jobs with Advisoron
+              Join students who landed their dream jobs with Advisoron
             </p>
           </div>
 
