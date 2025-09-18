@@ -86,6 +86,28 @@ export default function HomePage() {
 
   return (
     <div className="w-full">
+      {/* styles: float + marquee - moved to top */}
+      <style>{`
+        * { box-sizing: border-box; }
+        html, body { overflow-x: hidden; overflow-y: auto; height: auto; margin: 0; padding: 0; }
+
+        @keyframes fadeInDelayed { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        .floating-card { animation: float 6s ease-in-out infinite; will-change: transform; }
+
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes marquee-rev { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+
+        .marquee-track { min-width: 200%; width: max-content; animation: marquee 60s linear infinite; }
+        .marquee-track-rev { min-width: 200%; width: max-content; animation: marquee-rev 60s linear infinite; }
+
+        .marquee-track:hover, .marquee-track-rev:hover { animation-play-state: paused; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track, .marquee-track-rev { animation: none !important; }
+        }
+      `}</style>
+
       <AnimatedContent
         distance={150}
         direction="vertical"
@@ -98,7 +120,7 @@ export default function HomePage() {
         threshold={0.2}
         delay={0.3}
       >
-        <div className="w-full bg-gradient-to-br from-white via-blue-50/20 to-white">
+        <div className="w-full bg-gradient-to-br from-white via-blue-50/20 to-white opacity-0" style={{animation: 'fadeInDelayed 0.1s ease-out 0.2s forwards'}}>
           {/* nav */}
           <nav
             className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -627,27 +649,6 @@ export default function HomePage() {
               </div>
             </div>
           </footer>
-
-          {/* styles: float + marquee */}
-          <style>{`
-            * { box-sizing: border-box; }
-            html, body { overflow-x: hidden; overflow-y: auto; height: auto; margin: 0; padding: 0; }
-
-            @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-            .floating-card { animation: float 6s ease-in-out infinite; will-change: transform; }
-
-            @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-            @keyframes marquee-rev { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
-
-            .marquee-track { min-width: 200%; width: max-content; animation: marquee 60s linear infinite; }
-            .marquee-track-rev { min-width: 200%; width: max-content; animation: marquee-rev 60s linear infinite; }
-
-            .marquee-track:hover, .marquee-track-rev:hover { animation-play-state: paused; }
-
-            @media (prefers-reduced-motion: reduce) {
-              .marquee-track, .marquee-track-rev { animation: none !important; }
-            }
-          `}</style>
         </div>
       </AnimatedContent>
     </div>
