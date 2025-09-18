@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { testimonials } from "@/lib/data/testimonials";
 import CommentCard from "@/app/components/comment_card";
-import AnimatedContent from "@/components/animations/animatedContent";
+import AnimatedContent from "@/components/animations/AnimatedContent";
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
