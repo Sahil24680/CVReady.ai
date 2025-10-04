@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/solid";
-import { InformationCircleIcon } from "@heroicons/react/24/solid";
+import { InformationCircleIcon,PencilSquareIcon } from "@heroicons/react/24/solid";
 import { Cog6ToothIcon } from "@heroicons/react/24/solid";
 import { HomeIcon } from "@heroicons/react/24/solid";
 import { ChartBarIcon } from "@heroicons/react/24/solid";
@@ -74,6 +74,7 @@ const Side_bar = () => {
         </div>
 
         <NavButton icon={HomeIcon} label="Dashboard" path="/" />
+        <NavButton icon={PencilSquareIcon} label="Refine" path="/refine" />
         <NavButton icon={ChartBarIcon} label="Analysis" path="/analysis" />
         <NavButton icon={InformationCircleIcon} label="Evaluation" onClick={openEvaluation}/>
       </div>

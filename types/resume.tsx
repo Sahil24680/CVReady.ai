@@ -25,3 +25,12 @@ export interface User_profile {
   last_name: string;
   profile_picture: string;
 }
+
+export interface Suggestion {
+  id: string;
+  title: string;
+  summary: string;
+  explanation: string;
+  impact: "High" | "Medium" | "Low";
+  status: "pending" | "accepted" | "rejected";
+}

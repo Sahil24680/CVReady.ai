@@ -69,11 +69,53 @@ misleading feedback.
 ## 🧭 Why CVReady.ai is Different
 
 CVReady.ai bridges this gap by combining **strict evidence-based
-grading** with **role-specific recruiter-style coaching**.\
+grading** with **role-specific recruiter-style coaching**.
 Instead of keyword matches, it evaluates résumés the way a **Big Tech
 recruiter or hiring manager** would ---\
 looking for **measurable outcomes, technical depth, and clarity of
 ownership.**
+
+------------------------------------------------------------------------
+## 🧠 AI-Powered Mock Interview Feedback (New Feature)
+
+This module enables **real-time AI evaluation of spoken interview responses**, using a multi-stage audio analysis and grading pipeline powered by **Whisper + GPT-4o-mini**.
+
+### 🎤 How it Works
+1. **Transcription (Whisper 1 – verbose JSON)**
+   - Converts uploaded `.mp3` or `.wav` files into text with precise time-stamped segments.  
+   - Automatically detects long pauses and inserts `[PAUSE n s]` tags based on silence duration.  
+   - All transcription data (segments, tokens, timing) is logged for transparency.
+
+2. **Annotation (GPT-4o-mini)**
+   - Adds semantic tone cues inferred from pacing and phrasing:  
+     `[TONE: nervous]`, `[TONE: confident]`, `[TONE: enthusiastic]`, `[TONE: monotone]`.  
+   - Retains filler words and integrates pause markers for realism.
+
+3. **Grading (GPT-4o-mini + Zod Schema)**
+   - Uses a **structured JSON schema** (`ReportSchema`) to produce strict, parse-safe evaluation output.  
+   - Assesses key communication metrics: enthusiasm, clarity, confidence, structure, relevance, conciseness, and filler-word control.  
+   - Deducts points if the candidate shows **low intrinsic motivation** toward programming (e.g., coding only for class assignments rather than curiosity or passion).
+
+4. **Normalization + Scoring**
+   - All scores are scaled 0–100 with consistent weightings.  
+   - Includes safety checks for malformed outputs and token variance.
+
+5. **Supabase + Locking Layer**
+   - Prevents concurrent submissions per user through a **mutex-based request lock**.  
+   - Ensures atomic updates to per-user token quotas and progress history.
+
+### ⚙️ Technical Highlights
+- **Model Pipeline:** Whisper → GPT-4o-mini (annotation + grading)  
+- **Format:** Strict Zod validation via `zodTextFormat` → no malformed JSON  
+- **Tone Inference:** Based solely on language cues + pause timing (no external ML)  
+- **Logs:** Comprehensive logs for transcription, annotation, and scoring phases (visible in server console)  
+- **Locking Mechanism:** `set_request_lock()` and `release_request_lock()` prevent duplicate jobs  
+- **Fail-Safe:** All errors normalized via `safe()` wrapper for stable Supabase transactions  
+
+### 💬 Example Insights
+- *“Frequent filler words and long pauses suggest mild nervousness — consider rehearsing aloud.”*  
+- *“Shows strong clarity and structure, but enthusiasm could be higher — speak with more inflection.”*  
+- *“Lacks demonstrated curiosity — discuss a personal coding project outside of coursework.”*
 
 ------------------------------------------------------------------------
 

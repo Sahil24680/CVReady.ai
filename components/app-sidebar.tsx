@@ -3,8 +3,9 @@ import { useEffect,useState } from "react";
 import {
   HomeIcon,
   ChartBarIcon,
-  InformationCircleIcon,
+  InformationCircleIcon,PencilSquareIcon
 } from "@heroicons/react/24/solid";
+import { Bot } from 'lucide-react';
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -46,6 +47,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navMain = [
     { title: "Dashboard", url: "/", icon: HomeIcon, isActive: true },
+    // { title: "Refine", url: "/refine", icon: PencilSquareIcon, isActive: true },
+    { title: "Interview", url: "/interview", icon: Bot, isActive: true },
     { title: "Analysis", url: "/analysis", icon: ChartBarIcon },
     { title: "Evaluation", icon: InformationCircleIcon, onClick: openEvaluation },
   ];
