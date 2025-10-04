@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { testimonials } from "@/lib/data/testimonials";
+import InterviewBotSection from "./components/interview_bot";
 import CommentCard from "@/app/components/comment_card";
 import AnimatedContent from "@/components/animations/AnimatedContent";
 
@@ -345,6 +346,8 @@ export default function HomePage() {
               </div>
             </div>
           </section>
+{/* 🎤 AI Interview Practice Bot */}
+<InterviewBotSection />
 
           {/* demo */}
           <section id="demo" className="py-24 scroll-mt-24">
