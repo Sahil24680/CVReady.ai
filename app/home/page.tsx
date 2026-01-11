@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import { testimonials } from "@/lib/data/testimonials";
 import InterviewBotSection from "./components/interview_bot";
 import CommentCard from "@/app/components/comment_card";
@@ -80,6 +81,41 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Check if Supabase is reachable (free tier projects pause after inactivity)
+  useEffect(() => {
+    const checkSupabaseHealth = async () => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      try {
+        // Direct fetch to Supabase REST endpoint with timeout
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`,
+          {
+            method: "HEAD",
+            headers: {
+              apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            },
+            signal: controller.signal,
+          }
+        );
+        clearTimeout(timeoutId);
+
+        if (!response.ok && response.status >= 500) {
+          throw new Error("Supabase unavailable");
+        }
+      } catch {
+        clearTimeout(timeoutId);
+        toast.error(
+          "Our database is currently paused. Please contact the creator to restore service.",
+          { autoClose: false, toastId: "supabase-down" }
+        );
+      }
+    };
+
+    checkSupabaseHealth();
+  }, []);
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) element.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -121,7 +157,10 @@ export default function HomePage() {
         threshold={0.2}
         delay={0.3}
       >
-        <div className="w-full bg-gradient-to-br from-white via-blue-50/20 to-white opacity-0" style={{animation: 'fadeInDelayed 0.1s ease-out 0.2s forwards'}}>
+        <div
+          className="w-full bg-gradient-to-br from-white via-blue-50/20 to-white opacity-0"
+          style={{ animation: "fadeInDelayed 0.1s ease-out 0.2s forwards" }}
+        >
           {/* nav */}
           <nav
             className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -346,8 +385,8 @@ export default function HomePage() {
               </div>
             </div>
           </section>
-{/* 🎤 AI Interview Practice Bot */}
-<InterviewBotSection />
+          {/* 🎤 AI Interview Practice Bot */}
+          <InterviewBotSection />
 
           {/* demo */}
           <section id="demo" className="py-24 scroll-mt-24">
@@ -357,8 +396,8 @@ export default function HomePage() {
                   See It In Action
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Watch how our AI transforms weak bullets into compelling impact
-                  statements
+                  Watch how our AI transforms weak bullets into compelling
+                  impact statements
                 </p>
               </div>
 
@@ -429,7 +468,9 @@ export default function HomePage() {
                     className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     <button
-                      onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+                      onClick={() =>
+                        setOpenFAQ(openFAQ === index ? null : index)
+                      }
                       className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-blue-50/50 transition-colors duration-200"
                       aria-expanded={openFAQ === index}
                       aria-controls={`faq-panel-${index}`}
@@ -537,8 +578,8 @@ export default function HomePage() {
                   Ready to Make Your Resume Big-Tech Ready?
                 </h2>
                 <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-                  Join thousands of engineers who've landed their dream jobs with
-                  AI-powered resume optimization.
+                  Join thousands of engineers who've landed their dream jobs
+                  with AI-powered resume optimization.
                 </p>
                 <Link
                   href="/auth/signup"
@@ -566,8 +607,8 @@ export default function HomePage() {
                     Advisoron
                   </span>
                   <p className="text-gray-600 mt-6 max-w-md text-lg leading-relaxed">
-                    AI-powered resume analysis that helps you land your dream job
-                    at top tech companies.
+                    AI-powered resume analysis that helps you land your dream
+                    job at top tech companies.
                   </p>
                 </div>
 
@@ -646,8 +687,8 @@ export default function HomePage() {
 
               <div className="border-t border-blue-200 mt-16 pt-12 text-center text-gray-600">
                 <p className="text-lg">
-                  &copy; 2024 Advisoron. All rights reserved. We process your data
-                  securely and never store resumes permanently.
+                  &copy; 2024 Advisoron. All rights reserved. We process your
+                  data securely and never store resumes permanently.
                 </p>
               </div>
             </div>

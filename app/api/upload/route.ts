@@ -14,11 +14,15 @@ import {
   MAX_FILE_SIZE_MB,
   SYSTEM_PROMPT,
 } from "@/lib/config";
-import { GradeSchemaV2, type GradeV2 } from "@/lib/schemas";
+import {
+  GradeSchemaV2,
+  type GradeV2,
+  FeedbackSchema,
+  RoleSchema,
+  type Role,
+} from "@/lib/schemas";
 import { createClient as createSbServer } from "@/app/utils/supabase/server";
 import { z } from "zod";
-import { type Role } from "@/app/utils/rag/retrieve";
-import { FeedbackSchema } from "@/lib/schemas";
 import { validateSinglePagePdf } from "./validatePdf";
 import { zodTextFormat } from "openai/helpers/zod";
 import {
@@ -33,8 +37,21 @@ import {
   buildScopedPrompt,
 } from "./Prompt";
 
-// System instruction for the deep coaching pass
-const SYSTEM = SYSTEM_PROMPT;
+// ---------------------- CONSTANTS ----------------------
+const TOKEN_BUDGET: Record<number, number> = {
+  0: 900,  // Resume is strong
+  1: 1200,
+  2: 1500,
+};
+const DEFAULT_TOKEN_BUDGET = 1800; // 3+ deficits
+
+const DEFAULT_GRADING: GradeV2 = {
+  scores: { format: 3, impact: 3, tech_depth: 3, projects: 3 },
+  focus_areas: ["impact", "tech_depth"],
+  weak_bullets: [],
+  format_checks: DEFAULT_FORMAT_CHECKS,
+};
+
 const TEMPLATE = buildAnalysisPrompt();
 const MODEL = OPENAI_CONF.MODEL;
 const SMALL_MODEL = OPENAI_CONF.SMALL_MODEL;
@@ -57,10 +74,20 @@ export async function POST(req: Request) {
     // Parse multipart form-data and fetch the "file" field (Web File)
     const form = await req.formData();
     const file = form.get("file");
-    const role = form.get("role") as Role;
+    const rawRole = form.get("role");
+
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
+
+    const roleResult = RoleSchema.safeParse(rawRole);
+    if (!roleResult.success) {
+      return NextResponse.json(
+        { error: "Invalid or missing role" },
+        { status: 400 }
+      );
+    }
+    const role: Role = roleResult.data;
 
     const validation = await validateSinglePagePdf(
       file,
@@ -78,12 +105,11 @@ export async function POST(req: Request) {
     if ("error" in user || !user?.id) {
       return NextResponse.json({ error: "Missing user ID" }, { status: 401 });
     }
-    userId = user.id;
+    const currentUserId = user.id;
+    userId = currentUserId; // For finally block
 
     // Check if theres a lock row for this user; create if not
-    const lockInit = await safe(() =>
-      request_lock_and_tokens(userId as string)
-    );
+    const lockInit = await safe(() => request_lock_and_tokens(currentUserId));
     if (!lockInit.success) {
       console.error("[upload] lock bootstrap failed:", lockInit.error);
       return NextResponse.json(
@@ -109,9 +135,7 @@ export async function POST(req: Request) {
       );
     }
 
-   
-
-    const gotLock = await set_request_lock(userId as string);
+    const gotLock = await set_request_lock(currentUserId);
     if (!gotLock) {
       return NextResponse.json(
         {
@@ -167,12 +191,7 @@ export async function POST(req: Request) {
         "[upload] Grader pass failed, falling back to default scope.",
         gradeResult.error
       );
-      grading = {
-        scores: { format: 3, impact: 3, tech_depth: 3, projects: 3 },
-        focus_areas: ["impact", "tech_depth"],
-        weak_bullets: [],
-        format_checks: DEFAULT_FORMAT_CHECKS,
-      };
+      grading = DEFAULT_GRADING;
     }
 
     // Deterministic format score from checklist (0–3)
@@ -186,14 +205,7 @@ export async function POST(req: Request) {
 
     // 3) Token budgeting for deep pass scales with number of deficits
     const deficits = grading.focus_areas.length;
-    const maxTokens =
-      deficits === 0
-        ? 900 // short, when resume is already strong
-        : deficits === 1
-        ? 1200
-        : deficits === 2
-        ? 1500
-        : 1800; // fullest budget when several areas are weak
+    const maxTokens = TOKEN_BUDGET[deficits] ?? DEFAULT_TOKEN_BUDGET;
 
     // 3.5 RAG block
     const contextRes = await safe(() => buildContext(role, grading));
@@ -216,7 +228,7 @@ export async function POST(req: Request) {
       temperature: 0.5, // slightly creative for coaching prose
       max_output_tokens: maxTokens,
       input: [
-        { role: "system", content: [{ type: "input_text", text: SYSTEM }] },
+        { role: "system", content: [{ type: "input_text", text: SYSTEM_PROMPT }] },
         {
           role: "user",
           content: [{ type: "input_text", text: scopedTemplate }],
@@ -229,6 +241,9 @@ export async function POST(req: Request) {
       text: { format: zodTextFormat(FeedbackSchema, "feedback") },
     });
 
+    if (!resp.output_parsed) {
+      throw new Error("Failed to parse feedback from resume analysis.");
+    }
     const parsed = resp.output_parsed as z.infer<typeof FeedbackSchema>;
 
     // Combine model's 1–7 with deterministic format (0–3) → final 1–10
@@ -264,7 +279,7 @@ export async function POST(req: Request) {
     const { error: dbErr } = await supabase.from("Resume_datas").insert({
       Resume_name: file.name,
       openai_feedback: feedback,
-      user_id: userId as string,
+      user_id: currentUserId,
       created_at: new Date().toISOString(),
       Role: role,
     });
@@ -275,17 +290,16 @@ export async function POST(req: Request) {
 
     // Return validated feedback JSON to the client
     return NextResponse.json(feedback, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Catch-all to avoid leaking stack traces to client; log server-side
     console.error("❌ /api/upload error:", err);
-    return NextResponse.json(
-      { error: err?.message || "Something went wrong" },
-      { status: 500 }
-    );
+    const message =
+      err instanceof Error ? err.message : "Something went wrong";
+    return NextResponse.json({ error: message }, { status: 500 });
   } finally {
     if (lockHeld && userId) {
-      // release_request_lock
-      const rel = await safe(() => release_request_lock(userId as string));
+      const userIdToRelease = userId;
+      const rel = await safe(() => release_request_lock(userIdToRelease));
       if (!rel.success) {
         console.error("[upload] lock release error:", rel.error);
       }

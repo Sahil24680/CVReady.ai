@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 import { createClient as createSbServer } from "@/app/utils/supabase/server";
+import { type Role } from "@/lib/schemas";
 
-export type Role = "Backend Engineer" | "Frontend Engineer" | "Full-Stack Engineer";
+export type { Role };
 export type Level = "beginner";
 
 // Fixed list of logical buckets in the vector table

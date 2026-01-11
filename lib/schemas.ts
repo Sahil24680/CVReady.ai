@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const RoleSchema = z.enum([
+  "Backend Engineer",
+  "Frontend Engineer",
+  "Full-Stack Engineer",
+]);
+
+export type Role = z.infer<typeof RoleSchema>;
+
 export const FeedbackSchema = z.object({
   feedback: z.object({
     big_tech_readiness_score: z.number(),
