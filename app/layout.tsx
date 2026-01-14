@@ -7,7 +7,7 @@ import { ModalProvider } from "@/contexts/ModalContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-loading-skeleton/dist/skeleton.css";
-import Side_bar from "@/app/components/Side_bar";
+import SideBar from "@/app/components/SideBar";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,

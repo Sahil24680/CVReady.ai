@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { testimonials } from "@/lib/data/testimonials";
-import InterviewBotSection from "./components/interview_bot";
-import CommentCard from "@/app/components/comment_card";
+import InterviewBotSection from "./components/InterviewBot";
+import CommentCard from "@/app/components/CommentCard";
 import AnimatedContent from "@/components/animations/AnimatedContent";
 
 export default function HomePage() {

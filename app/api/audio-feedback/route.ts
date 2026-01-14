@@ -12,7 +12,7 @@ import {
   release_request_lock,
 } from "@/app/utils/supabase/action";
 import { safe } from "@/lib/safe";
-import { SYSTEM_PROMPT } from "@/app/interview/components/Prompt";
+import { SYSTEM_PROMPT } from "@/app/interview/components/prompts";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 

@@ -26,10 +26,10 @@ type NavButtonProps = {
   onClick?: () => void;
 };
 
-const Side_bar = () => {
+const SideBar = () => {
   const router = useRouter();
   const { profileData, FetchingProfile } = useResumeContext();
-  const { openEvaluation } = useModal();
+  const { openEvaluationModal } = useModal();
   
   const NavButton = ({ icon: Icon, label, path, onClick }: NavButtonProps) => {
     const baseClasses =
@@ -76,7 +76,7 @@ const Side_bar = () => {
         <NavButton icon={HomeIcon} label="Dashboard" path="/" />
         <NavButton icon={PencilSquareIcon} label="Refine" path="/refine" />
         <NavButton icon={ChartBarIcon} label="Analysis" path="/analysis" />
-        <NavButton icon={InformationCircleIcon} label="Evaluation" onClick={openEvaluation}/>
+        <NavButton icon={InformationCircleIcon} label="Evaluation" onClick={openEvaluationModal}/>
       </div>
 
       {/* Bottom Section: Logout and setting button*/}
@@ -97,4 +97,4 @@ const Side_bar = () => {
   );
 };
 
-export default Side_bar;
+export default SideBar;

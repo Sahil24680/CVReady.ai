@@ -1,3 +1,14 @@
+/**
+ * Interview Evaluation Types
+ *
+ * TypeScript type definitions for interview feedback data.
+ * These types mirror the Zod schemas in schema.ts but provide
+ * direct TypeScript types for component usage.
+ */
+
+/**
+ * Individual performance metric (e.g., enthusiasm, clarity)
+ */
 export type ScoreMetric = {
     key:
       | "enthusiasm"
@@ -12,13 +23,19 @@ export type ScoreMetric = {
     feedback: string;
   };
   
-  export type QuestionFeedback = {
+  /**
+ * Feedback for a specific interview question
+ */
+export type QuestionFeedback = {
     question: string;
     answerSnippet: string;
     suggestions: string[];
   };
   
-  export type Evaluation = {
+  /**
+ * Complete evaluation with scores, strengths, and improvement areas
+ */
+export type Evaluation = {
     overallScore: number; // 0-100
     metrics: ScoreMetric[];
     strengths: string[];
@@ -27,7 +44,10 @@ export type ScoreMetric = {
     questions: QuestionFeedback[];
   };
   
-  export type Report = {
+  /**
+ * Full interview report with transcript, evaluation, and session metadata
+ */
+export type Report = {
     transcript: string;
     evaluation: Evaluation;
     createdAt: string;

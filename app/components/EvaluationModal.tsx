@@ -23,7 +23,7 @@ import Modal from "./Modal";
  */
 
 const EvaluationModal = () => {
-  const { showEvaluation, closeEvaluation } = useModal();
+  const { isEvaluationModalOpen, closeEvaluationModal } = useModal();
 
   const bigTechScore = 5;
   const formatScore = 7;
@@ -87,8 +87,8 @@ const EvaluationModal = () => {
 
   return (
     <Modal
-      isOpen={showEvaluation}
-      onClose={closeEvaluation}
+      isOpen={isEvaluationModalOpen}
+      onClose={closeEvaluationModal}
       title=""
       panelClassName="p-0"
     >

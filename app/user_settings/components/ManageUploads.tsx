@@ -1,34 +1,32 @@
 import { useState, useRef, useEffect } from "react";
-import { useResumeContext } from "@/contexts/ResumeContext";
 import { TrashIcon, PencilIcon } from "@heroicons/react/24/solid";
 import { supabase } from "@/app/utils/supabase/client";
 import { ResumeRecord } from "@/types/resume";
-import { Divide } from "lucide-react";
 
 /**
- * Component for managing uploaded resumes.
+ * ManageUploads - Component for managing uploaded resumes.
  *
  * Features:
  * - Displays resume list with edit and delete options
  * - Updates and removes resumes using Supabase
- * - Syncs with context to trigger refresh
+ * - Syncs with context to trigger refresh after modifications
  */
 
-interface UploadProps {
+interface ManageUploadsProps {
   resumeData: ResumeRecord[];
   refresh: () => void;
 }
 
-const Mange_uploads = ({ resumeData, refresh }: UploadProps) => {
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [newName, setNewName] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+const ManageUploads = ({ resumeData, refresh }: ManageUploadsProps) => {
+  const [editingResumeId, setEditingResumeId] = useState<number | null>(null);
+  const [updatedResumeName, setUpdatedResumeName] = useState("");
+  const renameInputRef = useRef<HTMLInputElement>(null);
 
-  //This cancels editing if user clicks outside inputbox
+  // Cancel editing when user clicks outside the input field
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
-        setEditingId(null);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (renameInputRef.current && !renameInputRef.current.contains(event.target as Node)) {
+        setEditingResumeId(null);
       }
     };
 
@@ -36,49 +34,56 @@ const Mange_uploads = ({ resumeData, refresh }: UploadProps) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const Delete_resume = async (id: number) => {
-    const response = await supabase.from("Resume_datas").delete().eq("id", id);
+  /**
+   * Deletes a resume from the database by ID and refreshes the list
+   */
+  const deleteResume = async (resumeId: number) => {
+    await supabase.from("Resume_datas").delete().eq("id", resumeId);
     refresh();
   };
-  const Update_name = async (name: string, id: number) => {
+
+  /**
+   * Updates the resume name in the database and refreshes the list
+   */
+  const updateResumeName = async (newName: string, resumeId: number) => {
     const { error } = await supabase
       .from("Resume_datas")
-      .update({ Resume_name: name })
-      .eq("id", id);
+      .update({ Resume_name: newName })
+      .eq("id", resumeId);
     if (error) {
-      console.log("error:", error);
+      console.error("Failed to update resume name:", error);
     } else {
-      setEditingId(null);
+      setEditingResumeId(null);
       refresh();
     }
   };
-  //if user presses enter after editing a resume name
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    id: number
+
+  // Submit rename on Enter key press
+  const handleRenameKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    resumeId: number
   ) => {
-    if (e.key === "Enter") {
-      Update_name(newName, id);
+    if (event.key === "Enter") {
+      updateResumeName(updatedResumeName, resumeId);
     }
   };
 
   return (
-    <div className="w-full min-h-0 h-full ">
+    <div className="w-full min-h-0 h-full">
       <ul className="space-y-4 pr-2 overflow-y-auto pb-4 max-h-[300px] sm:max-h-[100px] md:max-h-[300px] lg:max-h-[400px] xl:max-h-[500px]">
-
         {resumeData !== null && resumeData.length > 0 ? (
           resumeData.map((resume, index) => (
             <li
-              className="shadow-md rounded-lg p-4 border border-gray-200 flex justify-between items-center "
+              className="shadow-md rounded-lg p-4 border border-gray-200 flex justify-between items-center"
               key={index}
             >
-              {editingId === resume.id ? (
+              {editingResumeId === resume.id ? (
                 <input
-                  ref={inputRef}
+                  ref={renameInputRef}
                   className="outline-none text-gray-800 font-medium"
                   placeholder={resume.resume_name}
-                  onChange={(e) => setNewName(e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, resume.id)}
+                  onChange={(e) => setUpdatedResumeName(e.target.value)}
+                  onKeyDown={(e) => handleRenameKeyDown(e, resume.id)}
                   autoFocus
                 />
               ) : (
@@ -90,17 +95,15 @@ const Mange_uploads = ({ resumeData, refresh }: UploadProps) => {
                 <button
                   className="text-[#0b4c97] hover:text-[#093d7a] transition cursor-pointer"
                   onClick={() => {
-                    setEditingId(resume.id);
-                    setNewName(resume.resume_name);
+                    setEditingResumeId(resume.id);
+                    setUpdatedResumeName(resume.resume_name);
                   }}
                 >
                   <PencilIcon className="w-6 h-6" />
                 </button>
                 <button
                   className="text-[#e11d48] hover:text-rose-700 transition cursor-pointer"
-                  onClick={() => {
-                    Delete_resume(resume.id);
-                  }}
+                  onClick={() => deleteResume(resume.id)}
                 >
                   <TrashIcon className="w-6 h-6" />
                 </button>
@@ -117,4 +120,4 @@ const Mange_uploads = ({ resumeData, refresh }: UploadProps) => {
   );
 };
 
-export default Mange_uploads;
+export default ManageUploads;

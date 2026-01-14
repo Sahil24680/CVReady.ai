@@ -2,7 +2,7 @@
 import { ResumeRecord } from "@/types/resume";
 import { useEffect, useMemo } from "react";
 import { useResumeContext } from "@/contexts/ResumeContext";
-import Progressbar from "./Progress_bar";
+import Progressbar from "./ProgressBar";
 import WelcomeMessage from "./WelcomeMessage";
 import Skeleton from "react-loading-skeleton";
 import MD from "@/app/components/MD";

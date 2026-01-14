@@ -35,7 +35,7 @@ import {
   buildAnalysisPrompt,
   buildGraderPrompt,
   buildScopedPrompt,
-} from "./Prompt";
+} from "./prompts";
 
 // ---------------------- CONSTANTS ----------------------
 const TOKEN_BUDGET: Record<number, number> = {

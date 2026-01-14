@@ -26,24 +26,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
 
 import { useResumeContext } from "@/contexts/ResumeContext";
 import EvaluationModal from "@/app/components/EvaluationModal";
 
-// Colors for the two different bar series
-const BIGTECH_COLOR = "#06367a";
-const FORMAT_COLOR = "#0fa37f";
+/**
+ * UserProgress - Displays a bar chart comparing resume scores over time.
+ *
+ * Features:
+ * - Visualizes Resume Format and Big Tech Readiness scores
+ * - Supports filtering by number of resumes displayed (5, 10, or all)
+ * - Shows loading state and empty state when applicable
+ */
 
-// Shape of each resume record that will be passed to Recharts
-type ResumeScore = {
+// Chart color constants
+const BIGTECH_READINESS_COLOR = "#06367a";
+const RESUME_FORMAT_COLOR = "#0fa37f";
+
+// Data shape for each resume's chart entry
+type ResumeScoreData = {
   name: string;
-  resume_format: number;
-  bigtech_readiness: number;
+  resumeFormatScore: number;
+  bigtechReadinessScore: number;
 };
 
-const User_progress = () => {
+const UserProgress = () => {
   // Grab resume data and loading state from global context
   const { resumeData, FetchingResume } = useResumeContext();
 
@@ -52,53 +60,55 @@ const User_progress = () => {
     "10"
   );
 
-  // Prepare chart data: map raw resumes into a simpler shape
-  const allBarChartData: ResumeScore[] = Array.isArray(resumeData)
+  // Transform raw resume data into chart-compatible format
+  const allChartData: ResumeScoreData[] = Array.isArray(resumeData)
     ? resumeData
-        .map((resume: any, idx: number) => {
-          // Pick a readable resume name with fallbacks
+        .map((resume: any, index: number) => {
+          // Extract resume name with fallbacks for different field naming conventions
           const resumeName =
             resume?.resume_name ??
             resume?.Resume_name ??
             resume?.name ??
-            `Resume ${idx + 1}`;
+            `Resume ${index + 1}`;
 
-          // Extract the two scores and clamp them to 0–10
+          // Extract scores and clamp them to valid 0-10 range
           const formatScore =
             resume?.openai_feedback?.feedback?.resume_format_score ?? 0;
-          const bigtechScore =
+          const readinessScore =
             resume?.openai_feedback?.feedback?.big_tech_readiness_score ?? 0;
 
           return {
             name: resumeName,
-            resume_format: Math.min(10, Math.max(0, formatScore)),
-            bigtech_readiness: Math.min(10, Math.max(0, bigtechScore)),
+            resumeFormatScore: Math.min(10, Math.max(0, formatScore)),
+            bigtechReadinessScore: Math.min(10, Math.max(0, readinessScore)),
           };
         })
-        .filter((item) => item.name) // filter out invalid names
+        .filter((item) => item.name)
     : [];
 
-  // Slice data depending on dropdown value, reverse so latest resumes show on right
-  const barChartData =
+  // Apply display filter and reverse to show latest resumes on right side of chart
+  const visibleChartData =
     displayCount === "all"
-      ? [...allBarChartData].reverse()
-      : [...allBarChartData.slice(0, parseInt(displayCount))].reverse();
+      ? [...allChartData].reverse()
+      : [...allChartData.slice(0, parseInt(displayCount))].reverse();
 
-  // Decide whether to show x-axis labels or hide them if too many
-  const LABEL_THRESHOLD = 12;
-  const SHOW_LABELS = barChartData.length <= LABEL_THRESHOLD;
-  const chartMargin = SHOW_LABELS
+  // X-axis label visibility threshold - hide labels when too many to fit
+  const AXIS_LABEL_THRESHOLD = 12;
+  const shouldShowAxisLabels = visibleChartData.length <= AXIS_LABEL_THRESHOLD;
+  const chartMargin = shouldShowAxisLabels
     ? { top: 20, right: 30, left: 20, bottom: 80 }
     : { top: 20, right: 30, left: 20, bottom: 20 };
 
-  // Custom tooltip to show both scores and an average
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  /**
+   * Custom tooltip component showing both scores and their average
+   */
+  const ChartTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const formatScore =
-        payload.find((p: any) => p.dataKey === "resume_format")?.value || 0;
-      const bigtechScore =
-        payload.find((p: any) => p.dataKey === "bigtech_readiness")?.value || 0;
-      const average = Math.round(((formatScore + bigtechScore) / 2) * 10) / 10;
+        payload.find((p: any) => p.dataKey === "resumeFormatScore")?.value || 0;
+      const readinessScore =
+        payload.find((p: any) => p.dataKey === "bigtechReadinessScore")?.value || 0;
+      const averageScore = Math.round(((formatScore + readinessScore) / 2) * 10) / 10;
 
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-md">
@@ -107,21 +117,21 @@ const User_progress = () => {
             <div className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-sm"
-                style={{ backgroundColor: FORMAT_COLOR }}
+                style={{ backgroundColor: RESUME_FORMAT_COLOR }}
               ></div>
               <span className="text-sm">Resume Format: {formatScore}/10</span>
             </div>
             <div className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-sm"
-                style={{ backgroundColor: BIGTECH_COLOR }}
+                style={{ backgroundColor: BIGTECH_READINESS_COLOR }}
               ></div>
               <span className="text-sm">
-                Big Tech Readiness: {bigtechScore}/10
+                Big Tech Readiness: {readinessScore}/10
               </span>
             </div>
             <div className="border-t pt-1 mt-2">
-              <span className="text-sm font-medium">Average: {average}/10</span>
+              <span className="text-sm font-medium">Average: {averageScore}/10</span>
             </div>
           </div>
         </div>
@@ -171,31 +181,31 @@ const User_progress = () => {
         {/* Body of the card: loading, empty, or chart */}
         <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 flex-1 flex flex-col">
           {FetchingResume ? (
-            // Loading spinner
+            // Loading spinner while fetching data
             <div className="flex-1 flex flex-col items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-gray-500 mb-4" />
               <p className="text-gray-500">Loading resume scores...</p>
             </div>
-          ) : barChartData.length === 0 ? (
-            // Empty state when no resumes
+          ) : visibleChartData.length === 0 ? (
+            // Empty state when no resumes uploaded yet
             <div className="flex-1 flex flex-col items-center justify-center text-center">
               <p className="text-gray-500 text-lg">
                 No scores yet. Upload a résumé to see results.
               </p>
             </div>
           ) : (
-            // Actual chart rendering
+            // Bar chart visualization
             <div aria-label="Resume scores chart" className="flex-1 min-h-0">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={barChartData}
+                  data={visibleChartData}
                   margin={chartMargin}
                   barCategoryGap="20%"
                   barGap={2}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  {SHOW_LABELS ? (
-                    // Show labels when manageable count
+                  {shouldShowAxisLabels ? (
+                    // Show truncated labels when count is manageable
                     <XAxis
                       dataKey="name"
                       tickLine={false}
@@ -203,12 +213,12 @@ const User_progress = () => {
                       tickMargin={8}
                       interval={0}
                       tick={{ fontSize: 10 }}
-                      tickFormatter={(v: string) =>
-                        v?.length > 15 ? v.slice(0, 15) + "…" : v
+                      tickFormatter={(value: string) =>
+                        value?.length > 15 ? value.slice(0, 15) + "…" : value
                       }
                     />
                   ) : (
-                    // Hide labels if too many resumes
+                    // Hide labels when too many resumes
                     <XAxis
                       dataKey="name"
                       tick={false}
@@ -218,19 +228,20 @@ const User_progress = () => {
                     />
                   )}
                   <YAxis domain={[0, 10]} tickLine={false} axisLine={false} />
-                  <Tooltip content={<CustomTooltip />} />
+                  <Tooltip content={<ChartTooltip />} />
                   <Legend />
-                  {/* Bars for each score type */}
+                  {/* Resume Format score bars */}
                   <Bar
-                    dataKey="resume_format"
+                    dataKey="resumeFormatScore"
                     name="Resume Format"
-                    fill={FORMAT_COLOR}
+                    fill={RESUME_FORMAT_COLOR}
                     radius={[6, 6, 0, 0]}
                   />
+                  {/* Big Tech Readiness score bars */}
                   <Bar
-                    dataKey="bigtech_readiness"
+                    dataKey="bigtechReadinessScore"
                     name="Big Tech Readiness"
-                    fill={BIGTECH_COLOR}
+                    fill={BIGTECH_READINESS_COLOR}
                     radius={[6, 6, 0, 0]}
                   />
                 </BarChart>
@@ -243,4 +254,4 @@ const User_progress = () => {
   );
 };
 
-export default User_progress;
+export default UserProgress;

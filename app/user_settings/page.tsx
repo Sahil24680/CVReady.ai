@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Profile from "./components/Profile";
-import Mange_uploads from "./components/Mange_uploads";
+import ManageUploads from "./components/ManageUploads";
 import Skeleton from "react-loading-skeleton";
 import { useEffect } from "react";
 import { useResumeContext } from "@/contexts/ResumeContext";
@@ -15,7 +15,7 @@ import EvaluationModal from "@/app/components/EvaluationModal";
  * - Tabbed interface for switching between Profile and Resume Uploads
  * - Displays skeleton loader while data is being fetched
  * - Integrates with ResumeContext for profile/resume data and refresh logic
- * - Passes props to modular subcomponents: Profile and Mange_uploads
+ * - Passes props to modular subcomponents: Profile and ManageUploads
  */
 
 
@@ -76,7 +76,7 @@ const Setting = () => {
         )}
         {activeTab === "Uploads" && (
           <div className="animate-fadeIn ">
-            <Mange_uploads resumeData={resumeData} refresh={refreshResumes} />
+            <ManageUploads resumeData={resumeData} refresh={refreshResumes} />
           </div>
         )}
       </div>

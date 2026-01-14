@@ -17,7 +17,7 @@ import { useModal } from "@/contexts/ModalContext";
 import { useResumeContext } from "@/contexts/ResumeContext";
 import { supabase } from "@/app/utils/supabase/client";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { openEvaluation } = useModal();
+  const { openEvaluationModal } = useModal();
   const { profileData } = useResumeContext();
 
   // get name the same way you had it
@@ -50,7 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     // { title: "Refine", url: "/refine", icon: PencilSquareIcon, isActive: true },
     { title: "Interview", url: "/interview", icon: Bot, isActive: true },
     { title: "Analysis", url: "/analysis", icon: ChartBarIcon },
-    { title: "Evaluation", icon: InformationCircleIcon, onClick: openEvaluation },
+    { title: "Evaluation", icon: InformationCircleIcon, onClick: openEvaluationModal },
   ];
 
   return (
