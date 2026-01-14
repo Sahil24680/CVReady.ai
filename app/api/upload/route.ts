@@ -38,12 +38,17 @@ import {
 } from "./Prompt";
 
 // ---------------------- CONSTANTS ----------------------
+
+/**
+ * Token budget scales with how many weak areas the resume has.
+ * Stronger resumes need less feedback tokens; weaker ones get more detailed analysis.
+ */
 const TOKEN_BUDGET: Record<number, number> = {
-  0: 900,  // Resume is strong
-  1: 1200,
-  2: 1500,
+  0: 900,  // Resume is strong - minimal feedback needed
+  1: 1200, // One weak area
+  2: 1500, // Two weak areas
 };
-const DEFAULT_TOKEN_BUDGET = 1800; // 3+ deficits
+const DEFAULT_TOKEN_BUDGET = 1800; // 3+ weak areas - maximum feedback
 
 const DEFAULT_GRADING: GradeV2 = {
   scores: { format: 3, impact: 3, tech_depth: 3, projects: 3 },
@@ -52,12 +57,27 @@ const DEFAULT_GRADING: GradeV2 = {
   format_checks: DEFAULT_FORMAT_CHECKS,
 };
 
-const TEMPLATE = buildAnalysisPrompt();
+const ANALYSIS_PROMPT_TEMPLATE = buildAnalysisPrompt();
 const MODEL = OPENAI_CONF.MODEL;
 const SMALL_MODEL = OPENAI_CONF.SMALL_MODEL;
 const openai = new OpenAI({ apiKey: OPENAI_CONF.API_KEY });
 
 // ---------------------- HANDLER ----------------------
+
+/**
+ * Resume upload and analysis endpoint.
+ *
+ * Uses a two-pass AI analysis system:
+ * 1. GRADER PASS (fast, cheap model): Scores resume on format/impact/depth/projects,
+ *    identifies weak areas, and determines token budget for detailed analysis
+ * 2. DEEP PASS (powerful model): Generates detailed, actionable feedback using
+ *    RAG context and scoped prompts based on the grader's findings
+ *
+ * Also implements:
+ * - Request locking to prevent concurrent uploads per user
+ * - Token-based rate limiting
+ * - Deterministic format scoring combined with AI readiness score
+ */
 export async function POST(req: Request) {
   let userId: string | null = null;
   let lockHeld = false;
@@ -207,23 +227,23 @@ export async function POST(req: Request) {
     const deficits = grading.focus_areas.length;
     const maxTokens = TOKEN_BUDGET[deficits] ?? DEFAULT_TOKEN_BUDGET;
 
-    // 3.5 RAG block
-    const contextRes = await safe(() => buildContext(role, grading));
-    const CONTEXT = contextRes.success ? contextRes.data : "";
-    if (!contextRes.success) {
+    // 3.5 RAG block - retrieves relevant context from vector database
+    const contextResult = await safe(() => buildContext(role, grading));
+    const ragContext = contextResult.success ? contextResult.data : "";
+    if (!contextResult.success) {
       console.warn(
-        "[upload] RAG retrieval failed; continuing without CONTEXT",
-        contextRes.error
+        "[upload] RAG retrieval failed; continuing without context",
+        contextResult.error
       );
     }
-    console.log("[upload] CONTEXT length", CONTEXT.length);
-    console.log("context:", CONTEXT);
+    console.log("[upload] ragContext length", ragContext.length);
+    console.log("context:", ragContext);
 
-    // 4) DEEP PASS — scope guardrails +  template
+    // 4) DEEP PASS — combines scoped prompt with RAG context for detailed analysis
     const scopedTemplate =
-      buildScopedPrompt(TEMPLATE, { ...grading, role }) +
-      (CONTEXT ? `\n\n${CONTEXT}` : "");
-    const resp = await openai.responses.parse({
+      buildScopedPrompt(ANALYSIS_PROMPT_TEMPLATE, { ...grading, role }) +
+      (ragContext ? `\n\n${ragContext}` : "");
+    const analysisResponse = await openai.responses.parse({
       model: MODEL,
       temperature: 0.5, // slightly creative for coaching prose
       max_output_tokens: maxTokens,
@@ -241,51 +261,56 @@ export async function POST(req: Request) {
       text: { format: zodTextFormat(FeedbackSchema, "feedback") },
     });
 
-    if (!resp.output_parsed) {
+    if (!analysisResponse.output_parsed) {
       throw new Error("Failed to parse feedback from resume analysis.");
     }
-    const parsed = resp.output_parsed as z.infer<typeof FeedbackSchema>;
+    const parsedFeedback = analysisResponse.output_parsed as z.infer<typeof FeedbackSchema>;
 
-    // Combine model's 1–7 with deterministic format (0–3) → final 1–10
+    /**
+     * Final score calculation:
+     * - AI model provides a 1-7 "readiness" score based on content quality
+     * - Format score (0-3) is computed deterministically from checklist
+     * - Combined to produce final 1-10 score for user display
+     */
     const rawModelReadiness = Number(
-      parsed.feedback.big_tech_readiness_score ?? 0
+      parsedFeedback.feedback.big_tech_readiness_score ?? 0
     );
     const finalReadiness = combineReadinessWithFormat(
       rawModelReadiness,
       deterministicFormatScore
     );
-    // Overwrite the numeric score we return/store
-    parsed.feedback.big_tech_readiness_score = finalReadiness;
-    // This is to add the resume_format score to the feedback block
+    parsedFeedback.feedback.big_tech_readiness_score = finalReadiness;
+
+    // Merge format score into the final feedback object
     const feedback = {
-      ...parsed,
+      ...parsedFeedback,
       feedback: {
-        ...parsed.feedback,
+        ...parsedFeedback.feedback,
         resume_format_score: deterministicFormatScore,
       },
     };
 
-    // 5) Clean up file from OpenAI
-    const delRes = await safe(() => openai.files.delete(uploaded.id));
-    if (!delRes.success) {
+    // 5) Clean up uploaded file from OpenAI storage
+    const deleteResult = await safe(() => openai.files.delete(uploaded.id));
+    if (!deleteResult.success) {
       console.warn(
         "[upload] Could not delete OpenAI file (safe to ignore).",
-        delRes.error
+        deleteResult.error
       );
     }
 
-    // 6) Insert the data into the DB
+    // 6) Persist analysis results to database
     const supabase = await createSbServer();
-    const { error: dbErr } = await supabase.from("Resume_datas").insert({
+    const { error: insertError } = await supabase.from("Resume_datas").insert({
       Resume_name: file.name,
       openai_feedback: feedback,
       user_id: currentUserId,
       created_at: new Date().toISOString(),
       Role: role,
     });
-    if (dbErr) {
-      console.error("[upload] Supabase insert error:", dbErr);
-      return NextResponse.json({ error: dbErr.message }, { status: 500 });
+    if (insertError) {
+      console.error("[upload] Supabase insert error:", insertError);
+      return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
     // Return validated feedback JSON to the client
@@ -297,11 +322,12 @@ export async function POST(req: Request) {
       err instanceof Error ? err.message : "Something went wrong";
     return NextResponse.json({ error: message }, { status: 500 });
   } finally {
+    // Always release the request lock to allow future uploads
     if (lockHeld && userId) {
       const userIdToRelease = userId;
-      const rel = await safe(() => release_request_lock(userIdToRelease));
-      if (!rel.success) {
-        console.error("[upload] lock release error:", rel.error);
+      const releaseResult = await safe(() => release_request_lock(userIdToRelease));
+      if (!releaseResult.success) {
+        console.error("[upload] lock release error:", releaseResult.error);
       }
     }
   }

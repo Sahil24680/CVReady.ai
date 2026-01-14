@@ -1,7 +1,13 @@
 import type { Role } from "@/app/utils/rag/retrieve";
 
-
-// Big model prompt 
+/**
+ * Builds the main analysis prompt for the powerful AI model.
+ * This prompt instructs the model to act as a Big Tech career advisor
+ * and provide detailed, actionable feedback on the resume.
+ *
+ * Scoring uses a 1-7 scale based on rubrics and ATS keyword matching.
+ * The backend adds 0-3 format points separately.
+ */
 export function buildAnalysisPrompt(): string {
   return `
 You are an elite Big Tech career advisor from companies like Google, Meta, and Amazon.
@@ -44,7 +50,16 @@ Return exactly:
 `;
 }
 
-// Small model grading prompt
+/**
+ * Builds the grading prompt for the fast/cheap AI model (first pass).
+ * This model quickly evaluates the resume across 4 dimensions:
+ * - format: structure, ATS compatibility, section presence
+ * - impact: quantified achievements, clear outcomes
+ * - tech_depth: technical specificity, architecture mentions
+ * - projects: ownership, deployment, scale evidence
+ *
+ * Also identifies weak bullets that need improvement in the deep pass.
+ */
 export function buildGraderPrompt(): string {
   return `
 Return STRICT JSON only with this shape:
@@ -80,14 +95,22 @@ Rules (BE STRICT):
 `;
 }
 
-
-
-
-// Scope wrapper for the deep pass
-export function buildScopedPrompt(baseTemplate: string, grade: {
-  focus_areas: string[];
-  weak_bullets: any[];role: Role
-}): string {
+/**
+ * Wraps the base analysis prompt with scope guardrails.
+ * Ensures the deep pass model focuses only on the weak areas
+ * identified by the grader, preventing generic/unfocused feedback.
+ *
+ * @param baseTemplate - The main analysis prompt template
+ * @param grade - Grading results containing focus areas and weak bullets
+ */
+export function buildScopedPrompt(
+  baseTemplate: string,
+  grade: {
+    focus_areas: string[];
+    weak_bullets: unknown[];
+    role: Role;
+  }
+): string {
   return `
   # SCOPE GUARDRAILS (STRICT)
   role = ${JSON.stringify(grade.role ?? null)}

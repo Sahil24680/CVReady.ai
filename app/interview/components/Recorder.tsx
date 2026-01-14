@@ -2,8 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Mic, RefreshCw, Square } from "lucide-react";
-import {  GhostButton } from "./Buttons";
+import { GhostButton } from "./Buttons";
 
+/**
+ * Audio recording component with visual waveform display.
+ * Tracks recording duration and notifies parent when recording completes.
+ */
 export default function Recorder({
   onRecordingComplete,
   hasRecording,
@@ -12,39 +16,41 @@ export default function Recorder({
   hasRecording: boolean;
 }) {
   const [isRecording, setIsRecording] = useState(false);
-  const [seconds, setSeconds] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Start/stop timer based on recording state
   useEffect(() => {
     if (isRecording) {
-      intervalRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+      timerIntervalRef.current = setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
+    } else if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
     }
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
   }, [isRecording]);
 
   const handleToggleRecording = () => {
     if (isRecording) {
       setIsRecording(false);
-      onRecordingComplete(seconds);
+      onRecordingComplete(elapsedSeconds);
     } else {
-      setSeconds(0);
+      setElapsedSeconds(0);
       setIsRecording(true);
     }
   };
 
   const handleReRecord = () => {
-    setSeconds(0);
+    setElapsedSeconds(0);
     setIsRecording(false);
   };
 
-  const formatTime = (sec: number) => {
-    const mins = Math.floor(sec / 60);
-    const secs = sec % 60;
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  /** Formats seconds into MM:SS display string */
+  const formatTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
   return (
@@ -63,7 +69,7 @@ export default function Recorder({
         </button>
 
         <div className="text-center">
-          <div className="text-3xl font-bold text-gray-800 font-mono">{formatTime(seconds)}</div>
+          <div className="text-3xl font-bold text-gray-800 font-mono">{formatTime(elapsedSeconds)}</div>
           <p className="text-sm text-gray-500 mt-1">{isRecording ? "Recording..." : "Ready to record"}</p>
         </div>
       </div>
@@ -87,7 +93,7 @@ export default function Recorder({
             <CheckCircle2 className="w-5 h-5 text-green-600" />
             <div>
               <p className="text-sm font-medium text-gray-800">Recording Complete</p>
-              <p className="text-xs text-gray-500">Duration: {formatTime(seconds)}</p>
+              <p className="text-xs text-gray-500">Duration: {formatTime(elapsedSeconds)}</p>
             </div>
           </div>
           <GhostButton icon={<RefreshCw className="w-4 h-4" />} onClick={handleReRecord} className="text-sm">

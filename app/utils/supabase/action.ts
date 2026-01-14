@@ -1,7 +1,16 @@
 "use server";
+
+/**
+ * Server actions for authentication, profile management, and rate limiting.
+ * These functions run on the server and can be called from client components.
+ */
+
 import { createClient } from "@/app/utils/supabase/server";
 import { redirect } from "next/navigation";
 
+// ---------------------- AUTHENTICATION ----------------------
+
+/** Authenticate user with email and password */
 export async function login(formData: FormData) {
   const supabase = await createClient();
   const email = formData.get("email") as string;
@@ -11,6 +20,7 @@ export async function login(formData: FormData) {
   return error ? { error } : { success: true };
 }
 
+/** Register a new user account */
 export async function signup(formData: FormData) {
   const supabase = await createClient();
   const email = formData.get("email") as string;
@@ -20,12 +30,16 @@ export async function signup(formData: FormData) {
   return error ? { error } : { success: true };
 }
 
+/** Sign out the current user and redirect to login */
 export async function logout() {
   const supabase = await createClient();
-  const { error } = await supabase.auth.signOut();
+  await supabase.auth.signOut();
   redirect("/auth/login");
 }
 
+// ---------------------- PROFILE MANAGEMENT ----------------------
+
+/** Update user's password */
 export async function updatePassword(newPassword: string) {
   const supabase = await createClient();
 
@@ -33,6 +47,7 @@ export async function updatePassword(newPassword: string) {
   return error ? { error } : { success: true };
 }
 
+/** Update user's first and last name in their profile */
 export async function updateName(
   userId: string,
   firstName: string,
@@ -47,6 +62,7 @@ export async function updateName(
   return error ? { error } : { success: true };
 }
 
+/** Upload a profile picture to storage and update the profile record */
 export async function uploadProfilePicture(userId: string, file: File) {
   const supabase = await createClient();
 
@@ -72,6 +88,7 @@ export async function uploadProfilePicture(userId: string, file: File) {
   return dbError ? { error: dbError } : { success: true, url: publicUrl };
 }
 
+/** Get the currently authenticated user */
 export async function getUser() {
   const supabase = await createClient();
   try {
@@ -81,11 +98,17 @@ export async function getUser() {
     }
     return data.user;
   } catch (error) {
-    // @ts-ignore
-    return { error: error.message };
+    return { error: (error as Error).message };
   }
 }
 
+// ---------------------- RATE LIMITING & LOCKING ----------------------
+
+/**
+ * Check if user can make an upload request.
+ * Creates a lock record if one doesn't exist (new users get 3 tokens).
+ * Returns lock availability and remaining tokens.
+ */
 export async function request_lock_and_tokens(userId: string) {
   const supabase = await createClient();
 
@@ -117,9 +140,15 @@ export async function request_lock_and_tokens(userId: string) {
   return { is_available: row.is_available, tokens: row.tokens_remaining };
 }
 
+/**
+ * Acquire the upload lock for a user and decrement their token count.
+ * Uses optimistic locking (only updates if is_available=true) to prevent races.
+ * Returns true if lock acquired, false if already locked.
+ */
 export async function set_request_lock(userId: string) {
   const supabase = await createClient();
-  // set the lock
+
+  // Atomically claim the lock (only succeeds if currently available)
   const { data, error } = await supabase
     .from("request_lock")
     .update({ is_available: false })
@@ -129,25 +158,26 @@ export async function set_request_lock(userId: string) {
     .maybeSingle();
 
   if (error) throw error;
-  if (!data) return false;
+  if (!data) return false; // Lock was already held by another request
 
-  // decrement token
-  const { error: decErr } = await supabase
+  // Decrement the token count
+  const { error: decrementError } = await supabase
     .from("request_lock")
     .update({ tokens_remaining: data.tokens_remaining - 1 })
     .eq("user_id", userId);
 
-  if (decErr) {
-    // prevent a stuck lock if decrement fails
+  if (decrementError) {
+    // Release the lock if token decrement fails to prevent stuck state
     await supabase
       .from("request_lock")
       .update({ is_available: true })
       .eq("user_id", userId);
-    throw decErr;
+    throw decrementError;
   }
   return true;
 }
 
+/** Release the upload lock so user can make another request */
 export async function release_request_lock(userId: string): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase

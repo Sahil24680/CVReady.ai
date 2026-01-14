@@ -1,4 +1,15 @@
 "use client";
+
+/**
+ * Interview Practice Page
+ *
+ * Allows users to record or upload audio responses to practice interview questions.
+ * Audio is sent to the backend for transcription and AI-powered evaluation.
+ * Results include metrics, question-by-question feedback, and improvement suggestions.
+ *
+ * Note: No data is persisted - everything is cleared on page refresh.
+ */
+
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import {

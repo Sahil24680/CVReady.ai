@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import MiddleBox from "@/app/components/Middle_box";
-import RightBar from "@/app/components/Right_bar";
+import MiddleBox from "@/app/components/MiddleBox";
+import RightBar from "@/app/components/RightBar";
 import { ResumeRecord } from "@/types/resume";
 import EvaluationModal from "@/app/components/EvaluationModal";
 

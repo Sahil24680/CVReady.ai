@@ -2,19 +2,17 @@
 import { ResumeRecord } from "@/types/resume";
 import { useEffect, useMemo } from "react";
 import { useResumeContext } from "@/contexts/ResumeContext";
-import Progressbar from "./Progress_bar";
+import ProgressBar from "./ProgressBar";
 import WelcomeMessage from "./WelcomeMessage";
 import Skeleton from "react-loading-skeleton";
 import MD from "@/app/components/MD";
 import { Trophy, Target, Lightbulb, MessageSquare } from "lucide-react";
 
 /**
- * Middle bar component
- *
- * Utility function — extracted outside the component to avoid
- * redefinition on every render and improve readability.
+ * Renders a bulleted list of feedback items with Markdown support.
+ * Extracted outside the component to avoid redefinition on every render.
  */
-const renderitems = (items: string[]) => (
+const renderBulletItems = (items: string[]) => (
   <ul className="list-disc pl-5 space-y-1">
     {items.map((item, index) => (
       <li key={index} className="text-gray-700 text-md">
@@ -52,19 +50,19 @@ const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
   }, [resumeData]);
 
   const strengthsList = useMemo(() => {
-    return renderitems(
+    return renderBulletItems(
       selectedResume?.openai_feedback?.feedback?.strengths || []
     );
   }, [selectedResume]);
 
   const weaknessesList = useMemo(() => {
-    return renderitems(
+    return renderBulletItems(
       selectedResume?.openai_feedback?.feedback?.weaknesses || []
     );
   }, [selectedResume]);
 
   const tipsList = useMemo(() => {
-    return renderitems(selectedResume?.openai_feedback?.feedback?.tips || []);
+    return renderBulletItems(selectedResume?.openai_feedback?.feedback?.tips || []);
   }, [selectedResume]);
 
   const motivationText = useMemo(() => {
@@ -135,7 +133,7 @@ const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
               </h3>
               <div className="flex justify-center gap-12">
                 <div className="flex flex-col items-center">
-                  <Progressbar
+                  <ProgressBar
                     score={
                       selectedResume?.openai_feedback?.feedback
                         ?.big_tech_readiness_score ?? 0
@@ -146,7 +144,7 @@ const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
                   </span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <Progressbar
+                  <ProgressBar
                     score={
                       selectedResume?.openai_feedback?.feedback
                         ?.resume_format_score ?? 0

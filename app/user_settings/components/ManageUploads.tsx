@@ -19,7 +19,7 @@ interface UploadProps {
   refresh: () => void;
 }
 
-const Mange_uploads = ({ resumeData, refresh }: UploadProps) => {
+const ManageUploads = ({ resumeData, refresh }: UploadProps) => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newName, setNewName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -117,4 +117,4 @@ const Mange_uploads = ({ resumeData, refresh }: UploadProps) => {
   );
 };
 
-export default Mange_uploads;
+export default ManageUploads;

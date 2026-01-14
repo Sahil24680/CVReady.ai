@@ -20,17 +20,21 @@ import Skeleton from "react-loading-skeleton";
  * - Displays uploaded resumes and allows selection which tells MiddleBox wich resume data to dispaly.
  */
 
-interface Rightbox_props {
+interface RightBarProps {
   setSelectedResume: React.Dispatch<React.SetStateAction<ResumeRecord | null>>;
 }
+
 type Role = "Frontend Engineer" | "Backend Engineer" | "Full-Stack Engineer";
+
+// File upload constraints
 const MAX_FILE_SIZE_MB = 1;
 const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
 const ALLOWED_MIME_TYPES = [
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
-const RightBar = ({ setSelectedResume }: Rightbox_props) => {
+
+const RightBar = ({ setSelectedResume }: RightBarProps) => {
   const [open, setOpen] = useState(false);
   const { resumeData, refreshResumes, FetchingResume } = useResumeContext();
 

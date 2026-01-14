@@ -1,5 +1,17 @@
 export const runtime = "nodejs";
 
+/**
+ * Audio Feedback API Endpoint
+ *
+ * Processes audio recordings for interview practice:
+ * 1. Transcribes audio using Whisper (with pause detection)
+ * 2. Annotates transcript with tone/delivery cues
+ * 3. Grades response using AI evaluation
+ * 4. Returns structured feedback with metrics and suggestions
+ *
+ * Implements rate limiting via token system and request locking.
+ */
+
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -14,7 +26,6 @@ import {
 import { safe } from "@/lib/safe";
 import { SYSTEM_PROMPT } from "@/app/interview/components/Prompt";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
-
 
 export async function POST(req: Request) {
   let userId: string | null = null;
@@ -231,7 +242,10 @@ Return only the annotated transcript.`,
       filename: file.name,
     };
 
-    console.log("📦 Final full JSON report:\n", JSON.stringify(report, null, 2));
+    console.log(
+      "📦 Final full JSON report:\n",
+      JSON.stringify(report, null, 2)
+    );
 
     // Return structured JSON to client
     return NextResponse.json(report, { status: 200 });
@@ -243,11 +257,11 @@ Return only the annotated transcript.`,
       { status: 500 }
     );
   } finally {
-    // ---------------------- LOCK RELEASE ----------------------
+    // Always release the request lock to allow future requests
     if (lockHeld && userId) {
-      const rel = await safe(() => release_request_lock(userId as string));
-      if (!rel.success) {
-        console.error("[audio-feedback] lock release error:", rel.error);
+      const releaseResult = await safe(() => release_request_lock(userId as string));
+      if (!releaseResult.success) {
+        console.error("[audio-feedback] lock release error:", releaseResult.error);
       }
     }
   }

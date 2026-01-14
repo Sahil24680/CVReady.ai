@@ -26,7 +26,7 @@ type NavButtonProps = {
   onClick?: () => void;
 };
 
-const Side_bar = () => {
+const SideBar = () => {
   const router = useRouter();
   const { profileData, FetchingProfile } = useResumeContext();
   const { openEvaluation } = useModal();
@@ -97,4 +97,4 @@ const Side_bar = () => {
   );
 };
 
-export default Side_bar;
+export default SideBar;

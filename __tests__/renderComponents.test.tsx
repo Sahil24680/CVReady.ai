@@ -1,9 +1,9 @@
 import { render } from "@testing-library/react";
 import WelcomeMessage from "@/app/components/WelcomeMessage";
-import MiddleBox from "@/app/components/Middle_box";
+import MiddleBox from "@/app/components/MiddleBox";
 import User_progress from "@/app/analysis/page";
 import Setting from "@/app/user_settings/page";
-import Mange_uploads from "@/app/user_settings/components/Mange_uploads";
+import ManageUploads from "@/app/user_settings/components/ManageUploads";
 import Profile from "@/app/user_settings/components/Profile";
 import { ResumeProvider } from "@/contexts/ResumeContext";
 //Smoke tests
@@ -58,7 +58,7 @@ describe("Componnents render wihtout crashing", () => {
   it("renders without crashing", () => {
     render(
       <ResumeProvider>
-        <Mange_uploads resumeData={[dummyResume]} refresh={() => {}}/>
+        <ManageUploads resumeData={[dummyResume]} refresh={() => {}}/>
       </ResumeProvider>
     );
   });

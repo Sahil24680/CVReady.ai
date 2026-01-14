@@ -8,7 +8,7 @@ import {
 import Profile from "@/app/user_settings/components/Profile";
 import { ResumeProvider } from "@/contexts/ResumeContext";
 import { toast } from "react-toastify";
-import RightBar from "@/app/components/Right_bar";
+import RightBar from "@/app/components/RightBar";
 
 describe("RightBar Component", () => {
   beforeEach(() => {

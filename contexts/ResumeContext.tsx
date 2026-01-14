@@ -37,7 +37,7 @@ type ResumeContextType = {
 
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
 
-/* util preserved */
+/** Formats ISO date string to MM/DD/YYYY for display */
 function formatDate(isoString: string): string {
   const date = new Date(isoString);
   return date.toLocaleDateString("en-US", {
@@ -47,10 +47,12 @@ function formatDate(isoString: string): string {
   });
 }
 
-
+/**
+ * Hook to get the current authenticated user's ID.
+ * Returns: undefined (checking), string (logged in), or null (logged out)
+ */
 function useAuthUserId() {
-   // undefined = still checking, string = logged in, null = logged out
-   const [userId, setUserId] = useState<string | null | undefined>(undefined);
+  const [userId, setUserId] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -61,7 +63,7 @@ function useAuthUserId() {
   return userId;
 }
 
-// resumes query 
+/** Fetches all resumes for a user, sorted by creation date (newest first) */
 function useResumesQuery(userId: string | null) {
   return useQuery({
     queryKey: ["resumes", userId],
@@ -92,7 +94,7 @@ function useResumesQuery(userId: string | null) {
   });
 }
 
-// profile query 
+/** Fetches the user's profile data from Supabase */
 function useProfileQuery(userId: string | null) {
   return useQuery({
     queryKey: ["profile", userId],
@@ -113,7 +115,10 @@ function useProfileQuery(userId: string | null) {
   });
 }
 
-// Provides React Query and resume/profile context to all child components
+/**
+ * Root provider that sets up React Query and resume/profile context.
+ * Wrap your app with this to enable data fetching and caching.
+ */
 export const ResumeProvider = ({ children }: { children: ReactNode }) => {
   const [queryClient] = useState(() => new QueryClient());
 
@@ -124,28 +129,35 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Helper used by ResumeProvider: fetches data with React Query and exposes it through context
+/**
+ * Inner provider that handles data fetching with React Query.
+ * Separated from ResumeProvider to access QueryClient via hooks.
+ */
 function ResumeProviderInner({ children }: { children: ReactNode }) {
   const userId = useAuthUserId();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
 
-  // Queries replace useEffect + local arrays
-  const resumesQ = useResumesQuery(userId ?? null);
-  const profileQ = useProfileQuery(userId ?? null);
-  const waitingForAuth = userId === undefined;
+  const resumesQuery = useResumesQuery(userId ?? null);
+  const profileQuery = useProfileQuery(userId ?? null);
 
-  const initialResumesLoad = !!userId && resumesQ.isPending && !resumesQ.data;
-  const initialProfileLoad = !!userId && profileQ.isPending && !profileQ.data;
-  
-  const FetchingResume  = waitingForAuth || initialResumesLoad;
-  const FetchingProfile = waitingForAuth || initialProfileLoad;
-  
+  // Show loading state while checking auth or fetching initial data
+  const isAuthenticating = userId === undefined;
+  const isInitialResumesLoad = !!userId && resumesQuery.isPending && !resumesQuery.data;
+  const isInitialProfileLoad = !!userId && profileQuery.isPending && !profileQuery.data;
 
-  const resumeData  = resumesQ.data ?? [];
-  const profileData = profileQ.data ?? null;
+  const FetchingResume = isAuthenticating || isInitialResumesLoad;
+  const FetchingProfile = isAuthenticating || isInitialProfileLoad;
 
-  const refreshResumes = () => { if (userId) qc.invalidateQueries({ queryKey: ["resumes", userId] }) };
-  const refreshProfile = () => { if (userId) qc.invalidateQueries({ queryKey: ["profile", userId] }) };
+  const resumeData = resumesQuery.data ?? [];
+  const profileData = profileQuery.data ?? null;
+
+  // Invalidate cache to trigger refetch
+  const refreshResumes = () => {
+    if (userId) queryClient.invalidateQueries({ queryKey: ["resumes", userId] });
+  };
+  const refreshProfile = () => {
+    if (userId) queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+  };
 
 
   return (
