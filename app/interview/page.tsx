@@ -95,9 +95,10 @@ export default function InterviewPage() {
         source: hasRecording ? "recording" : "upload",
         filename: data.filename ?? fileToSend.name,
       });
-    } catch (err: any) {
-      console.error("Submit error:", err);
-      // toast.error(err.message || "Failed to process audio");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to process audio';
+      console.error("Submit error:", message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

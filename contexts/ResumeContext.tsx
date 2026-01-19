@@ -31,8 +31,8 @@ type ResumeContextType = {
   profileData: User_profile | null;
   refreshResumes: () => void;
   refreshProfile: () => void;
-  FetchingResume: boolean;
-  FetchingProfile: boolean;
+  isLoadingResume: boolean;
+  isLoadingProfile: boolean;
 };
 
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
@@ -61,11 +61,22 @@ function useAuthUserId() {
   return userId;
 }
 
-// resumes query 
+// Database row type for Resume_datas table
+interface ResumeDataRow {
+  id: number;
+  Resume_name: string;
+  openai_feedback: any;
+  created_at: string;
+  Role: string;
+  user_id: string;
+}
+
+// resumes query
 function useResumesQuery(userId: string | null) {
   return useQuery({
     queryKey: ["resumes", userId],
     enabled: !!userId, // don't run until we know the user
+    staleTime: 5 * 60 * 1000, // 5 minutes - prevent unnecessary refetches
     queryFn: async () => {
       const { data, error } = await supabase
         .from("Resume_datas")
@@ -79,7 +90,7 @@ function useResumesQuery(userId: string | null) {
       }
 
       const structured: ResumeRecord[] =
-        data?.map((row: any) => ({
+        data?.map((row: ResumeDataRow) => ({
           id: row.id,
           resume_name: row.Resume_name,
           openai_feedback: row.openai_feedback,
@@ -92,11 +103,12 @@ function useResumesQuery(userId: string | null) {
   });
 }
 
-// profile query 
+// profile query
 function useProfileQuery(userId: string | null) {
   return useQuery({
     queryKey: ["profile", userId],
     enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes - prevent unnecessary refetches
     queryFn: async () => {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -136,9 +148,9 @@ function ResumeProviderInner({ children }: { children: ReactNode }) {
 
   const initialResumesLoad = !!userId && resumesQ.isPending && !resumesQ.data;
   const initialProfileLoad = !!userId && profileQ.isPending && !profileQ.data;
-  
-  const FetchingResume  = waitingForAuth || initialResumesLoad;
-  const FetchingProfile = waitingForAuth || initialProfileLoad;
+
+  const isLoadingResume  = waitingForAuth || initialResumesLoad;
+  const isLoadingProfile = waitingForAuth || initialProfileLoad;
   
 
   const resumeData  = resumesQ.data ?? [];
@@ -155,8 +167,8 @@ function ResumeProviderInner({ children }: { children: ReactNode }) {
         profileData,
         refreshResumes,
         refreshProfile,
-        FetchingResume,
-        FetchingProfile,
+        isLoadingResume,
+        isLoadingProfile,
       }}
     >
       {children}

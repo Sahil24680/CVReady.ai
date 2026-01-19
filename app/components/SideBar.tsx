@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/solid";
 import { InformationCircleIcon,PencilSquareIcon } from "@heroicons/react/24/solid";
 import { Cog6ToothIcon } from "@heroicons/react/24/solid";
@@ -20,7 +21,7 @@ import { useModal } from "@/contexts/ModalContext";
  * - Handles logout via Supabase and redirects to login page
  */
 type NavButtonProps = {
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   path?: string;
   onClick?: () => void;
@@ -28,7 +29,7 @@ type NavButtonProps = {
 
 const SideBar = () => {
   const router = useRouter();
-  const { profileData, FetchingProfile } = useResumeContext();
+  const { profileData, isLoadingProfile } = useResumeContext();
   const { openEvaluationModal } = useModal();
   
   const NavButton = ({ icon: Icon, label, path, onClick }: NavButtonProps) => {
@@ -56,7 +57,7 @@ const SideBar = () => {
       <div className="w-full ">
         <div className="flex flex-col items-center pb-4">
           <div>
-            {FetchingProfile ? (
+            {isLoadingProfile ? (
               <Skeleton
                 circle
                 width={80}
@@ -64,9 +65,11 @@ const SideBar = () => {
                 className="rounded-full"
               />
             ) : (
-              <img
-                src={profileData?.profile_picture}
+              <Image
+                src={profileData?.profile_picture || '/images/android.png'}
                 alt="Profile Picture"
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-full border-2 border-white object-cover shadow-md"
               />
             )}

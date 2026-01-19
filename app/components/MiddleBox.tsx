@@ -1,6 +1,7 @@
 "use client";
 import { ResumeRecord } from "@/types/resume";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
+import Image from "next/image";
 import { useResumeContext } from "@/contexts/ResumeContext";
 import Progressbar from "./ProgressBar";
 import WelcomeMessage from "./WelcomeMessage";
@@ -11,10 +12,10 @@ import { Trophy, Target, Lightbulb, MessageSquare } from "lucide-react";
 /**
  * Middle bar component
  *
- * Utility function — extracted outside the component to avoid
- * redefinition on every render and improve readability.
+ * Utility function for rendering list items with markdown support.
+ * Extracted to avoid redefinition on every render.
  */
-const renderitems = (items: string[]) => (
+const renderItems = (items: string[]) => (
   <ul className="list-disc pl-5 space-y-1">
     {items.map((item, index) => (
       <li key={index} className="text-gray-700 text-md">
@@ -38,7 +39,7 @@ interface MiddleBoxProps {
 }
 
 const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
-  const { resumeData, FetchingResume } = useResumeContext();
+  const { resumeData, isLoadingResume } = useResumeContext();
 
   useEffect(() => {
     if (resumeData.length > 0) {
@@ -52,26 +53,26 @@ const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
   }, [resumeData]);
 
   const strengthsList = useMemo(() => {
-    return renderitems(
+    return renderItems(
       selectedResume?.openai_feedback?.feedback?.strengths || []
     );
   }, [selectedResume]);
 
   const weaknessesList = useMemo(() => {
-    return renderitems(
+    return renderItems(
       selectedResume?.openai_feedback?.feedback?.weaknesses || []
     );
   }, [selectedResume]);
 
   const tipsList = useMemo(() => {
-    return renderitems(selectedResume?.openai_feedback?.feedback?.tips || []);
+    return renderItems(selectedResume?.openai_feedback?.feedback?.tips || []);
   }, [selectedResume]);
 
   const motivationText = useMemo(() => {
     return selectedResume?.openai_feedback?.feedback?.motivation || "";
   }, [selectedResume]);
 
-  if (FetchingResume) {
+  if (isLoadingResume) {
     return (
       <div className="w-full h-full">
       <Skeleton height="100%"width="100%" borderRadius={8} />
@@ -82,10 +83,13 @@ const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
   if (resumeData.length === 0 ) {
     return (
       <div className="flex flex-col items-center justify-center h-full w-full bg-white rounded-md shadow-lg p-8">
-        <img
-          src="images/android.png"
+        <Image
+          src="/images/android.png"
           alt="Advisoron AI"
+          width={128}
+          height={128}
           className="w-32 h-32 mx-auto rounded-xl object-cover border-4 border-amber-200 shadow-lg"
+          priority
         />
         <h1 className="text-3xl font-bold text-blue-900 mt-4">Advisoron</h1>
         <p className="text-lg text-gray-600 max-w-md text-center mt-2">
@@ -104,9 +108,11 @@ const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <img
-                  src="images/android.png"
+                <Image
+                  src="/images/android.png"
                   alt="Advisoron AI"
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-lg object-cover border-2 border-amber-200"
                 />
                 <div>

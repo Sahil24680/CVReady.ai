@@ -21,7 +21,7 @@ import EvaluationModal from "@/app/components/EvaluationModal";
 
 const Setting = () => {
   const [activeTab, setActiveTab] = useState<"Profile" | "Uploads">("Profile");
-  const { resumeData, profileData, refreshResumes,refreshProfile,FetchingResume,FetchingProfile } = useResumeContext();
+  const { resumeData, profileData, refreshResumes,refreshProfile,isLoadingResume,isLoadingProfile } = useResumeContext();
   
 
   return (
@@ -32,7 +32,7 @@ const Setting = () => {
       <hr className="border-t border-gray-400" />
       {/* Profile and Manage uplaods buttons */}
       <div className="flex justify-center p-6">
-        {FetchingProfile ? (
+        {isLoadingProfile ? (
           <Skeleton height={40} width={200} borderRadius={8} />
         ) : (
           <div className="flex rounded-lg overflow-hidden border w-fit">
@@ -70,7 +70,7 @@ const Setting = () => {
             <Profile
               profileData={profileData}
               refresh={refreshProfile}
-              isLoading={FetchingProfile}
+              isLoading={isLoadingProfile}
             />
           </div>
         )}

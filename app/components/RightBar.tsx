@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ResumeRecord } from "@/types/resume";
 import { HardDriveUpload } from "lucide-react";
 import { FolderIcon } from "@heroicons/react/24/solid";
@@ -32,13 +32,13 @@ const ALLOWED_MIME_TYPES = [
 ];
 const RightBar = ({ setSelectedResume }: Rightbox_props) => {
   const [open, setOpen] = useState(false);
-  const { resumeData, refreshResumes, FetchingResume } = useResumeContext();
+  const { resumeData, refreshResumes, isLoadingResume } = useResumeContext();
 
   /**
    * Handles file input change. Validates file size, type, and MIME type.
    * Sends the resume to the backend API for analysis and refreshes resume list.
    */
-  const handleUpload = async ({
+  const handleUpload = useCallback(async ({
     role,
     file,
   }: { role: Role; file?: File | null }) => {
@@ -105,7 +105,7 @@ const RightBar = ({ setSelectedResume }: Rightbox_props) => {
         },
       }
     );
-  };
+  }, [refreshResumes]);
 
   return (
     <div className="w-full h-full bg-white rounded-lg p-4 flex flex-col space-y-2">
@@ -132,7 +132,7 @@ const RightBar = ({ setSelectedResume }: Rightbox_props) => {
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto px-2 pb-2">
-          {FetchingResume ? (
+          {isLoadingResume ? (
             <div className="w-full h-full">
               <Skeleton height="100%" width="100%" borderRadius={8} />
             </div>

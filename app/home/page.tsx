@@ -1,20 +1,19 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "react-toastify";
 import { testimonials } from "@/lib/data/testimonials";
 import InterviewBotSection from "./components/InterviewBot";
 import CommentCard from "@/app/components/CommentCard";
 import AnimatedContent from "@/components/animations/AnimatedContent";
+import { ANIMATION_TIMINGS, API_TIMEOUTS } from "@/lib/constants/timings";
+import { useTypingAnimation } from "@/hooks/useTypingAnimation";
+import { useScrollDetection } from "@/hooks/useScrollDetection";
+import { useSupabaseHealthCheck } from "@/hooks/useSupabaseHealthCheck";
 
 export default function HomePage() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
-  const [terminalText, setTerminalText] = useState("");
-  const [terminalIndex, setTerminalIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isTyping, setIsTyping] = useState(true);
-  const [showCaret, setShowCaret] = useState(true);
   const demo_vid_link =
     "https://www.loom.com/share/ff230261c9c74653bab7755c1c5c6dd7?sid=9165559e-5317-44f9-b245-c48165fed199";
   const demoInsights = [
@@ -24,6 +23,24 @@ export default function HomePage() {
     "✓ Improved reliability: 'Cut error rate from 2.1% to 0.4%'",
     "✓ Faster delivery: 'Shipped 8 features in Q2 with full test coverage'",
   ];
+
+  // Custom hooks for performance and cleaner code
+  const { displayText: terminalText, showCaret } = useTypingAnimation(
+    demoInsights,
+    ANIMATION_TIMINGS.typingSpeedBase,
+    ANIMATION_TIMINGS.typingSpeedVariation,
+    ANIMATION_TIMINGS.typingDelay,
+    ANIMATION_TIMINGS.caretBlink
+  );
+
+  const { isScrolled } = useScrollDetection(50);
+
+  useSupabaseHealthCheck(API_TIMEOUTS.supabaseHealthCheck, () => {
+    toast.error(
+      "Our database is currently paused. Please contact the creator to restore service.",
+      { autoClose: false, toastId: "supabase-down" }
+    );
+  });
 
   const faqs = [
     {
@@ -43,83 +60,10 @@ export default function HomePage() {
     },
   ];
 
-  /* typing loop */
-  useEffect(() => {
-    const currentText = demoInsights[terminalIndex];
-    const delay = isTyping ? Math.random() * 100 + 50 : 30;
-
-    const t = setTimeout(() => {
-      if (isTyping) {
-        if (charIndex < currentText.length) {
-          setTerminalText(currentText.slice(0, charIndex + 1));
-          setCharIndex((c) => c + 1);
-        } else {
-          setTimeout(() => setIsTyping(false), 1200);
-        }
-      } else {
-        if (charIndex > 0) {
-          setTerminalText(currentText.slice(0, charIndex - 1));
-          setCharIndex((c) => c - 1);
-        } else {
-          setTerminalIndex((i) => (i + 1) % demoInsights.length);
-          setIsTyping(true);
-        }
-      }
-    }, delay);
-
-    return () => clearTimeout(t);
-  }, [charIndex, isTyping, terminalIndex]);
-
-  useEffect(() => {
-    const id = setInterval(() => setShowCaret((v) => !v), 530);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Check if Supabase is reachable (free tier projects pause after inactivity)
-  useEffect(() => {
-    const checkSupabaseHealth = async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-      try {
-        // Direct fetch to Supabase REST endpoint with timeout
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`,
-          {
-            method: "HEAD",
-            headers: {
-              apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            },
-            signal: controller.signal,
-          }
-        );
-        clearTimeout(timeoutId);
-
-        if (!response.ok && response.status >= 500) {
-          throw new Error("Supabase unavailable");
-        }
-      } catch {
-        clearTimeout(timeoutId);
-        toast.error(
-          "Our database is currently paused. Please contact the creator to restore service.",
-          { autoClose: false, toastId: "supabase-down" }
-        );
-      }
-    };
-
-    checkSupabaseHealth();
-  }, []);
-
-  const scrollToSection = (id: string) => {
+  const scrollToSection = useCallback((id: string) => {
     const element = document.getElementById(id);
     if (element) element.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  }, []);
 
   return (
     <div className="w-full">
@@ -249,10 +193,13 @@ export default function HomePage() {
 
                 <div className="relative">
                   <div className="floating-card relative w-full max-w-md mx-auto rounded-3xl overflow-hidden border border-blue-100 ring-4 ring-blue-600 shadow-[0_0_30px_rgba(37,99,235,0.6)]">
-                    <img
+                    <Image
                       src="/images/landing_page.png"
                       alt="Product preview"
+                      width={896}
+                      height={672}
                       className="w-full h-auto object-cover"
+                      priority
                     />
                   </div>
                 </div>
