@@ -113,7 +113,7 @@ export default function InterviewPage() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 overflow-y-auto">
+    <div className="h-screen bg-linear-to-br from-blue-50 via-white to-blue-50 overflow-y-auto">
       {/* Header */}
       <header className="bg-white border-b border-blue-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
@@ -162,19 +162,19 @@ export default function InterviewPage() {
         >
           <ul className="grid sm:grid-cols-2 gap-3 text-sm text-gray-700 mb-4">
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <span>Find a quiet space with minimal background noise</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <span>Aim for 1-2 minute responses</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <span>Use the STAR method (Situation, Task, Action, Result)</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <span>Speak clearly and at a moderate pace</span>
             </li>
           </ul>
@@ -182,14 +182,14 @@ export default function InterviewPage() {
           {/* Disclaimer section */}
           <div className="mt-4 border-t pt-4 border-blue-100 space-y-2">
             <p className="flex items-start gap-2 text-sm text-gray-700">
-              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               This practice tool does not connect to a database. Your audio
               files, transcripts, and scores are only stored temporarily in your
               browser during this session. Once you refresh or leave the page,
               everything is cleared.
             </p>
             <p className="flex items-start gap-2 text-xs text-gray-500">
-              <Lock className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
+              <Lock className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
               No data is saved or tracked — it’s just for short practice
               sessions.
             </p>
@@ -202,19 +202,19 @@ export default function InterviewPage() {
         >
           <ul className="space-y-3 text-sm text-gray-700">
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <span>What are your strengths and weaknesses?</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <span>Why do you want to work in Big Tech?</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <span>What makes you a good candidate for this role?</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <span>Tell us about your hobbies or interests.</span>
             </li>
           </ul>
@@ -230,36 +230,6 @@ export default function InterviewPage() {
           title="Your Response"
           icon={<AudioLines className="w-6 h-6" />}
         >
-          {/* Tabs */}
-          {/* <div className="flex gap-2 mb-6 border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab("record")}
-              className={`px-4 py-2 font-medium text-sm transition-all duration-200 border-b-2 ${
-                activeTab === "record"
-                  ? "text-blue-600 border-blue-600"
-                  : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Mic className="w-4 h-4" />
-                Record
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab("upload")}
-              className={`px-4 py-2 font-medium text-sm transition-all duration-200 border-b-2 ${
-                activeTab === "upload"
-                  ? "text-blue-600 border-blue-600"
-                  : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Upload className="w-4 h-4" />
-                Upload
-              </div>
-            </button>
-          </div> */}
-
           {/* Tab content */}
           {activeTab === "record" ? (
             // Recorder currenlty not used
