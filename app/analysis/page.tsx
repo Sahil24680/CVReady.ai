@@ -53,7 +53,7 @@ type ResumeScoreData = {
 
 const UserProgress = () => {
   // Grab resume data and loading state from global context
-  const { resumeData, FetchingResume } = useResumeContext();
+  const { resumeData, isLoadingResume } = useResumeContext();
 
   // Track how many resumes to display: default "10"
   const [displayCount, setDisplayCount] = React.useState<"5" | "10" | "all">(
@@ -180,7 +180,7 @@ const UserProgress = () => {
 
         {/* Body of the card: loading, empty, or chart */}
         <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 flex-1 flex flex-col">
-          {FetchingResume ? (
+          {isLoadingResume ? (
             // Loading spinner while fetching data
             <div className="flex-1 flex flex-col items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-gray-500 mb-4" />

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/solid";
 import { supabase } from "@/app/utils/supabase/client";
 import { toast } from "react-toastify";
@@ -149,9 +150,11 @@ const Profile = ({ profileData, refresh, isLoading }: ProfileProps) => {
           {isLoading ? (
             <Skeleton circle width={80} height={80} className="rounded-full" />
           ) : (
-            <img
-              src={profileData?.profile_picture}
+            <Image
+              src={profileData?.profile_picture || '/images/android.png'}
               alt="Profile Picture"
+              width={80}
+              height={80}
               className="w-20 h-20 rounded-full border-2 border-white object-cover shadow-md"
             />
           )}

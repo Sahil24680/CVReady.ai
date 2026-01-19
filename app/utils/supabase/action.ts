@@ -81,8 +81,8 @@ export async function getUser() {
     }
     return data.user;
   } catch (error) {
-    // @ts-ignore
-    return { error: error.message };
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { error: message };
   }
 }
 
