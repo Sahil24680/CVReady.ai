@@ -1,7 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { X, Upload, Check } from "lucide-react";
 import Modal from "./Modal";
 import { toast } from "react-toastify";
+import {
+  Box,
+  Stack,
+  Grid,
+  Button,
+  Text,
+  Flex,
+  Input,
+  IconButton,
+} from "@chakra-ui/react";
 
 type Role = "Frontend Engineer" | "Backend Engineer" | "Full-Stack Engineer";
 
@@ -50,6 +60,7 @@ const RolePickerModal: React.FC<RolePickerModalProps> = ({
       fileInputRef.current.value = "";
     }
   };
+
   const handleClose = () => {
     setSelectedRole(null);
     setFile(null);
@@ -87,125 +98,190 @@ const RolePickerModal: React.FC<RolePickerModalProps> = ({
       title="Please select role and upload your resume"
       panelClassName="max-w-md sm:max-w-lg"
     >
-      <div className="space-y-6">
+      <Stack gap="6">
         {/* Role Selection */}
-        <div className="space-y-3">
-          <div
-            className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+        <Stack gap="3">
+          <Grid
+            templateColumns={{ base: "1fr", sm: "repeat(3, 1fr)" }}
+            gap="3"
             role="radiogroup"
             aria-label="Select your role"
           >
             {roles.map((role) => {
               const isSelected = selectedRole === role.value;
               return (
-                <button
+                <Button
                   key={role.value}
                   onClick={() => handleRoleSelect(role.value)}
-                  className={`
-                  cursor-pointer relative p-4 text-sm font-medium rounded-lg border-2 transition-all duration-200
-                    focus:outline-none  focus:ring-blue-600 
-                    ${
-                      isSelected
-                        ? "bg-blue-600 text-white border-blue-600 shadow-lg"
-                        : "bg-white text-gray-900 border-gray-200 hover:border-blue-600/30 hover:bg-blue-100/30 hover:shadow-md hover:-translate-y-0.5"
-                    }
-                  `}
+                  position="relative"
+                  p="4"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  borderRadius="lg"
+                  borderWidth="2px"
+                  transition="all 0.2s"
+                  _focus={{ outline: "none", ringColor: "blue.600" }}
+                  bg={isSelected ? "blue.600" : "white"}
+                  color={isSelected ? "white" : "gray.900"}
+                  borderColor={isSelected ? "blue.600" : "gray.200"}
+                  boxShadow={isSelected ? "lg" : undefined}
+                  _hover={
+                    !isSelected
+                      ? {
+                          borderColor: "blue.600",
+                          bg: "blue.50",
+                          boxShadow: "md",
+                          transform: "translateY(-2px)",
+                        }
+                      : undefined
+                  }
                   role="radio"
                   aria-checked={isSelected}
                   aria-label={`Select ${role.label} role`}
                 >
                   {role.label}
                   {isSelected && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <Check size={12} className="text-white" />
-                    </div>
+                    <Flex
+                      position="absolute"
+                      top="-4px"
+                      right="-4px"
+                      w="5"
+                      h="5"
+                      bg="green.500"
+                      borderRadius="full"
+                      align="center"
+                      justify="center"
+                    >
+                      <Check size={12} color="white" />
+                    </Flex>
                   )}
-                </button>
+                </Button>
               );
             })}
-          </div>
+          </Grid>
 
           {showHelperText && (
-            <p className="text-sm text-red-500 animate-in slide-in-from-top-2 duration-200">
+            <Text fontSize="sm" color="red.500">
               Please select a role to continue
-            </p>
+            </Text>
           )}
-        </div>
+        </Stack>
 
         {/* File Upload */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-900">
-            Upload file 
-          </label>
+        <Stack gap="3">
+          <Text as="label" fontSize="sm" fontWeight="medium" color="gray.900">
+            Upload file
+          </Text>
 
-          <div className="space-y-2">
-            <input
+          <Stack gap="2">
+            <Input
               ref={fileInputRef}
               type="file"
               accept={accept}
               onChange={handleFileSelect}
-              className="hidden"
+              display="none"
               aria-label="Upload file"
             />
 
-            <button
+            <Button
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 w-full p-3 text-sm border-2 border-dashed rounded-lg transition-colors duration-200
-                         focus:outline-none  focus:ring-blue-600  cursor-pointer
-                         border-gray-200 hover:border-blue-600/50 hover:bg-blue-100/20"
+              w="full"
+              p="3"
+              fontSize="sm"
+              borderWidth="2px"
+              borderStyle="dashed"
+              borderRadius="lg"
+              transition="colors 0.2s"
+              _focus={{ outline: "none", ringColor: "blue.600" }}
+              borderColor="gray.200"
+              _hover={{ borderColor: "blue.600", bg: "blue.50" }}
+              variant="ghost"
+              justifyContent="flex-start"
             >
-              <Upload size={16} className="text-gray-500" />
-              <span className="text-gray-500">
-                {file ? "Change file" : "Upload file"}
-              </span>
-            </button>
+              <Flex align="center" gap="2">
+                <Upload size={16} color="var(--chakra-colors-gray-500)" />
+                <Text color="gray.500">
+                  {file ? "Change file" : "Upload file"}
+                </Text>
+              </Flex>
+            </Button>
 
             {file && (
-              <div className="flex items-center justify-between p-3 rounded-lg border bg-blue-100/20 border-blue-600/20">
-                <span className="text-sm truncate flex-1 mr-2 text-gray-900">
+              <Flex
+                align="center"
+                justify="space-between"
+                p="3"
+                borderRadius="lg"
+                borderWidth="1px"
+                bg="blue.50"
+                borderColor="blue.200"
+              >
+                <Text fontSize="sm" isTruncated flex="1" mr="2" color="gray.900">
                   {file.name}
-                </span>
-                <button
+                </Text>
+                <IconButton
                   onClick={handleClearFile}
-                  className="p-1 rounded transition-colors duration-200
-                             focus:outline-none  focus:ring-blue-600
-                             text-gray-500 hover:text-gray-900 cursor-pointer"
+                  variant="ghost"
                   aria-label="Remove file"
+                  size="sm"
+                  color="gray.500"
+                  _hover={{ color: "gray.900" }}
+                  transition="colors 0.2s"
+                  _focus={{ outline: "none", ringColor: "blue.600" }}
                 >
                   <X size={16} />
-                </button>
-              </div>
+                </IconButton>
+              </Flex>
             )}
-          </div>
-        </div>
+          </Stack>
+        </Stack>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-2">
-          <button
+        <Flex gap="3" pt="2">
+          <Button
             onClick={handleClose}
-            className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
-                       focus:outline-none  focus:ring-blue-600  hover:-translate-y-0.5
-                       text-gray-500 bg-slate-100 hover:bg-slate-100/80 cursor-pointer"
+            flex="1"
+            px="4"
+            py="2.5"
+            fontSize="sm"
+            fontWeight="medium"
+            borderRadius="lg"
+            transition="all 0.2s"
+            _focus={{ outline: "none", ringColor: "blue.600" }}
+            _hover={{ bg: "slate.100", transform: "translateY(-2px)" }}
+            color="gray.500"
+            bg="slate.100"
+            variant="ghost"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSubmit}
-            disabled={!selectedRole || !file}
-            className={`
-              flex-1 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200
-              focus:outline-none  focus:ring-blue-600  
-              ${
-                selectedRole && file
-                  ? "bg-blue-600 text-white border-2 border-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer"
-                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
-              }
-            `}
+            isDisabled={!selectedRole || !file}
+            flex="1"
+            px="4"
+            py="2.5"
+            fontSize="sm"
+            fontWeight="medium"
+            borderRadius="lg"
+            transition="all 0.2s"
+            _focus={{ outline: "none", ringColor: "blue.600" }}
+            bg={selectedRole && file ? "blue.600" : "gray.200"}
+            color={selectedRole && file ? "white" : "gray.500"}
+            borderWidth="2px"
+            borderColor={selectedRole && file ? "blue.600" : "gray.200"}
+            _hover={
+              selectedRole && file
+                ? { bg: "blue.700", boxShadow: "xl", transform: "translateY(-2px)" }
+                : undefined
+            }
+            cursor={selectedRole && file ? "pointer" : "not-allowed"}
+            boxShadow={selectedRole && file ? "lg" : undefined}
           >
             Continue
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Flex>
+      </Stack>
     </Modal>
   );
 };

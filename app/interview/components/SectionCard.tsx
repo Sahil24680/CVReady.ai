@@ -1,31 +1,51 @@
 "use client";
 
 import React from "react";
+import { Box, Flex, Heading } from "@chakra-ui/react";
 
 export default function SectionCard({
   title,
   icon,
   children,
-  className = "",
+  ...boxProps
 }: {
   title?: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
-  className?: string;
-}) {
+} & React.ComponentProps<typeof Box>) {
   return (
-    <div
-      className={`bg-white rounded-2xl shadow-lg shadow-blue-100/50 p-6 border border-blue-50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-100/70 ${className}`}
+    <Box
+      bg="white"
+      borderRadius="2xl"
+      boxShadow="lg"
+      p="6"
+      borderWidth="1px"
+      borderColor="blue.50"
+      transition="all 0.3s"
+      _hover={{ boxShadow: "xl" }}
+      {...boxProps}
     >
       {title && (
-        <div className="flex items-center gap-3 mb-4 pb-4 border-b border-blue-50">
-          {icon && <div className="text-blue-600">{icon}</div>}
-          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
+        <Flex
+          align="center"
+          gap="3"
+          mb="4"
+          pb="4"
+          borderBottomWidth="1px"
+          borderColor="blue.50"
+        >
+          {icon && <Box color="blue.600">{icon}</Box>}
+          <Heading
+            as="h2"
+            fontSize={{ base: "xl", sm: "2xl" }}
+            fontWeight="semibold"
+            color="gray.800"
+          >
             {title}
-          </h2>
-        </div>
+          </Heading>
+        </Flex>
       )}
       {children}
-    </div>
+    </Box>
   );
 }

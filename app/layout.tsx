@@ -7,7 +7,7 @@ import { ModalProvider } from "@/contexts/ModalContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-loading-skeleton/dist/skeleton.css";
-import SideBar from "@/app/components/SideBar";
+import { Provider as ChakraProvider } from '@/components/ui/provider'
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
@@ -35,30 +35,31 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex  overflow-hidden">
-        {isAuthRoute_or_landing_page ? (
-          <main className="flex-1">{children}</main>
-        ) : (
-          <ResumeProvider>
-            <ModalProvider>
-              <SidebarProvider >
-                <AppSidebar />
-                <SidebarTrigger className="text-white"  />
-                <SidebarInset >
-                  <main >
-                    
-                    {children}
-                  </main>
-                </SidebarInset>
-              </SidebarProvider>
-            </ModalProvider>
-          </ResumeProvider>
-        )}
-        <ToastContainer
-          position="top-center"
-          hideProgressBar={true}
-          closeOnClick={true}
-          closeButton={false}
-        />
+        <ChakraProvider>
+          {isAuthRoute_or_landing_page ? (
+            <main className="flex-1">{children}</main>
+          ) : (
+            <ResumeProvider>
+              <ModalProvider>
+                <SidebarProvider >
+                  <AppSidebar />
+                  <SidebarTrigger className="text-white"  />
+                  <SidebarInset >
+                    <main >
+                      {children}
+                    </main>
+                  </SidebarInset>
+                </SidebarProvider>
+              </ModalProvider>
+            </ResumeProvider>
+          )}
+          <ToastContainer
+            position="top-center"
+            hideProgressBar={true}
+            closeOnClick={true}
+            closeButton={false}
+          />
+        </ChakraProvider>
       </body>
     </html>
   );

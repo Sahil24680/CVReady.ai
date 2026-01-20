@@ -1,29 +1,21 @@
 "use client";
 import { ResumeRecord } from "@/types/resume";
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useResumeContext } from "@/contexts/ResumeContext";
 import Progressbar from "./ProgressBar";
 import WelcomeMessage from "./WelcomeMessage";
-import Skeleton from "react-loading-skeleton";
+import {
+  Box,
+  Flex,
+  Heading,
+  Skeleton,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
 import MD from "@/app/components/MD";
 import { Trophy, Target, Lightbulb, MessageSquare } from "lucide-react";
-
-/**
- * Middle bar component
- *
- * Utility function for rendering list items with markdown support.
- * Extracted to avoid redefinition on every render.
- */
-const renderItems = (items: string[]) => (
-  <ul className="list-disc pl-5 space-y-1">
-    {items.map((item, index) => (
-      <li key={index} className="text-gray-700 text-md">
-        <MD text={item} />
-      </li>
-    ))}
-  </ul>
-);
 
 /**
  * Middle_box.tsx — Displays analysis results for the selected resume.
@@ -37,6 +29,11 @@ interface MiddleBoxProps {
   selectedResume: ResumeRecord | null;
   setSelectedResume: React.Dispatch<React.SetStateAction<ResumeRecord | null>>;
 }
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
 const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
   const { resumeData, isLoadingResume } = useResumeContext();
@@ -52,225 +49,237 @@ const MiddleBox = ({ selectedResume, setSelectedResume }: MiddleBoxProps) => {
     }
   }, [resumeData]);
 
-  const strengthsList = useMemo(() => {
-    return renderItems(
-      selectedResume?.openai_feedback?.feedback?.strengths || []
-    );
-  }, [selectedResume]);
-
-  const weaknessesList = useMemo(() => {
-    return renderItems(
-      selectedResume?.openai_feedback?.feedback?.weaknesses || []
-    );
-  }, [selectedResume]);
-
-  const tipsList = useMemo(() => {
-    return renderItems(selectedResume?.openai_feedback?.feedback?.tips || []);
-  }, [selectedResume]);
-
   const motivationText = useMemo(() => {
     return selectedResume?.openai_feedback?.feedback?.motivation || "";
   }, [selectedResume]);
 
   if (isLoadingResume) {
     return (
-      <div className="w-full h-full">
-      <Skeleton height="100%"width="100%" borderRadius={8} />
-     </div>
+      <Box w="full" h="full">
+        <Skeleton h="100%" w="100%" borderRadius="md" />
+      </Box>
     );
   }
 
   if (resumeData.length === 0 ) {
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full bg-white rounded-md shadow-lg p-8">
-        <Image
-          src="/images/android.png"
-          alt="Advisoron AI"
-          width={128}
-          height={128}
-          className="w-32 h-32 mx-auto rounded-xl object-cover border-4 border-amber-200 shadow-lg"
-          priority
-        />
-        <h1 className="text-3xl font-bold text-blue-900 mt-4">Advisoron</h1>
-        <p className="text-lg text-gray-600 max-w-md text-center mt-2">
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        h="full"
+        w="full"
+        bg="white"
+        borderRadius="md"
+        boxShadow="lg"
+        p="8"
+      >
+        <Box
+          w="128px"
+          h="128px"
+          borderRadius="xl"
+          borderWidth="4px"
+          borderColor="#fde68a"
+          overflow="hidden"
+          boxShadow="lg"
+        >
+          <Image
+            src="/images/android.png"
+            alt="Advisoron AI"
+            width={128}
+            height={128}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            priority
+          />
+        </Box>
+        <Heading as="h1" fontSize="3xl" fontWeight="bold" color="blue.900" mt="4">
+          Advisoron
+        </Heading>
+        <Text fontSize="lg" color="gray.600" maxW="md" textAlign="center" mt="2">
           Upload your resume to get AI-powered insights
-        </p>
+        </Text>
         <WelcomeMessage />
-      </div>
+      </Flex>
     );
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-white shadow-lg rounded-md">
-      <div className="space-y-6 animate-in fade-in duration-500 p-4">
+    <Box h="full" overflowY="auto" bg="white" boxShadow="lg" borderRadius="md">
+      <Stack gap="6" p="4" animation={`${fadeIn} 0.5s ease-in-out`}>
         <>
           {/* Header Section */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/images/android.png"
-                  alt="Advisoron AI"
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 rounded-lg object-cover border-2 border-amber-200"
-                />
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+          <Flex
+            direction={{ base: "column", lg: "row" }}
+            align={{ lg: "center" }}
+            justify={{ lg: "space-between" }}
+            gap="4"
+          >
+            <Stack gap="2">
+              <Flex align="center" gap="3">
+                <Box
+                  w="48px"
+                  h="48px"
+                  borderRadius="lg"
+                  borderWidth="2px"
+                  borderColor="#fde68a"
+                  overflow="hidden"
+                >
+                  <Image
+                    src="/images/android.png"
+                    alt="Advisoron AI"
+                    width={48}
+                    height={48}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </Box>
+                <Box>
+                  <Heading as="h2" fontSize="2xl" fontWeight="bold" color="gray.900">
                     {selectedResume?.resume_name}
-                  </h2>
-                  <p className="text-sm text-gray-500">
+                  </Heading>
+                  <Text fontSize="sm" color="gray.500">
                     {selectedResume?.created_at}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-semibold text-gray-900">Role:</span>
-              <span className="px-3 py-1 text-sm font-medium bg-gray-100 text-gray-700 rounded-full border border-gray-200">
+                  </Text>
+                </Box>
+              </Flex>
+            </Stack>
+            <Flex align="center" gap="2">
+              <Text fontSize="lg" fontWeight="semibold" color="gray.900">
+                Role:
+              </Text>
+              <Box
+                px="3"
+                py="1"
+                fontSize="sm"
+                fontWeight="medium"
+                bg="gray.100"
+                color="gray.700"
+                borderRadius="full"
+                borderWidth="1px"
+                borderColor="gray.200"
+              >
                 {selectedResume?.Role ?? "No role"}
-              </span>
-            </div>
-          </div>
+              </Box>
+            </Flex>
+          </Flex>
 
           {/* Progress Scores */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-6">
-              <h3 className="text-center text-gray-900 font-semibold text-lg mb-6">
+          <Box bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" boxShadow="sm">
+            <Box p="6">
+              <Text textAlign="center" color="gray.900" fontWeight="semibold" fontSize="lg" mb="6">
                 Assessment Scores
-              </h3>
-              <div className="flex justify-center gap-12">
-                <div className="flex flex-col items-center">
+              </Text>
+              <Flex justify="center" gap="12">
+                <Flex direction="column" align="center">
                   <Progressbar
                     score={
                       selectedResume?.openai_feedback?.feedback
                         ?.big_tech_readiness_score ?? 0
                     }
                   />
-                  <span className="text-sm font-medium text-gray-600 text-center mt-2">
+                  <Text fontSize="sm" fontWeight="medium" color="gray.600" textAlign="center" mt="2">
                     Readiness
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
+                  </Text>
+                </Flex>
+                <Flex direction="column" align="center">
                   <Progressbar
                     score={
                       selectedResume?.openai_feedback?.feedback
                         ?.resume_format_score ?? 0
                     }
                   />
-                  <span className="text-sm font-medium text-gray-600 text-center mt-2">
+                  <Text fontSize="sm" fontWeight="medium" color="gray.600" textAlign="center" mt="2">
                     Resume Format
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+                  </Text>
+                </Flex>
+              </Flex>
+            </Box>
+          </Box>
 
-          <div className="grid gap-6">
+          <Stack gap="6">
             {/* Strengths */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="p-6">
-                <h3 className="flex items-center gap-2 text-gray-900 font-semibold text-lg mb-4">
-                  <span className="h-5 w-5 text-amber-500">
-                    {" "}
-                    <Trophy />
-                  </span>
+            <Box bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" boxShadow="sm">
+              <Box p="6">
+                <Flex align="center" gap="2" color="gray.900" fontWeight="semibold" fontSize="lg" mb="4">
+                  <Box>
+                    <Trophy size={20} color="#f59e0b" />
+                  </Box>
                   Stand-out Skills
-                </h3>
-                <div className="space-y-3">
-                  <ul
-                    className="list-disc pl-5 space-y-2 marker:text-green-500 text-sm text-gray-900 leading-relaxed marker:text-lg
-               [p]:m-0"
-                  >
-                    {(
-                      selectedResume?.openai_feedback?.feedback?.strengths || []
-                    ).map((item, i) => (
-                      <li key={i}>
-                        <div className="[p]:m-0">
-                          <MD text={item} />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
+                </Flex>
+                <Stack as="ul" gap="2" listStyleType="none" m="0" p="0">
+                  {(selectedResume?.openai_feedback?.feedback?.strengths || []).map((item, i) => (
+                    <Flex as="li" key={i} align="flex-start" gap="3">
+                      <Box mt="2" w="2" h="2" bg="green.500" borderRadius="full" flexShrink={0} />
+                      <Box>
+                        <MD text={item} />
+                      </Box>
+                    </Flex>
+                  ))}
+                </Stack>
+              </Box>
+            </Box>
 
             {/* Growth Areas */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="p-6">
-                <h3 className="flex items-center gap-2 text-gray-900 font-semibold text-lg mb-4">
-                  <span className="h-5 w-5 text-blue-500">
-                    <Target />
-                  </span>
+            <Box bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" boxShadow="sm">
+              <Box p="6">
+                <Flex align="center" gap="2" color="gray.900" fontWeight="semibold" fontSize="lg" mb="4">
+                  <Box>
+                    <Target size={20} color="var(--chakra-colors-blue-500)" />
+                  </Box>
                   Growth Areas
-                </h3>
-                <div className="space-y-3">
-                  <ul
-                    className="list-disc pl-5 space-y-2 marker:text-amber-500 text-sm text-gray-900 leading-relaxed marker:text-lg
-               [p]:m-0"
-                  >
-                    {(
-                      selectedResume?.openai_feedback?.feedback?.weaknesses ||
-                      []
-                    ).map((item, i) => (
-                      <li key={i}>
-                        <div className="[p]:m-0">
-                          <MD text={item} />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
+                </Flex>
+                <Stack as="ul" gap="2" listStyleType="none" m="0" p="0">
+                  {(selectedResume?.openai_feedback?.feedback?.weaknesses || []).map((item, i) => (
+                    <Flex as="li" key={i} align="flex-start" gap="3">
+                      <Box mt="2" w="2" h="2" bg="#f59e0b" borderRadius="full" flexShrink={0} />
+                      <Box>
+                        <MD text={item} />
+                      </Box>
+                    </Flex>
+                  ))}
+                </Stack>
+              </Box>
+            </Box>
 
             {/* Game Plan */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="p-6">
-                <h3 className="flex items-center gap-2 text-gray-900 font-semibold text-lg mb-4">
-                  <span className="h-5 w-5 text-amber-500">
-                    <Lightbulb />
-                  </span>
+            <Box bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" boxShadow="sm">
+              <Box p="6">
+                <Flex align="center" gap="2" color="gray.900" fontWeight="semibold" fontSize="lg" mb="4">
+                  <Box>
+                    <Lightbulb size={20} color="#f59e0b" />
+                  </Box>
                   Game Plan
-                </h3>
-                <div className="space-y-3">
-                  <ul
-                    className="list-disc pl-5 space-y-2 marker:text-blue-500 text-sm text-gray-900 leading-relaxed marker:text-lg
-               [p]:m-0"
-                  >
-                    {(
-                      selectedResume?.openai_feedback?.feedback?.tips || []
-                    ).map((item, i) => (
-                      <li key={i}>
-                        <div className="[p]:m-0">
-                          <MD text={item} />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
+                </Flex>
+                <Stack as="ul" gap="2" listStyleType="none" m="0" p="0">
+                  {(selectedResume?.openai_feedback?.feedback?.tips || []).map((item, i) => (
+                    <Flex as="li" key={i} align="flex-start" gap="3">
+                      <Box mt="2" w="2" h="2" bg="blue.500" borderRadius="full" flexShrink={0} />
+                      <Box>
+                        <MD text={item} />
+                      </Box>
+                    </Flex>
+                  ))}
+                </Stack>
+              </Box>
+            </Box>
 
             {/* Final Thoughts */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="p-6">
-                <h3 className="flex items-center gap-2 text-gray-900 font-semibold text-lg mb-4">
-                  <span className="h-5 w-5 text-blue-900">
-                    <MessageSquare />
-                  </span>
+            <Box bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.200" boxShadow="sm">
+              <Box p="6">
+                <Flex align="center" gap="2" color="gray.900" fontWeight="semibold" fontSize="lg" mb="4">
+                  <Box>
+                    <MessageSquare size={20} color="var(--chakra-colors-blue-900)" />
+                  </Box>
                   Final Thoughts
-                </h3>
-                <div className="text-gray-900 leading-relaxed">
+                </Flex>
+                <Box color="gray.900" lineHeight="1.7">
                   <MD text={motivationText} />
-                </div>
-              </div>
-            </div>
-          </div>
+                </Box>
+              </Box>
+            </Box>
+          </Stack>
         </>
-      </div>
-    </div>
+      </Stack>
+    </Box>
   );
 };
 

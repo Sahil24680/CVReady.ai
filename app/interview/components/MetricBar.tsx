@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Box, Flex, Stack, Text, Progress } from "@chakra-ui/react";
 
 export default function MetricBar({
   label,
@@ -15,45 +16,71 @@ export default function MetricBar({
     if (score >= 80)
       return {
         text: "Strong",
-        color: "bg-green-100 text-green-700 border-green-200",
+        bg: "green.100",
+        color: "green.700",
+        borderColor: "green.200",
       };
     if (score >= 60)
       return {
         text: "Good",
-        color: "bg-blue-100 text-blue-700 border-blue-200",
+        bg: "blue.100",
+        color: "blue.700",
+        borderColor: "blue.200",
       };
     return {
       text: "Needs Work",
-      color: "bg-amber-100 text-amber-700 border-amber-200",
+      bg: "yellow.100",
+      color: "yellow.700",
+      borderColor: "yellow.200",
     };
   };
 
   const badge = getBadge();
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-gray-900">{score}</span>
-          <span
-            className={`text-xs px-2 py-0.5 rounded-full border ${badge.color} font-medium`}
+    <Stack gap="2">
+      <Flex align="center" justify="space-between">
+        <Text fontSize="sm" fontWeight="medium" color="gray.700">
+          {label}
+        </Text>
+        <Flex align="center" gap="2">
+          <Text fontSize="sm" fontWeight="bold" color="gray.900">
+            {score}
+          </Text>
+          <Text
+            fontSize="xs"
+            px="2"
+            py="0.5"
+            borderRadius="full"
+            borderWidth="1px"
+            bg={badge.bg}
+            color={badge.color}
+            borderColor={badge.borderColor}
+            fontWeight="medium"
           >
             {badge.text}
-          </span>
-        </div>
-      </div>
-      <div className="relative w-full h-2 bg-blue-50 rounded-full overflow-hidden">
-        <div
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-700 ease-out"
-          style={{ width: `${score}%` }}
+          </Text>
+        </Flex>
+      </Flex>
+      <Box position="relative" w="full" h="2" bg="blue.50" borderRadius="full" overflow="hidden">
+        <Box
+          position="absolute"
+          top="0"
+          left="0"
+          h="full"
+          bgGradient="linear(to-r, blue.500, blue.600)"
+          borderRadius="full"
+          transition="all 0.7s ease-out"
+          w={`${score}%`}
           role="progressbar"
           aria-valuenow={score}
           aria-valuemin={0}
           aria-valuemax={100}
         />
-      </div>
-      <p className="text-xs text-gray-500 leading-relaxed">{hint}</p>
-    </div>
+      </Box>
+      <Text fontSize="xs" color="gray.500" lineHeight="relaxed">
+        {hint}
+      </Text>
+    </Stack>
   );
 }

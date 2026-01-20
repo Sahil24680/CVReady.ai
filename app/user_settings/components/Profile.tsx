@@ -4,7 +4,15 @@ import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/solid";
 import { supabase } from "@/app/utils/supabase/client";
 import { toast } from "react-toastify";
 import { User_profile } from "@/types/resume";
-import Skeleton from "react-loading-skeleton";
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Skeleton,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import {
   updatePassword,
   updateName,
@@ -48,7 +56,6 @@ const Profile = ({ profileData, refresh, isLoading }: ProfileProps) => {
         data: { user },
         error,
       } = await supabase.auth.getUser();
-      console.error("Logged in Supabase user:", user);
       if (error || !user) {
         console.error(
           "Failed to fetch user:",
@@ -143,185 +150,239 @@ const Profile = ({ profileData, refresh, isLoading }: ProfileProps) => {
   };
 
   return (
-    <div className="w-full space-y-6  ">
-      <div className="flex  w-full flex-row justify-between items-center">
+    <Stack w="full" gap="6">
+      <Flex w="full" justify="space-between" align="center">
         {/*PFP section */}
-        <div>
+        <Box>
           {isLoading ? (
-            <Skeleton circle width={80} height={80} className="rounded-full" />
+            <Skeleton w="80px" h="80px" borderRadius="full" />
           ) : (
-            <Image
-              src={profileData?.profile_picture || '/images/android.png'}
-              alt="Profile Picture"
-              width={80}
-              height={80}
-              className="w-20 h-20 rounded-full border-2 border-white object-cover shadow-md"
-            />
+            <Box
+              w="80px"
+              h="80px"
+              borderRadius="full"
+              borderWidth="2px"
+              borderColor="white"
+              overflow="hidden"
+              boxShadow="md"
+            >
+              <Image
+                src={profileData?.profile_picture || "/images/android.png"}
+                alt="Profile Picture"
+                width={80}
+                height={80}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </Box>
           )}
-        </div>
-        <div className="flex flex-row gap-2">
+        </Box>
+        <Flex gap="2">
           {isLoading ? (
-            <Skeleton height={40} width={160} borderRadius={8} />
+            <Skeleton h="40px" w="160px" borderRadius="8px" />
           ) : (
             <>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleUploadPicture}
-                className="hidden"
+                style={{ display: "none" }}
                 id="upload-pfp"
                 data-testid="upload-pfp"
               />
-              <label htmlFor="upload-pfp">
-                <div className="px-2 py-2 rounded-md bg-[#0b4c97] text-white font-medium hover:bg-[#093d7a] transition cursor-pointer">
+              <Box as="label"  display="inline-block">
+                <Box
+                  px="2"
+                  py="2"
+                  borderRadius="md"
+                  bg="#0b4c97"
+                  color="white"
+                  fontWeight="medium"
+                  cursor="pointer"
+                  transition="background 0.2s"
+                  _hover={{ bg: "#093d7a" }}
+                >
                   Upload New Picture
-                </div>
-              </label>
+                </Box>
+              </Box>
             </>
           )}
-        </div>
-      </div>
+        </Flex>
+      </Flex>
       {/*Name section */}
       {isLoading ? (
-        <div className="flex flex-row w-full justify-between gap-3">
-          <div className="flex flex-col w-1/2">
-            <Skeleton height={20} width={100} className="mb-2" />
-            <Skeleton height={40} width="100%" />
-          </div>
+        <Flex w="full" justify="space-between" gap="3">
+          <Stack w="50%" gap="2">
+            <Skeleton h="20px" w="100px" />
+            <Skeleton h="40px" w="full" />
+          </Stack>
 
-          <div className="flex flex-col w-1/2">
-            <Skeleton height={20} width={100} className="mb-2" />
-            <Skeleton height={40} width="100%" />
-          </div>
-        </div>
+          <Stack w="50%" gap="2">
+            <Skeleton h="20px" w="100px" />
+            <Skeleton h="40px" w="full" />
+          </Stack>
+        </Flex>
       ) : (
-        <div className="flex flex-row w-full justify-between gap-3">
-          <div className="flex flex-col items-start w-1/2">
-            <p className="text-gray-500">First name</p>
-            <input
+        <Flex w="full" justify="space-between" gap="3">
+          <Stack w="50%" align="flex-start" gap="2">
+            <Text color="gray.500">First name</Text>
+            <Input
               type="text"
               onChange={(e) => setFirstName(e.target.value)}
               value={firstName}
               placeholder="Enter First name"
-              className="border border-gray-300 p-2 rounded-md w-full shadow-sm"
+              borderColor="gray.300"
+              boxShadow="sm"
+              borderRadius="md"
+              p="2"
             />
-          </div>
+          </Stack>
 
-          <div className="flex flex-col w-1/2">
-            <p className="text-gray-500">Last name</p>
-            <input
+          <Stack w="50%" gap="2">
+            <Text color="gray.500">Last name</Text>
+            <Input
               type="text"
               onChange={(e) => setLastName(e.target.value)}
               value={lastName}
               placeholder="Enter Last name"
-              className="border border-gray-300 shadow-sm p-2 rounded-md w-full"
+              borderColor="gray.300"
+              boxShadow="sm"
+              borderRadius="md"
+              p="2"
             />
-          </div>
-        </div>
+          </Stack>
+        </Flex>
       )}
 
-      <hr className="border-t border-gray-200" />
+      <Box borderTopWidth="1px" borderColor="gray.200" />
 
       {isLoading ? (
-        <div className="flex flex-col space-y-2">
-          <Skeleton height={20} width="30%" /> {/* Label */}
-          <div className="relative w-full">
-            <Skeleton height={48} width="100%" className="pl-10" />
-          </div>
-        </div>
+        <Stack gap="2">
+          <Skeleton h="20px" w="30%" />
+          <Skeleton h="48px" w="full" />
+        </Stack>
       ) : (
-        <div className="flex flex-col ">
-          <h1 className="text-gray-500">Email</h1>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
+        <Stack gap="2">
+          <Text color="gray.500">Email</Text>
+          <Box position="relative">
+            <Box position="absolute" insetY="0" left="3" display="flex" alignItems="center" color="gray.400">
               <EnvelopeIcon className="h-5 w-5" />
-            </span>
-            <input
+            </Box>
+            <Input
               type="email"
               value={email || ""}
               readOnly
-              className="p-2 border pl-10 border-gray-300 shadow-sm rounded-lg h-12 w-full focus:outline-none cursor-default bg-gray-100"
+              p="2"
+              pl="10"
+              borderColor="gray.300"
+              boxShadow="sm"
+              borderRadius="lg"
+              h="12"
+              w="full"
+              bg="gray.100"
+              cursor="default"
+              _focus={{ outline: "none" }}
             />
-          </div>
-        </div>
+          </Box>
+        </Stack>
       )}
 
-      <hr className="border-t border-gray-200" />
+      <Box borderTopWidth="1px" borderColor="gray.200" />
       {/*Password*/}
-      {isLoading ? (
-        <div className="flex flex-row w-full justify-between gap-3">
-          {/* Skeleton for current password */}
-          <div className="flex flex-col w-1/2 space-y-2">
-            <Skeleton height={20} width="40%" /> {/* Label */}
-            <div className="relative">
-              <span className="absolute inset-y-0 left-3 flex items-center text-gray-300">
-                <LockClosedIcon className="h-5 w-5" />
-              </span>
-              <Skeleton height={48} width="100%" />
-            </div>
-          </div>
-
-          {/* Skeleton for new password */}
-          <div className="flex flex-col w-1/2 space-y-2">
-            <Skeleton height={20} width="50%" /> {/* Label */}
-            <div className="relative">
-              <span className="absolute inset-y-0 left-3 flex items-center text-gray-300">
-                <LockClosedIcon className="h-5 w-5" />
-              </span>
-              <Skeleton height={48} width="100%" />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-row w-full justify-between gap-3">
-          <div className="flex flex-col w-1/2">
-            <p className="text-gray-400">Password</p>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                <LockClosedIcon className="h-5 w-5" />
-              </span>
-              <input
-                type="password"
-                value="********"
-                readOnly
-                className="w-full p-2 pl-10 border border-gray-300 shadow-sm rounded-lg h-12 focus:outline-none cursor-default bg-gray-100"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col w-1/2">
-            <p className="text-gray-400">New password</p>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                <LockClosedIcon className="h-5 w-5" />
-              </span>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full p-2 pl-10 border border-gray-300 shadow-sm rounded-lg h-12"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="w-full flex justify-center mt-4">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleUpdateProfile();
+        }}
+      >
         {isLoading ? (
-          <div className="w-1/2">
-            <Skeleton height={38} className="rounded-lg" />
-          </div>
+          <Flex w="full" justify="space-between" gap="3">
+            {/* Skeleton for current password */}
+            <Stack w="50%" gap="2">
+              <Skeleton h="20px" w="40%" />
+              <Skeleton h="48px" w="full" />
+            </Stack>
+
+            {/* Skeleton for new password */}
+            <Stack w="50%" gap="2">
+              <Skeleton h="20px" w="50%" />
+              <Skeleton h="48px" w="full" />
+            </Stack>
+          </Flex>
         ) : (
-          <button
-            onClick={handleUpdateProfile}
-            className="w-1/2 bg-[#0b4c97] text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:bg-[#093d7a] transition cursor-pointer"
-          >
-            Update Profile
-          </button>
+          <Flex w="full" justify="space-between" gap="3">
+            <Stack w="50%" gap="2">
+              <Text color="gray.400">Password</Text>
+              <Box position="relative">
+                <Box position="absolute" insetY="0" left="3" display="flex" alignItems="center" color="gray.400">
+                  <LockClosedIcon className="h-5 w-5" />
+                </Box>
+                <Input
+                  type="password"
+                  value="********"
+                  readOnly
+                  w="full"
+                  p="2"
+                  pl="10"
+                  borderColor="gray.300"
+                  boxShadow="sm"
+                  borderRadius="lg"
+                  h="12"
+                  bg="gray.100"
+                  cursor="default"
+                  _focus={{ outline: "none" }}
+                />
+              </Box>
+            </Stack>
+
+            <Stack w="50%" gap="2">
+              <Text color="gray.400">New password</Text>
+              <Box position="relative">
+                <Box position="absolute" insetY="0" left="3" display="flex" alignItems="center" color="gray.400">
+                  <LockClosedIcon className="h-5 w-5" />
+                </Box>
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Password"
+                  w="full"
+                  p="2"
+                  pl="10"
+                  borderColor="gray.300"
+                  boxShadow="sm"
+                  borderRadius="lg"
+                  h="12"
+                />
+              </Box>
+            </Stack>
+          </Flex>
         )}
-      </div>
-    </div>
+
+        <Flex w="full" justify="center" mt="4">
+          {isLoading ? (
+            <Box w="50%">
+              <Skeleton h="38px" borderRadius="lg" />
+            </Box>
+          ) : (
+            <Button
+              type="submit"
+              w="50%"
+              bg="#0b4c97"
+              color="white"
+              fontWeight="semibold"
+              px="6"
+              py="2"
+              borderRadius="lg"
+              boxShadow="md"
+              transition="background 0.2s"
+              _hover={{ bg: "#093d7a" }}
+            >
+              Update Profile
+            </Button>
+          )}
+        </Flex>
+      </form>
+    </Stack>
   );
 };
 

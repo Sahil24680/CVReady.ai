@@ -1,8 +1,21 @@
 "use client";
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import {
+  Box,
+  Flex,
+  Stack,
+  HStack,
+  VStack,
+  Grid,
+  SimpleGrid,
+  Text,
+  Heading,
+  Button,
+  Container,
+} from "@chakra-ui/react";
 import { testimonials } from "@/lib/data/testimonials";
 import InterviewBotSection from "./components/InterviewBot";
 import CommentCard from "@/app/components/CommentCard";
@@ -66,7 +79,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="w-full">
+    <Box w="full">
       {/* styles: float + marquee - moved to top */}
       <style>{`
         * { box-sizing: border-box; }
@@ -101,28 +114,41 @@ export default function HomePage() {
         threshold={0.2}
         delay={0.3}
       >
-        <div
-          className="w-full bg-gradient-to-br from-white via-blue-50/20 to-white opacity-0"
+        <Box
+          w="full"
+          bgGradient="linear(to-br, white, blue.50, white)"
+          opacity="0"
           style={{ animation: "fadeInDelayed 0.1s ease-out 0.2s forwards" }}
         >
           {/* nav */}
-          <nav
-            className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-              isScrolled
-                ? "bg-white/90 backdrop-blur-lg shadow-lg border-b border-blue-100"
-                : "bg-transparent"
-            }`}
+          <Box
+            as="nav"
+            position="fixed"
+            top="0"
+            w="full"
+            zIndex="50"
+            transition="all 0.3s"
+            bg={isScrolled ? "white" : "transparent"}
+            backdropFilter={isScrolled ? "blur(16px)" : undefined}
+            boxShadow={isScrolled ? "lg" : undefined}
+            borderBottomWidth={isScrolled ? "1px" : undefined}
+            borderColor={isScrolled ? "blue.100" : undefined}
           >
-            <div className="max-w-7xl mx-auto px-6 lg:px-8">
-              <div className="flex items-center justify-between h-20">
-                <div className="flex-shrink-0">
-                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-900 via-blue-700 to-blue-600 bg-clip-text text-transparent">
+            <Container maxW="7xl" px={{ base: 6, lg: 8 }}>
+              <Flex align="center" justify="space-between" h="20">
+                <Box flexShrink={0}>
+                  <Text
+                    fontSize="2xl"
+                    fontWeight="bold"
+                    bgGradient="linear(to-r, blue.900, blue.700, blue.600)"
+                    bgClip="text"
+                  >
                     Advisoron
-                  </span>
-                </div>
+                  </Text>
+                </Box>
 
-                <div className="hidden md:block">
-                  <div className="ml-10 flex items-baseline space-x-8">
+                <Box display={{ base: "none", md: "block" }}>
+                  <Flex ml="10" align="baseline" gap="8">
                     {[
                       "features",
                       "how-it-works",
@@ -130,98 +156,175 @@ export default function HomePage() {
                       "testimonials",
                       "contact",
                     ].map((item) => (
-                      <button
+                      <Button
                         key={item}
                         onClick={() => scrollToSection(item)}
-                        className="text-gray-700 hover:text-blue-800 transition-all duration-200 capitalize font-medium hover:scale-105"
+                        variant="ghost"
+                        color="gray.700"
+                        _hover={{ color: "blue.800", transform: "scale(1.05)" }}
+                        transition="all 0.2s"
+                        textTransform="capitalize"
+                        fontWeight="medium"
                         aria-label={`Go to ${item.replace("-", " ")}`}
                       >
                         {item.replace("-", " ")}
-                      </button>
+                      </Button>
                     ))}
-                  </div>
-                </div>
+                  </Flex>
+                </Box>
 
-                <Link
+                <Button
+                  as={Link}
                   href="/auth/signup"
-                  className="bg-gradient-to-r from-blue-800 to-blue-700 hover:from-blue-900 hover:to-blue-800 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center justify-center"
+                  bgGradient="linear(to-r, blue.800, blue.700)"
+                  _hover={{
+                    bgGradient: "linear(to-r, blue.900, blue.800)",
+                    transform: "scale(1.05)",
+                    boxShadow: "xl",
+                  }}
+                  color="white"
+                  px="6"
+                  py="2.5"
+                  borderRadius="lg"
+                  fontWeight="medium"
+                  transition="all 0.2s"
+                  boxShadow="lg"
                 >
                   Upload Resume
-                </Link>
-              </div>
-            </div>
-          </nav>
+                </Button>
+              </Flex>
+            </Container>
+          </Box>
 
           {/* hero */}
-          <header className="relative pt-32 pb-24 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-blue-50/20" />
-            <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                <div className="space-y-8">
-                  <div className="space-y-6">
-                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
+          <Box as="header" position="relative" pt="32" pb="24" overflow="hidden">
+            <Box
+              position="absolute"
+              inset="0"
+              bgGradient="linear(to-br, blue.50, transparent, blue.50)"
+              opacity="0.3"
+            />
+            <Container position="relative" zIndex="10" maxW="7xl" px={{ base: 6, lg: 8 }}>
+              <Grid templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }} gap="16" alignItems="center">
+                <Stack gap="8">
+                  <Stack gap="6">
+                    <Heading
+                      as="h1"
+                      fontSize={{ base: "5xl", sm: "6xl", lg: "7xl" }}
+                      fontWeight="bold"
+                      color="gray.900"
+                      lineHeight="tight"
+                    >
                       Your Resume,{" "}
-                      <span className="bg-gradient-to-r from-blue-800 via-blue-600 to-blue-700 bg-clip-text text-transparent">
+                      <Text
+                        as="span"
+                        bgGradient="linear(to-r, blue.800, blue.600, blue.700)"
+                        bgClip="text"
+                      >
                         Big-Tech Ready
-                      </span>
-                    </h1>
+                      </Text>
+                    </Heading>
 
-                    <p className="text-xl text-gray-600 max-w-lg leading-relaxed">
+                    <Text fontSize="xl" color="gray.600" maxW="lg" lineHeight="relaxed">
                       AI-powered grading and coaching that evaluates your resume
                       like a Google recruiter would.
-                    </p>
-                  </div>
+                    </Text>
+                  </Stack>
 
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Link
+                  <Flex direction={{ base: "column", sm: "row" }} gap="4">
+                    <Button
+                      as={Link}
                       href="/auth/signup"
-                      className="bg-gradient-to-r from-blue-800 to-blue-700 hover:from-blue-900 hover:to-blue-800 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 inline-flex items-center justify-center"
+                      bgGradient="linear(to-r, blue.800, blue.700)"
+                      _hover={{
+                        bgGradient: "linear(to-r, blue.900, blue.800)",
+                        transform: "scale(1.05)",
+                        boxShadow: "2xl",
+                      }}
+                      color="white"
+                      px="10"
+                      py="4"
+                      borderRadius="xl"
+                      fontWeight="semibold"
+                      fontSize="lg"
+                      boxShadow="xl"
+                      transition="all 0.3s"
                     >
                       Upload Resume
-                    </Link>
+                    </Button>
 
-                    <Link
+                    <Button
+                      as={Link}
                       href={demo_vid_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="border-2 border-blue-800 text-blue-800 hover:bg-blue-50 px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 inline-flex items-center justify-center"
+                      borderWidth="2px"
+                      borderColor="blue.800"
+                      color="blue.800"
+                      _hover={{ bg: "blue.50", transform: "scale(1.05)" }}
+                      px="10"
+                      py="4"
+                      borderRadius="xl"
+                      fontWeight="semibold"
+                      fontSize="lg"
+                      transition="all 0.3s"
+                      variant="outline"
                     >
                       See Live Demo
-                    </Link>
-                  </div>
-                </div>
+                    </Button>
+                  </Flex>
+                </Stack>
 
-                <div className="relative">
-                  <div className="floating-card relative w-full max-w-md mx-auto rounded-3xl overflow-hidden border border-blue-100 ring-4 ring-blue-600 shadow-[0_0_30px_rgba(37,99,235,0.6)]">
+                <Box position="relative">
+                  <Box
+                    className="floating-card"
+                    position="relative"
+                    w="full"
+                    maxW="md"
+                    mx="auto"
+                    borderRadius="3xl"
+                    overflow="hidden"
+                    borderWidth="1px"
+                    borderColor="blue.100"
+                    ringColor="blue.600"
+                    ringWidth="4px"
+                    boxShadow="0 0 30px rgba(37,99,235,0.6)"
+                  >
                     <Image
                       src="/images/landing_page.png"
                       alt="Product preview"
                       width={896}
                       height={672}
-                      className="w-full h-auto object-cover"
+                      style={{ width: "100%", height: "auto", objectFit: "cover" }}
                       priority
                     />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </header>
+                  </Box>
+                </Box>
+              </Grid>
+            </Container>
+          </Box>
 
           {/* features */}
-          <section id="features" className="py-24 scroll-mt-24">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8">
-              <div className="text-center mb-20">
-                <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+          <Box as="section" id="features" py="24" scrollMarginTop="24">
+            <Container maxW="7xl" px={{ base: 6, lg: 8 }}>
+              <Box textAlign="center" mb="20">
+                <Heading
+                  as="h2"
+                  fontSize={{ base: "4xl", sm: "5xl" }}
+                  fontWeight="bold"
+                  color="gray.900"
+                  mb="6"
+                >
                   Why Advisoron Works Better
-                </h2>
-                <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+                </Heading>
+                <Text fontSize="xl" color="gray.600" maxW="4xl" mx="auto" lineHeight="relaxed">
                   Unlike keyword scanners, we evaluate your resume like a human
                   recruiter—focusing on impact, technical depth, and measurable
                   outcomes.
-                </p>
-              </div>
+                </Text>
+              </Box>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap="8">
                 {[
                   {
                     icon: "🎯",
@@ -260,41 +363,67 @@ export default function HomePage() {
                       "Only skills supported by project quotes count. Penalizes missing metrics and deployment info.",
                   },
                 ].map((f, i) => (
-                  <div
+                  <Box
                     key={i}
-                    className="group p-8 bg-white rounded-2xl border border-gray-200 hover:shadow-xl transition-all duration-300 hover:border-blue-200 hover:-translate-y-1"
+                    p="8"
+                    bg="white"
+                    borderRadius="2xl"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    _hover={{
+                      boxShadow: "xl",
+                      borderColor: "blue.200",
+                      transform: "translateY(-4px)",
+                    }}
+                    transition="all 0.3s"
+                    role="group"
                   >
-                    <div className="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Text
+                      fontSize="5xl"
+                      mb="6"
+                      _groupHover={{ transform: "scale(1.1)" }}
+                      transition="transform 0.3s"
+                    >
                       {f.icon}
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">
+                    </Text>
+                    <Heading as="h3" fontSize="xl" fontWeight="bold" color="gray.900" mb="4">
                       {f.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    </Heading>
+                    <Text color="gray.600" lineHeight="relaxed">
                       {f.description}
-                    </p>
-                  </div>
+                    </Text>
+                  </Box>
                 ))}
-              </div>
-            </div>
-          </section>
+              </SimpleGrid>
+            </Container>
+          </Box>
 
           {/* how it works */}
-          <section
+          <Box
+            as="section"
             id="how-it-works"
-            className="py-24 bg-gradient-to-br from-blue-50/50 via-blue-50/30 to-transparent scroll-mt-24"
+            py="24"
+            bgGradient="linear(to-br, blue.50, blue.50, transparent)"
+            opacity="0.5"
+            scrollMarginTop="24"
           >
-            <div className="max-w-7xl mx-auto px-6 lg:px-8">
-              <div className="text-center mb-20">
-                <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+            <Container maxW="7xl" px={{ base: 6, lg: 8 }}>
+              <Box textAlign="center" mb="20">
+                <Heading
+                  as="h2"
+                  fontSize={{ base: "4xl", sm: "5xl" }}
+                  fontWeight="bold"
+                  color="gray.900"
+                  mb="6"
+                >
                   How It Works
-                </h2>
-                <p className="text-xl text-gray-600">
+                </Heading>
+                <Text fontSize="xl" color="gray.600">
                   Three-step pipeline optimized for accuracy and cost efficiency
-                </p>
-              </div>
+                </Text>
+              </Box>
 
-              <div className="grid lg:grid-cols-3 gap-12">
+              <Grid templateColumns={{ base: "1fr", lg: "repeat(3, 1fr)" }} gap="12">
                 {[
                   {
                     step: "01",
@@ -315,120 +444,203 @@ export default function HomePage() {
                       "GPT-4 delivers recruiter-quality feedback focused on your lowest scoring areas with specific improvement suggestions.",
                   },
                 ].map((item, idx) => (
-                  <div key={idx} className="relative group">
-                    <div className="text-center bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                      <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-800 via-blue-600 to-blue-700 text-white font-bold text-2xl mb-8 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Box key={idx} position="relative" role="group">
+                    <Box
+                      textAlign="center"
+                      bg="white"
+                      borderRadius="2xl"
+                      p="8"
+                      boxShadow="lg"
+                      _groupHover={{ boxShadow: "xl", transform: "translateY(-4px)" }}
+                      transition="all 0.3s"
+                    >
+                      <Flex
+                        align="center"
+                        justify="center"
+                        w="20"
+                        h="20"
+                        borderRadius="full"
+                        bgGradient="linear(to-br, blue.800, blue.600, blue.700)"
+                        color="white"
+                        fontWeight="bold"
+                        fontSize="2xl"
+                        mb="8"
+                        boxShadow="lg"
+                        _groupHover={{ transform: "scale(1.1)" }}
+                        transition="transform 0.3s"
+                        mx="auto"
+                      >
                         {item.step}
-                      </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                      </Flex>
+                      <Heading as="h3" fontSize="2xl" fontWeight="bold" color="gray.900" mb="6">
                         {item.title}
-                      </h3>
-                      <p className="text-gray-600 leading-relaxed">
+                      </Heading>
+                      <Text color="gray.600" lineHeight="relaxed">
                         {item.description}
-                      </p>
-                    </div>
-                  </div>
+                      </Text>
+                    </Box>
+                  </Box>
                 ))}
-              </div>
-            </div>
-          </section>
+              </Grid>
+            </Container>
+          </Box>
+
           {/* 🎤 AI Interview Practice Bot */}
           <InterviewBotSection />
 
           {/* demo */}
-          <section id="demo" className="py-24 scroll-mt-24">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8">
-              <div className="text-center mb-20">
-                <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+          <Box as="section" id="demo" py="24" scrollMarginTop="24">
+            <Container maxW="7xl" px={{ base: 6, lg: 8 }}>
+              <Box textAlign="center" mb="20">
+                <Heading
+                  as="h2"
+                  fontSize={{ base: "4xl", sm: "5xl" }}
+                  fontWeight="bold"
+                  color="gray.900"
+                  mb="6"
+                >
                   See It In Action
-                </h2>
-                <p className="text-xl text-gray-600">
+                </Heading>
+                <Text fontSize="xl" color="gray.600">
                   Watch how our AI transforms weak bullets into compelling
                   impact statements
-                </p>
-              </div>
+                </Text>
+              </Box>
 
-              <div className="max-w-5xl mx-auto">
-                <div className="bg-white rounded-3xl border border-gray-200 p-10 shadow-2xl">
-                  <div className="flex items-center mb-8">
-                    <div className="flex space-x-3">
-                      <div className="w-4 h-4 rounded-full bg-red-400" />
-                      <div className="w-4 h-4 rounded-full bg-yellow-400" />
-                      <div className="w-4 h-4 rounded-full bg-green-400" />
-                    </div>
-                    <span className="ml-6 text-gray-500 font-mono text-lg">
+              <Container maxW="5xl">
+                <Box bg="white" borderRadius="3xl" borderWidth="1px" borderColor="gray.200" p="10" boxShadow="2xl">
+                  <Flex align="center" mb="8">
+                    <HStack gap="3">
+                      <Box w="4" h="4" borderRadius="full" bg="red.400" />
+                      <Box w="4" h="4" borderRadius="full" bg="yellow.400" />
+                      <Box w="4" h="4" borderRadius="full" bg="green.400" />
+                    </HStack>
+                    <Text ml="6" color="gray.500" fontFamily="mono" fontSize="lg">
                       advisoron-analysis.log
-                    </span>
-                  </div>
+                    </Text>
+                  </Flex>
 
-                  <div className="bg-gray-900 rounded-2xl p-8 min-h-[200px] font-mono">
-                    <div className="text-green-400 text-lg">
-                      <span className="text-green-300 mr-3">$</span>
-                      <span aria-live="polite">{terminalText}</span>
-                      <span
+                  <Box bg="gray.900" borderRadius="2xl" p="8" minH="200px" fontFamily="mono">
+                    <Box color="green.400" fontSize="lg">
+                      <Text as="span" color="green.300" mr="3">$</Text>
+                      <Text as="span" aria-live="polite">{terminalText}</Text>
+                      <Box
+                        as="span"
                         aria-hidden="true"
-                        className={`inline-block w-3 h-6 ml-1 align-[-2px] ${
-                          showCaret ? "bg-green-400" : "bg-transparent"
-                        }`}
+                        display="inline-block"
+                        w="3"
+                        h="6"
+                        ml="1"
+                        verticalAlign="text-bottom"
+                        bg={showCaret ? "green.400" : "transparent"}
                       />
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
 
-                  <div className="flex flex-col sm:flex-row gap-4 mt-10">
-                    <Link
+                  <Flex direction={{ base: "column", sm: "row" }} gap="4" mt="10">
+                    <Button
+                      as={Link}
                       href={demo_vid_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="border-2 border-blue-800 text-blue-800 hover:bg-blue-50 px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105 inline-flex items-center justify-center"
+                      borderWidth="2px"
+                      borderColor="blue.800"
+                      color="blue.800"
+                      _hover={{ bg: "blue.50", transform: "scale(1.05)" }}
+                      px="8"
+                      py="4"
+                      borderRadius="xl"
+                      fontWeight="semibold"
+                      transition="all 0.3s"
+                      variant="outline"
                     >
                       See Live Demo
-                    </Link>
+                    </Button>
 
-                    <Link
+                    <Button
+                      as={Link}
                       href="/auth/signup"
-                      className="bg-gradient-to-r from-blue-800 to-blue-700 hover:from-blue-900 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105 inline-flex items-center justify-center"
+                      bgGradient="linear(to-r, blue.800, blue.700)"
+                      _hover={{
+                        bgGradient: "linear(to-r, blue.900, blue.800)",
+                        transform: "scale(1.05)",
+                      }}
+                      color="white"
+                      px="8"
+                      py="4"
+                      borderRadius="xl"
+                      fontWeight="semibold"
+                      transition="all 0.3s"
                     >
                       Upload Your Resume
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+                    </Button>
+                  </Flex>
+                </Box>
+              </Container>
+            </Container>
+          </Box>
 
           {/* faq */}
-          <section
+          <Box
+            as="section"
             id="faq"
-            className="py-24 bg-gradient-to-br from-blue-50/50 via-blue-50/30 to-transparent scroll-mt-24"
+            py="24"
+            bgGradient="linear(to-br, blue.50, blue.50, transparent)"
+            opacity="0.5"
+            scrollMarginTop="24"
           >
-            <div className="max-w-5xl mx-auto px-6 lg:px-8">
-              <div className="text-center mb-20">
-                <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+            <Container maxW="5xl" px={{ base: 6, lg: 8 }}>
+              <Box textAlign="center" mb="20">
+                <Heading
+                  as="h2"
+                  fontSize={{ base: "4xl", sm: "5xl" }}
+                  fontWeight="bold"
+                  color="gray.900"
+                  mb="6"
+                >
                   Frequently Asked Questions
-                </h2>
-              </div>
+                </Heading>
+              </Box>
 
-              <div className="space-y-6">
+              <Stack gap="6">
                 {faqs.map((faq, index) => (
-                  <div
+                  <Box
                     key={index}
-                    className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                    bg="white"
+                    borderRadius="2xl"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    overflow="hidden"
+                    boxShadow="lg"
+                    _hover={{ boxShadow: "xl" }}
+                    transition="all 0.3s"
                   >
-                    <button
+                    <Button
                       onClick={() =>
                         setOpenFAQ(openFAQ === index ? null : index)
                       }
-                      className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-blue-50/50 transition-colors duration-200"
+                      w="full"
+                      px="8"
+                      py="6"
+                      textAlign="left"
+                      variant="ghost"
+                      _hover={{ bg: "blue.50" }}
+                      transition="colors 0.2s"
                       aria-expanded={openFAQ === index}
                       aria-controls={`faq-panel-${index}`}
+                      justifyContent="space-between"
+                      borderRadius="0"
                     >
-                      <span className="font-bold text-gray-900 text-lg">
+                      <Text fontWeight="bold" color="gray.900" fontSize="lg">
                         {faq.question}
-                      </span>
-                      <svg
-                        className={`w-6 h-6 text-blue-800 transform transition-transform duration-300 ${
-                          openFAQ === index ? "rotate-180" : ""
-                        }`}
+                      </Text>
+                      <Box
+                        as="svg"
+                        w="6"
+                        h="6"
+                        color="blue.800"
+                        transform={openFAQ === index ? "rotate(180deg)" : "rotate(0deg)"}
+                        transition="transform 0.3s"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -439,48 +651,56 @@ export default function HomePage() {
                           strokeWidth={2}
                           d="M19 9l-7 7-7-7"
                         />
-                      </svg>
-                    </button>
-                    <div
+                      </Box>
+                    </Button>
+                    <Box
                       id={`faq-panel-${index}`}
-                      className={`transition-all duration-300 ease-in-out ${
-                        openFAQ === index
-                          ? "max-h-96 opacity-100"
-                          : "max-h-0 opacity-0"
-                      } overflow-hidden`}
+                      maxH={openFAQ === index ? "96" : "0"}
+                      opacity={openFAQ === index ? "1" : "0"}
+                      overflow="hidden"
+                      transition="all 0.3s ease-in-out"
                     >
-                      <div className="px-8 pb-6">
-                        <p className="text-gray-600 leading-relaxed text-lg">
+                      <Box px="8" pb="6">
+                        <Text color="gray.600" lineHeight="relaxed" fontSize="lg">
                           {faq.answer}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                        </Text>
+                      </Box>
+                    </Box>
+                  </Box>
                 ))}
-              </div>
-            </div>
-          </section>
+              </Stack>
+            </Container>
+          </Box>
 
           {/* testimonials + marquee */}
-          <section
+          <Box
+            as="section"
             id="testimonials"
-            className="py-24 scroll-mt-24 hidden xl:block"
+            py="24"
+            scrollMarginTop="24"
+            display={{ base: "none", xl: "block" }}
           >
-            <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-16 text-center">
-              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+            <Container maxW="7xl" px={{ base: 6, lg: 8 }} mb="16" textAlign="center">
+              <Heading
+                as="h2"
+                fontSize={{ base: "4xl", sm: "5xl" }}
+                fontWeight="bold"
+                color="gray.900"
+                mb="6"
+              >
                 Success Stories
-              </h2>
-              <p className="text-xl text-gray-600">
+              </Heading>
+              <Text fontSize="xl" color="gray.600">
                 Join students who landed their dream jobs with Advisoron
-              </p>
-            </div>
+              </Text>
+            </Container>
 
             {/* row 1 */}
-            <div className="max-w-7xl mx-auto px-6 lg:px-8">
-              <div className="relative overflow-hidden rounded-2xl">
-                <div className="marquee-track flex items-stretch gap-6 will-change-transform">
+            <Container maxW="7xl" px={{ base: 6, lg: 8 }}>
+              <Box position="relative" overflow="hidden" borderRadius="2xl">
+                <Flex className="marquee-track" alignItems="stretch" gap="6" willChange="transform">
                   {[...testimonials, ...testimonials].map((t, i) => (
-                    <div key={`row1-${i}`} className="shrink-0">
+                    <Box key={`row1-${i}`} flexShrink={0}>
                       <CommentCard
                         name={t.name}
                         role={t.role}
@@ -488,21 +708,21 @@ export default function HomePage() {
                         comment={t.comment}
                         rating={t.rating}
                       />
-                    </div>
+                    </Box>
                   ))}
-                </div>
-              </div>
-            </div>
+                </Flex>
+              </Box>
+            </Container>
 
             {/* row 2 */}
-            <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-6">
-              <div className="relative overflow-hidden rounded-2xl">
-                <div className="marquee-track-rev flex items-stretch gap-6 will-change-transform">
+            <Container maxW="7xl" px={{ base: 6, lg: 8 }} mt="6">
+              <Box position="relative" overflow="hidden" borderRadius="2xl">
+                <Flex className="marquee-track-rev" alignItems="stretch" gap="6" willChange="transform">
                   {[
                     ...testimonials.slice().reverse(),
                     ...testimonials.slice().reverse(),
                   ].map((t, i) => (
-                    <div key={`row2-${i}`} className="shrink-0">
+                    <Box key={`row2-${i}`} flexShrink={0}>
                       <CommentCard
                         name={t.name}
                         role={t.role}
@@ -510,138 +730,133 @@ export default function HomePage() {
                         comment={t.comment}
                         rating={t.rating}
                       />
-                    </div>
+                    </Box>
                   ))}
-                </div>
-              </div>
-            </div>
-          </section>
+                </Flex>
+              </Box>
+            </Container>
+          </Box>
 
           {/* cta */}
-          <section id="upload" className="py-24 scroll-mt-24">
-            <div className="max-w-5xl mx-auto px-6 lg:px-8 text-center">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-3xl p-16 shadow-xl">
-                <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-8">
+          <Box as="section" id="upload" py="24" scrollMarginTop="24">
+            <Container maxW="5xl" px={{ base: 6, lg: 8 }} textAlign="center">
+              <Box bgGradient="linear(to-br, blue.50, blue.100)" opacity="0.5" borderRadius="3xl" p="16" boxShadow="xl">
+                <Heading
+                  as="h2"
+                  fontSize={{ base: "4xl", sm: "5xl" }}
+                  fontWeight="bold"
+                  color="gray.900"
+                  mb="8"
+                >
                   Ready to Make Your Resume Big-Tech Ready?
-                </h2>
-                <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+                </Heading>
+                <Text fontSize="xl" color="gray.600" mb="12" maxW="3xl" mx="auto" lineHeight="relaxed">
                   Join thousands of engineers who've landed their dream jobs
                   with AI-powered resume optimization.
-                </p>
-                <Link
+                </Text>
+                <Button
+                  as={Link}
                   href="/auth/signup"
-                  className="bg-gradient-to-r from-blue-800 to-blue-700 hover:from-blue-900 hover:to-blue-800 text-white px-12 py-5 rounded-xl font-bold text-xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 inline-flex items-center justify-center"
+                  bgGradient="linear(to-r, blue.800, blue.700)"
+                  _hover={{
+                    bgGradient: "linear(to-r, blue.900, blue.800)",
+                    transform: "scale(1.05)",
+                    boxShadow: "3xl",
+                  }}
+                  color="white"
+                  px="12"
+                  py="5"
+                  borderRadius="xl"
+                  fontWeight="bold"
+                  fontSize="xl"
+                  boxShadow="2xl"
+                  transition="all 0.3s"
                 >
                   Upload Your Resume Now
-                </Link>
+                </Button>
 
-                <p className="text-gray-500 mt-6 text-lg">
+                <Text color="gray.500" mt="6" fontSize="lg">
                   Secure processing • No data storage • Results in 60 seconds
-                </p>
-              </div>
-            </div>
-          </section>
+                </Text>
+              </Box>
+            </Container>
+          </Box>
 
           {/* footer */}
-          <footer
+          <Box
+            as="footer"
             id="contact"
-            className="bg-gradient-to-br from-blue-50/80 via-blue-50/50 to-transparent py-16 border-t border-blue-100"
+            bgGradient="linear(to-br, blue.50, blue.50, transparent)"
+            opacity="0.8"
+            py="16"
+            borderTopWidth="1px"
+            borderColor="blue.100"
           >
-            <div className="max-w-7xl mx-auto px-6 lg:px-8">
-              <div className="grid md:grid-cols-3 gap-12">
-                <div>
-                  <span className="text-3xl font-bold bg-gradient-to-r from-blue-900 via-blue-700 to-blue-600 bg-clip-text text-transparent">
+            <Container maxW="7xl" px={{ base: 6, lg: 8 }}>
+              <SimpleGrid columns={{ base: 1, md: 3 }} gap="12">
+                <Box>
+                  <Text
+                    fontSize="3xl"
+                    fontWeight="bold"
+                    bgGradient="linear(to-r, blue.900, blue.700, blue.600)"
+                    bgClip="text"
+                  >
                     Advisoron
-                  </span>
-                  <p className="text-gray-600 mt-6 max-w-md text-lg leading-relaxed">
+                  </Text>
+                  <Text color="gray.600" mt="6" maxW="md" fontSize="lg" lineHeight="relaxed">
                     AI-powered resume analysis that helps you land your dream
                     job at top tech companies.
-                  </p>
-                </div>
+                  </Text>
+                </Box>
 
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-6 text-lg">
+                <Box>
+                  <Heading as="h4" fontWeight="bold" color="gray.900" mb="6" fontSize="lg">
                     Product
-                  </h4>
-                  <ul className="space-y-4 text-gray-600">
-                    <li>
-                      <a
-                        href="#features"
-                        className="hover:text-blue-800 transition-colors text-lg"
-                      >
-                        Features
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#how-it-works"
-                        className="hover:text-blue-800 transition-colors text-lg"
-                      >
-                        How It Works
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#demo"
-                        className="hover:text-blue-800 transition-colors text-lg"
-                      >
-                        Live Demo
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#faq"
-                        className="hover:text-blue-800 transition-colors text-lg"
-                      >
-                        FAQ
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+                  </Heading>
+                  <Stack gap="4" color="gray.600">
+                    <Box as="a" href="#features" _hover={{ color: "blue.800" }} transition="colors" fontSize="lg">
+                      Features
+                    </Box>
+                    <Box as="a" href="#how-it-works" _hover={{ color: "blue.800" }} transition="colors" fontSize="lg">
+                      How It Works
+                    </Box>
+                    <Box as="a" href="#demo" _hover={{ color: "blue.800" }} transition="colors" fontSize="lg">
+                      Live Demo
+                    </Box>
+                    <Box as="a" href="#faq" _hover={{ color: "blue.800" }} transition="colors" fontSize="lg">
+                      FAQ
+                    </Box>
+                  </Stack>
+                </Box>
 
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-6 text-lg">
+                <Box>
+                  <Heading as="h4" fontWeight="bold" color="gray.900" mb="6" fontSize="lg">
                     Support
-                  </h4>
-                  <ul className="space-y-4 text-gray-600">
-                    <li>
-                      <a
-                        href="mailto:hello@advisoron.com"
-                        className="hover:text-blue-800 transition-colors text-lg"
-                      >
-                        Contact Users
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        className="hover:text-blue-800 transition-colors text-lg"
-                      >
-                        Privacy Policy
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        className="hover:text-blue-800 transition-colors text-lg"
-                      >
-                        Terms of Service
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+                  </Heading>
+                  <Stack gap="4" color="gray.600">
+                    <Box as="a" href="mailto:hello@advisoron.com" _hover={{ color: "blue.800" }} transition="colors" fontSize="lg">
+                      Contact Users
+                    </Box>
+                    <Box as="a" href="#" _hover={{ color: "blue.800" }} transition="colors" fontSize="lg">
+                      Privacy Policy
+                    </Box>
+                    <Box as="a" href="#" _hover={{ color: "blue.800" }} transition="colors" fontSize="lg">
+                      Terms of Service
+                    </Box>
+                  </Stack>
+                </Box>
+              </SimpleGrid>
 
-              <div className="border-t border-blue-200 mt-16 pt-12 text-center text-gray-600">
-                <p className="text-lg">
+              <Box borderTopWidth="1px" borderColor="blue.200" mt="16" pt="12" textAlign="center" color="gray.600">
+                <Text fontSize="lg">
                   &copy; 2024 Advisoron. All rights reserved. We process your
                   data securely and never store resumes permanently.
-                </p>
-              </div>
-            </div>
-          </footer>
-        </div>
+                </Text>
+              </Box>
+            </Container>
+          </Box>
+        </Box>
       </AnimatedContent>
-    </div>
+    </Box>
   );
 }

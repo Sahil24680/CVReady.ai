@@ -2,14 +2,23 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import {
+  Box,
+  Flex,
+  Stack,
+  Text,
+  Heading,
+  IconButton,
+  SimpleGrid,
+  HStack,
+  List,
+} from "@chakra-ui/react";
+import {
   Mic,
-  Upload,
   FileAudio,
   Sparkles,
   CheckCircle2,
   AlertTriangle,
   Info,
-  Download,
   RefreshCw,
   AudioLines,
   ListChecks,
@@ -24,6 +33,29 @@ import { PrimaryButton, GhostButton } from "./components/Buttons";
 import Recorder from "./components/Recorder";
 import Uploader from "./components/Uploader";
 import type { Report } from "./components/types";
+
+// Animation strings for use with animation prop
+const fadeIn = "fadeIn 0.4s ease-in-out";
+const pulse = "pulse 2s ease-in-out infinite";
+
+// Inject keyframes into a style tag
+if (typeof document !== "undefined") {
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  `;
+  if (!document.querySelector("style[data-interview-animations]")) {
+    style.setAttribute("data-interview-animations", "true");
+    document.head.appendChild(style);
+  }
+}
 
 export default function InterviewPage() {
   const [activeTab, setActiveTab] = useState<"record" | "upload">("upload");
@@ -74,7 +106,7 @@ export default function InterviewPage() {
 
       if (!allowedTypes.includes(uploadedFile.type)) {
         toast.error(
-          "Unsupported file type. Please upload an audio file (MP3, WAV, M4A, or WebM)."
+          "Unsupported file type. Please upload an audio file (MP3, WAV, M4A, or WebM).",
         );
         return;
       }
@@ -96,7 +128,8 @@ export default function InterviewPage() {
         filename: data.filename ?? fileToSend.name,
       });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to process audio';
+      const message =
+        error instanceof Error ? error.message : "Failed to process audio";
       console.error("Submit error:", message);
       toast.error(message);
     } finally {
@@ -113,320 +146,554 @@ export default function InterviewPage() {
   };
 
   return (
-    <div className="h-screen bg-linear-to-br from-blue-50 via-white to-blue-50 overflow-y-auto">
-      {/* Header */}
-      <header className="bg-white border-b border-blue-100 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+    <Box
+      h="100vh"
+      bgGradient="linear(to-br, blue.50, white, blue.50)"
+      overflowY="auto"
+    >
+      <Box
+        as="header"
+        bg="white"
+        borderBottomWidth="1px"
+        borderColor="blue.100"
+        boxShadow="sm"
+      >
+        <Box
+          maxW="6xl"
+          mx="auto"
+          px={{ base: 4, sm: 6 }}
+          py={{ base: 6, sm: 8 }}
+        >
+          <Flex align="flex-start" justify="space-between">
+            <Box>
+              <Heading
+                as="h1"
+                fontSize={{ base: "3xl", sm: "4xl" }}
+                fontWeight="bold"
+                color="gray.900"
+                mb="2"
+              >
                 AI Interview Practice
-              </h1>
-              <p className="text-sm sm:text-base text-gray-600">
+              </Heading>
+              <Text fontSize={{ base: "sm", sm: "md" }} color="gray.600">
                 Record or upload your response and get instant AI-powered
                 feedback
-              </p>
-            </div>
-            <div className="relative">
-              <button
+              </Text>
+            </Box>
+            <Box position="relative">
+              <IconButton
+                aria-label="Help"
+                variant="ghost"
+                color="blue.600"
+                p="2"
+                borderRadius="lg"
+                transition="colors 0.2s"
+                _hover={{ bg: "blue.50" }}
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
                 onClick={() => setShowTooltip(!showTooltip)}
-                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                aria-label="Help"
               >
-                <Info className="w-5 h-5" />
-              </button>
+                <Info size={20} />
+              </IconButton>
               {showTooltip && (
-                <div className="absolute right-0 top-full mt-2 w-64 p-4 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-10 animate-fadeIn">
-                  <p className="font-medium mb-2">Quick Tips:</p>
-                  <ul className="space-y-1 list-disc list-inside">
-                    <li>Use the STAR method</li>
-                    <li>Keep answers 1-2 minutes</li>
-                    <li>Speak clearly and confidently</li>
-                    <li>Review feedback carefully</li>
-                  </ul>
-                </div>
+                <Box
+                  position="absolute"
+                  right="0"
+                  top="100%"
+                  mt="2"
+                  w="64"
+                  p="4"
+                  bg="gray.900"
+                  color="white"
+                  fontSize="xs"
+                  borderRadius="lg"
+                  boxShadow="xl"
+                  zIndex="10"
+                  animation={fadeIn}
+                >
+                  <Text fontWeight="medium" mb="2">
+                    Quick Tips:
+                  </Text>
+                  <List.Root gap="1" listStylePosition="inside" m="0">
+                    <List.Item>Use the STAR method</List.Item>
+                    <List.Item>Keep answers 1-2 minutes</List.Item>
+                    <List.Item>Speak clearly and confidently</List.Item>
+                    <List.Item>Review feedback carefully</List.Item>
+                  </List.Root>
+                </Box>
               )}
-            </div>
-          </div>
-        </div>
-      </header>
+            </Box>
+          </Flex>
+        </Box>
+      </Box>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* Instructions */}
+      <Box as="main" maxW="6xl" mx="auto" px={{ base: 4, sm: 6 }} py="8">
+        <Stack gap="6">
+          <SectionCard title="Before You Start" icon={<Mic size={24} />}>
+            <SimpleGrid
+              as="ul"
+              columns={{ base: 1, sm: 2 }}
+              gap="3"
+              fontSize="sm"
+              color="gray.700"
+              mb="4"
+              listStyleType="none"
+              m="0"
+              p="0"
+            >
+              <HStack as="li" align="flex-start" gap="2">
+                <Box mt="0.5" flexShrink={0}>
+                  <CheckCircle2
+                    size={20}
+                    color="var(--chakra-colors-blue-600)"
+                  />
+                </Box>
+                <Text>Find a quiet space with minimal background noise</Text>
+              </HStack>
+              <HStack as="li" align="flex-start" gap="2">
+                <Box mt="0.5" flexShrink={0}>
+                  <CheckCircle2
+                    size={20}
+                    color="var(--chakra-colors-blue-600)"
+                  />
+                </Box>
+                <Text>Aim for 1-2 minute responses</Text>
+              </HStack>
+              <HStack as="li" align="flex-start" gap="2">
+                <Box mt="0.5" flexShrink={0}>
+                  <CheckCircle2
+                    size={20}
+                    color="var(--chakra-colors-blue-600)"
+                  />
+                </Box>
+                <Text>
+                  Use the STAR method (Situation, Task, Action, Result)
+                </Text>
+              </HStack>
+              <HStack as="li" align="flex-start" gap="2">
+                <Box mt="0.5" flexShrink={0}>
+                  <CheckCircle2
+                    size={20}
+                    color="var(--chakra-colors-blue-600)"
+                  />
+                </Box>
+                <Text>Speak clearly and at a moderate pace</Text>
+              </HStack>
+            </SimpleGrid>
 
-        <SectionCard
-          title="Before You Start"
-          icon={<Mic className="w-6 h-6" />}
-        >
-          <ul className="grid sm:grid-cols-2 gap-3 text-sm text-gray-700 mb-4">
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <span>Find a quiet space with minimal background noise</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <span>Aim for 1-2 minute responses</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <span>Use the STAR method (Situation, Task, Action, Result)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <span>Speak clearly and at a moderate pace</span>
-            </li>
-          </ul>
+            <Box mt="4" pt="4" borderTopWidth="1px" borderColor="blue.100">
+              <Stack gap="2">
+                <HStack align="flex-start" gap="2">
+                  <Box mt="0.5" flexShrink={0}>
+                    <AlertTriangle
+                      size={20}
+                      color="var(--chakra-colors-orange-500)"
+                    />
+                  </Box>
+                  <Text fontSize="sm" color="gray.700">
+                    This practice tool does not connect to a database. Your
+                    audio files, transcripts, and scores are only stored
+                    temporarily in your browser during this session. Once you
+                    refresh or leave the page, everything is cleared.
+                  </Text>
+                </HStack>
+                <HStack align="flex-start" gap="2">
+                  <Box mt="0.5" flexShrink={0}>
+                    <Lock size={16} color="var(--chakra-colors-gray-500)" />
+                  </Box>
+                  <Text fontSize="xs" color="gray.500">
+                    No data is saved or tracked — it’s just for short practice
+                    sessions.
+                  </Text>
+                </HStack>
+              </Stack>
+            </Box>
+          </SectionCard>
 
-          {/* Disclaimer section */}
-          <div className="mt-4 border-t pt-4 border-blue-100 space-y-2">
-            <p className="flex items-start gap-2 text-sm text-gray-700">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              This practice tool does not connect to a database. Your audio
-              files, transcripts, and scores are only stored temporarily in your
-              browser during this session. Once you refresh or leave the page,
-              everything is cleared.
-            </p>
-            <p className="flex items-start gap-2 text-xs text-gray-500">
-              <Lock className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              No data is saved or tracked — it’s just for short practice
-              sessions.
-            </p>
-          </div>
-        </SectionCard>
+          <SectionCard
+            title="Interview Questions"
+            icon={<ListChecks size={24} />}
+          >
+            <Stack
+              as="ul"
+              gap="3"
+              fontSize="sm"
+              color="gray.700"
+              listStyleType="none"
+              m="0"
+              p="0"
+            >
+              <HStack as="li" align="flex-start" gap="2">
+                <Box mt="0.5" flexShrink={0}>
+                  <CheckCircle2
+                    size={20}
+                    color="var(--chakra-colors-blue-600)"
+                  />
+                </Box>
+                <Text>What are your strengths and weaknesses?</Text>
+              </HStack>
+              <HStack as="li" align="flex-start" gap="2">
+                <Box mt="0.5" flexShrink={0}>
+                  <CheckCircle2
+                    size={20}
+                    color="var(--chakra-colors-blue-600)"
+                  />
+                </Box>
+                <Text>Why do you want to work in Big Tech?</Text>
+              </HStack>
+              <HStack as="li" align="flex-start" gap="2">
+                <Box mt="0.5" flexShrink={0}>
+                  <CheckCircle2
+                    size={20}
+                    color="var(--chakra-colors-blue-600)"
+                  />
+                </Box>
+                <Text>What makes you a good candidate for this role?</Text>
+              </HStack>
+              <HStack as="li" align="flex-start" gap="2">
+                <Box mt="0.5" flexShrink={0}>
+                  <CheckCircle2
+                    size={20}
+                    color="var(--chakra-colors-blue-600)"
+                  />
+                </Box>
+                <Text>Tell us about your hobbies or interests.</Text>
+              </HStack>
+            </Stack>
+            <Text fontSize="xs" color="gray.500" mt="3">
+              ⏱ You’ll have up to{" "}
+              <Text as="span" fontWeight="medium" color="blue.600">
+                3 minutes
+              </Text>{" "}
+              to record or upload your response.
+            </Text>
+          </SectionCard>
 
-        <SectionCard
-          title="Interview Questions"
-          icon={<ListChecks className="w-6 h-6" />}
-        >
-          <ul className="space-y-3 text-sm text-gray-700">
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <span>What are your strengths and weaknesses?</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <span>Why do you want to work in Big Tech?</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <span>What makes you a good candidate for this role?</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <span>Tell us about your hobbies or interests.</span>
-            </li>
-          </ul>
-          <p className="text-xs text-gray-500 mt-3">
-            ⏱ You’ll have up to{" "}
-            <span className="font-medium text-blue-600">3 minutes</span>
-            to record or upload your response.
-          </p>
-        </SectionCard>
+          <SectionCard title="Your Response" icon={<AudioLines size={24} />}>
+            {activeTab === "record" ? (
+              <Recorder
+                onRecordingComplete={(duration) => {
+                  setHasRecording(true);
+                  setRecordingDuration(duration);
+                  setUploadedFile(null);
+                }}
+                hasRecording={hasRecording}
+              />
+            ) : (
+              <Uploader
+                onFileSelect={(file) => {
+                  setUploadedFile(file);
+                  setHasRecording(false);
+                }}
+                file={uploadedFile}
+                onRemove={() => setUploadedFile(null)}
+              />
+            )}
 
-        {/* Recorder / Uploader */}
-        <SectionCard
-          title="Your Response"
-          icon={<AudioLines className="w-6 h-6" />}
-        >
-          {/* Tab content */}
-          {activeTab === "record" ? (
-            // Recorder currenlty not used
-            <Recorder
-              onRecordingComplete={(duration) => {
-                setHasRecording(true);
-                setRecordingDuration(duration);
-                setUploadedFile(null);
-              }}
-              hasRecording={hasRecording}
-            />
-          ) : (
-            <Uploader
-              onFileSelect={(file) => {
-                setUploadedFile(file);
-                setHasRecording(false);
-              }}
-              file={uploadedFile}
-              onRemove={() => setUploadedFile(null)}
-            />
+            <Box mt="6" pt="6" borderTopWidth="1px" borderColor="blue.100">
+              <PrimaryButton
+                icon={<Sparkles size={20} />}
+                color = "blue.500"
+                bg = {"Blue.700"}
+                onClick={handleSubmit}
+                disabled={!canSubmit || isSubmitting}
+                loading={isSubmitting}
+                w="full"
+              >
+                {isSubmitting
+                  ? "Processing..."
+                  : "Submit for Transcription & Review"}
+              </PrimaryButton>
+
+              {!canSubmit && (
+                <HStack
+                  mt="2"
+                  fontSize="xs"
+                  color="gray.500"
+                  justify="center"
+                  gap="1"
+                >
+                  <AlertTriangle size={14} />
+                  <Text>Please record or upload audio first</Text>
+                </HStack>
+              )}
+            </Box>
+          </SectionCard>
+
+          {isSubmitting && (
+            <Stack gap="6">
+              <SectionCard>
+                <Stack gap="3">
+                  <Box
+                    h="6"
+                    w="32"
+                    bg="blue.100"
+                    borderRadius="md"
+                    animation={pulse}
+                  />
+                  <Box
+                    h="4"
+                    bg="gray.100"
+                    borderRadius="md"
+                    animation={pulse}
+                  />
+                  <Box
+                    h="4"
+                    w="85%"
+                    bg="gray.100"
+                    borderRadius="md"
+                    animation={pulse}
+                  />
+                  <Box
+                    h="4"
+                    w="66%"
+                    bg="gray.100"
+                    borderRadius="md"
+                    animation={pulse}
+                  />
+                </Stack>
+              </SectionCard>
+              <SectionCard>
+                <SimpleGrid columns={{ base: 1, sm: 2 }} gap="4">
+                  {[...Array(6)].map((_, i) => (
+                    <Stack key={i} gap="2">
+                      <Box
+                        h="4"
+                        w="24"
+                        bg="blue.100"
+                        borderRadius="md"
+                        animation={pulse}
+                      />
+                      <Box
+                        h="2"
+                        bg="gray.100"
+                        borderRadius="md"
+                        animation={pulse}
+                      />
+                      <Box
+                        h="3"
+                        w="85%"
+                        bg="gray.100"
+                        borderRadius="md"
+                        animation={pulse}
+                      />
+                    </Stack>
+                  ))}
+                </SimpleGrid>
+              </SectionCard>
+            </Stack>
           )}
 
-          {/* Submit */}
-          <div className="mt-6 pt-6 border-t border-blue-100">
-            <PrimaryButton
-              icon={<Sparkles className="w-5 h-5" />}
-              onClick={handleSubmit}
-              disabled={!canSubmit || isSubmitting}
-              loading={isSubmitting}
-              className="w-full"
-            >
-              {isSubmitting
-                ? "Processing..."
-                : "Submit for Transcription & Review"}
-            </PrimaryButton>
-            {!canSubmit && (
-              <p className="text-xs text-gray-500 text-center mt-2 flex items-center justify-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                Please record or upload audio first
-              </p>
-            )}
-          </div>
-        </SectionCard>
+          {report && !isSubmitting && (
+            <Stack gap="6">
+              <SectionCard title="Transcript" icon={<FileAudio size={24} />}>
+                <TranscriptBox text={report.transcript} />
+              </SectionCard>
 
-        {/* Loading skeleton */}
-        {isSubmitting && (
-          <div className="space-y-6">
-            <SectionCard>
-              <div className="space-y-3">
-                <div className="h-6 bg-blue-100 rounded animate-pulse w-32" />
-                <div className="h-4 bg-gray-100 rounded animate-pulse" />
-                <div className="h-4 bg-gray-100 rounded animate-pulse w-5/6" />
-                <div className="h-4 bg-gray-100 rounded animate-pulse w-4/6" />
-              </div>
-            </SectionCard>
-            <SectionCard>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="h-4 bg-blue-100 rounded animate-pulse w-24" />
-                    <div className="h-2 bg-gray-100 rounded animate-pulse" />
-                    <div className="h-3 bg-gray-100 rounded animate-pulse w-5/6" />
-                  </div>
-                ))}
-              </div>
-            </SectionCard>
-          </div>
-        )}
-
-        {/* Results */}
-        {report && !isSubmitting && (
-          <div className="space-y-6">
-            <SectionCard
-              title="Transcript"
-              icon={<FileAudio className="w-6 h-6" />}
-            >
-              <TranscriptBox text={report.transcript} />
-            </SectionCard>
-
-            <SectionCard
-              title="Performance Metrics"
-              icon={<Sparkles className="w-6 h-6" />}
-            >
-              <div className="grid sm:grid-cols-2 gap-6">
-                {report.evaluation.metrics.map((m) => (
-                  <MetricBar
-                    key={m.key}
-                    label={m.label}
-                    score={m.score}
-                    hint={m.feedback}
-                  />
-                ))}
-              </div>
-            </SectionCard>
-
-            <SectionCard
-              title="Question-by-Question Feedback"
-              icon={<CheckCircle2 className="w-6 h-6" />}
-            >
-              <div className="space-y-3">
-                {report.evaluation.questions.map((q, idx) => (
-                  <QuestionItem
-                    key={idx}
-                    question={q.question}
-                    answer={q.answerSnippet}
-                    suggestions={q.suggestions}
-                  />
-                ))}
-              </div>
-            </SectionCard>
-
-            <SectionCard
-              title="Overall Summary"
-              icon={<Sparkles className="w-6 h-6" />}
-            >
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="md:col-span-1 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-white rounded-xl border border-blue-100">
-                  <SummaryDonut score={report.evaluation.overallScore} />
-                  <p className="text-sm text-gray-600 mt-3 font-medium">
-                    Overall Score
-                  </p>
-                </div>
-
-                <div className="md:col-span-2 space-y-4">
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      Key Strengths
-                    </h3>
-                    <ul className="space-y-1.5">
-                      {report.evaluation.strengths.map((s, i) => (
-                        <li
-                          key={i}
-                          className="text-sm text-gray-700 pl-6 relative before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-green-500 before:rounded-full"
-                        >
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      Areas for Improvement
-                    </h3>
-                    <ul className="space-y-1.5">
-                      {report.evaluation.improvements.map((imp, i) => (
-                        <li
-                          key={i}
-                          className="text-sm text-gray-700 pl-6 relative before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-amber-500 before:rounded-full"
-                        >
-                          {imp}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-4 border-t border-blue-100">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-blue-600" />
-                      Recommended Next Steps
-                    </h3>
-                    <ul className="space-y-1.5">
-                      {report.evaluation.nextSteps.map((step, i) => (
-                        <li
-                          key={i}
-                          className="text-sm text-gray-700 pl-6 relative before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-blue-500 before:rounded-full"
-                        >
-                          {step}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </SectionCard>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <GhostButton
-                icon={<RefreshCw className="w-4 h-4" />}
-                onClick={handleReset}
-                className="justify-center cursor-pointer"
+              <SectionCard
+                title="Performance Metrics"
+                icon={<Sparkles size={24} />}
               >
-                Start New Interview
-              </GhostButton>
-            </div>
-          </div>
-        )}
-      </main>
+                <SimpleGrid columns={{ base: 1, sm: 2 }} gap="6">
+                  {report.evaluation.metrics.map((m) => (
+                    <MetricBar
+                      key={m.key}
+                      label={m.label}
+                      score={m.score}
+                      hint={m.feedback}
+                    />
+                  ))}
+                </SimpleGrid>
+              </SectionCard>
 
-      {/* Footer */}
-      <footer className="mt-16 py-8 border-t border-blue-100 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
-          <p>AI-powered interview feedback · Practice makes perfect</p>
-        </div>
-      </footer>
-    </div>
+              <SectionCard
+                title="Question-by-Question Feedback"
+                icon={<CheckCircle2 size={24} />}
+              >
+                <Stack gap="3">
+                  {report.evaluation.questions.map((q, idx) => (
+                    <QuestionItem
+                      key={idx}
+                      question={q.question}
+                      answer={q.answerSnippet}
+                      suggestions={q.suggestions}
+                    />
+                  ))}
+                </Stack>
+              </SectionCard>
+
+              <SectionCard
+                title="Overall Summary"
+                icon={<Sparkles size={24} />}
+              >
+                <SimpleGrid columns={{ base: 1, md: 3 }} gap="6">
+                  <Flex
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    p="4"
+                    bgGradient="linear(to-br, blue.50, white)"
+                    borderRadius="xl"
+                    borderWidth="1px"
+                    borderColor="blue.100"
+                  >
+                    <SummaryDonut score={report.evaluation.overallScore} />
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      mt="3"
+                      fontWeight="medium"
+                    >
+                      Overall Score
+                    </Text>
+                  </Flex>
+
+                  <Box gridColumn={{ base: "auto", md: "span 2" }}>
+                    <Stack gap="4">
+                      <Box>
+                        <HStack gap="2" mb="2">
+                          <Box color="green.600">
+                            <CheckCircle2 size={16} />
+                          </Box>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            color="gray.700"
+                          >
+                            Key Strengths
+                          </Text>
+                        </HStack>
+                        <Stack gap="1.5">
+                          {report.evaluation.strengths.map((s, i) => (
+                            <HStack key={i} align="flex-start" gap="3">
+                              <Box
+                                mt="2"
+                                w="2"
+                                h="2"
+                                bg="green.500"
+                                borderRadius="full"
+                                flexShrink={0}
+                              />
+                              <Text fontSize="sm" color="gray.700">
+                                {s}
+                              </Text>
+                            </HStack>
+                          ))}
+                        </Stack>
+                      </Box>
+
+                      <Box>
+                        <HStack gap="2" mb="2">
+                          <Box>
+                            <AlertTriangle
+                              size={16}
+                              color="var(--chakra-colors-orange-500)"
+                            />
+                          </Box>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            color="gray.700"
+                          >
+                            Areas for Improvement
+                          </Text>
+                        </HStack>
+                        <Stack gap="1.5">
+                          {report.evaluation.improvements.map((imp, i) => (
+                            <HStack key={i} align="flex-start" gap="3">
+                              <Box
+                                mt="2"
+                                w="2"
+                                h="2"
+                                bg="orange.400"
+                                borderRadius="full"
+                                flexShrink={0}
+                              />
+                              <Text fontSize="sm" color="gray.700">
+                                {imp}
+                              </Text>
+                            </HStack>
+                          ))}
+                        </Stack>
+                      </Box>
+
+                      <Box pt="4" borderTopWidth="1px" borderColor="blue.100">
+                        <HStack gap="2" mb="2">
+                          <Box>
+                            <Sparkles
+                              size={16}
+                              color="var(--chakra-colors-blue-600)"
+                            />
+                          </Box>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            color="gray.700"
+                          >
+                            Recommended Next Steps
+                          </Text>
+                        </HStack>
+                        <Stack gap="1.5">
+                          {report.evaluation.nextSteps.map((step, i) => (
+                            <HStack key={i} align="flex-start" gap="3">
+                              <Box
+                                mt="2"
+                                w="2"
+                                h="2"
+                                bg="blue.500"
+                                borderRadius="full"
+                                flexShrink={0}
+                              />
+                              <Text fontSize="sm" color="gray.700">
+                                {step}
+                              </Text>
+                            </HStack>
+                          ))}
+                        </Stack>
+                      </Box>
+                    </Stack>
+                  </Box>
+                </SimpleGrid>
+              </SectionCard>
+
+              <Flex
+                direction={{ base: "column", sm: "row" }}
+                gap="3"
+                justify="center"
+              >
+                <GhostButton
+                  type="submit"
+                  icon={
+                    <RefreshCw
+                      size={16}
+                      color="var(--chakra-colors-gray-600)"
+                    />
+                  }
+                  onClick={handleReset}
+                  colorScheme="blue"
+                >
+                  Start New Interview
+                </GhostButton>
+              </Flex>
+            </Stack>
+          )}
+        </Stack>
+      </Box>
+
+      <Box
+        as="footer"
+        mt="16"
+        py="8"
+        borderTopWidth="1px"
+        borderColor="blue.100"
+        bg="white"
+      >
+        <Box maxW="6xl" mx="auto" px={{ base: 4, sm: 6 }} textAlign="center">
+          <Text fontSize="sm" color="gray.500">
+            AI-powered interview feedback · Practice makes perfect
+          </Text>
+        </Box>
+      </Box>
+    </Box>
   );
 }

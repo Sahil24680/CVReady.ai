@@ -13,20 +13,13 @@ import {
 } from "recharts";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+  Box,
+  Flex,
+  Heading,
+  Spinner,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 
 import { useResumeContext } from "@/contexts/ResumeContext";
 import EvaluationModal from "@/app/components/EvaluationModal";
@@ -111,91 +104,95 @@ const UserProgress = () => {
       const averageScore = Math.round(((formatScore + readinessScore) / 2) * 10) / 10;
 
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-md">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-sm"
-                style={{ backgroundColor: RESUME_FORMAT_COLOR }}
-              ></div>
-              <span className="text-sm">Resume Format: {formatScore}/10</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-sm"
-                style={{ backgroundColor: BIGTECH_READINESS_COLOR }}
-              ></div>
-              <span className="text-sm">
+        <Box bg="white" p="3" borderWidth="1px" borderColor="gray.200" borderRadius="lg" boxShadow="md">
+          <Text fontWeight="medium" color="gray.900" mb="2">
+            {label}
+          </Text>
+          <Stack gap="1">
+            <Flex align="center" gap="2">
+              <Box w="3" h="3" borderRadius="sm" bg={RESUME_FORMAT_COLOR} />
+              <Text fontSize="sm">Resume Format: {formatScore}/10</Text>
+            </Flex>
+            <Flex align="center" gap="2">
+              <Box w="3" h="3" borderRadius="sm" bg={BIGTECH_READINESS_COLOR} />
+              <Text fontSize="sm">
                 Big Tech Readiness: {readinessScore}/10
-              </span>
-            </div>
-            <div className="border-t pt-1 mt-2">
-              <span className="text-sm font-medium">Average: {averageScore}/10</span>
-            </div>
-          </div>
-        </div>
+              </Text>
+            </Flex>
+            <Box borderTopWidth="1px" pt="1" mt="2">
+              <Text fontSize="sm" fontWeight="medium">
+                Average: {averageScore}/10
+              </Text>
+            </Box>
+          </Stack>
+        </Box>
       );
     }
     return null;
   };
 
   return (
-    <div className="bg-[#ebf2fc] h-screen w-full p-4 flex flex-col">
+    <Box bg="#ebf2fc" h="100vh" w="full" p="4" display="flex" flexDirection="column">
       {/* Modal for evaluation (kept outside chart) */}
       <EvaluationModal />
-      <Card className="pt-0 w-full flex-1 flex flex-col">
+      <Box w="full" flex="1" display="flex" flexDirection="column" bg="white" borderRadius="lg" boxShadow="sm">
         {/* Header with title, description and dropdown filter */}
-        <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row flex-shrink-0">
-          <div className="grid flex-1 gap-1">
-            <CardTitle>Resume Progress</CardTitle>
-            <CardDescription>
+        <Flex
+          align={{ base: "flex-start", sm: "center" }}
+          justify="space-between"
+          gap="2"
+          borderBottomWidth="1px"
+          borderColor="gray.200"
+          py="5"
+          px="6"
+          direction={{ base: "column", sm: "row" }}
+          flexShrink={0}
+        >
+          <Box flex="1">
+            <Heading size="md">Resume Progress</Heading>
+            <Text color="gray.500">
               Compare Resume Format and Big Tech Readiness scores across resumes
-            </CardDescription>
-          </div>
+            </Text>
+          </Box>
           {/* Dropdown to choose how many resumes to display */}
-          <Select
+          <select
             value={displayCount}
-            onValueChange={(v: any) => setDisplayCount(v)}
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+              setDisplayCount(event.target.value as "5" | "10" | "all")
+            }
+            aria-label="Select number of resumes to display"
+            style={{
+              maxWidth: "160px",
+              borderRadius: "12px",
+              padding: "8px 12px",
+              border: "1px solid #e5e7eb",
+              background: "white",
+            }}
           >
-            <SelectTrigger
-              className="w-[160px] rounded-lg"
-              aria-label="Select number of resumes to display"
-            >
-              <SelectValue placeholder="Recent 10" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="10" className="rounded-lg">
-                Recent 10
-              </SelectItem>
-              <SelectItem value="5" className="rounded-lg">
-                Recent 5
-              </SelectItem>
-              <SelectItem value="all" className="rounded-lg">
-                Show all resumes
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </CardHeader>
+            <option value="10">Recent 10</option>
+            <option value="5">Recent 5</option>
+            <option value="all">Show all resumes</option>
+          </select>
+        </Flex>
 
         {/* Body of the card: loading, empty, or chart */}
-        <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 flex-1 flex flex-col">
+        <Box px={{ base: "2", sm: "6" }} pt={{ base: "4", sm: "6" }} flex="1" display="flex" flexDirection="column">
           {isLoadingResume ? (
             // Loading spinner while fetching data
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-500 mb-4" />
-              <p className="text-gray-500">Loading resume scores...</p>
-            </div>
+            <Flex flex="1" direction="column" align="center" justify="center">
+              <Spinner size="lg" color="gray.500" mb="4" />
+              <Text color="gray.500">Loading resume scores...</Text>
+            </Flex>
           ) : visibleChartData.length === 0 ? (
             // Empty state when no resumes uploaded yet
-            <div className="flex-1 flex flex-col items-center justify-center text-center">
-              <p className="text-gray-500 text-lg">
+            <Flex flex="1" direction="column" align="center" justify="center" textAlign="center">
+              <Text color="gray.500" fontSize="lg">
                 No scores yet. Upload a résumé to see results.
-              </p>
-            </div>
+              </Text>
+            </Flex>
           ) : (
             // Bar chart visualization
-            <div aria-label="Resume scores chart" className="flex-1 min-h-0">
+            <Box aria-label="Resume scores chart" flex="1" minH="0">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={visibleChartData}
@@ -246,11 +243,11 @@ const UserProgress = () => {
                   />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
+            </Box>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

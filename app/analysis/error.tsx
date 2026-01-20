@@ -1,6 +1,7 @@
 'use client' // Error boundaries must be Client Components
- 
+
 import { useEffect } from 'react'
+import { Button, Heading, Stack } from '@chakra-ui/react'
  
 export default function Error({
   error,
@@ -15,14 +16,31 @@ export default function Error({
   }, [error])
  
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-lg font-black text-red-800 text-center">
-      <h2 className="text-2xl mb-4">Analysis failed!</h2>
-      <button
+    <Stack
+      minH="100vh"
+      align="center"
+      justify="center"
+      textAlign="center"
+      fontSize="lg"
+      fontWeight="black"
+      color="red.800"
+      gap="4"
+    >
+      <Heading as="h2" fontSize="2xl">
+        Analysis failed!
+      </Heading>
+      <Button
         onClick={() => reset()}
-        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition cursor-pointer"
+        bg="red.600"
+        color="white"
+        px="4"
+        py="2"
+        borderRadius="md"
+        transition="background 0.2s"
+        _hover={{ bg: "red.700" }}
       >
         Try again
-      </button>
-    </div>
+      </Button>
+    </Stack>
   );
 }

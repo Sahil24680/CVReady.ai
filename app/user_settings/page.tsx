@@ -1,9 +1,16 @@
 "use client";
 import { useState } from "react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Skeleton,
+  Text,
+} from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
 import Profile from "./components/Profile";
 import ManageUploads from "./components/ManageUploads";
-import Skeleton from "react-loading-skeleton";
-import { useEffect } from "react";
 import { useResumeContext } from "@/contexts/ResumeContext";
 import EvaluationModal from "@/app/components/EvaluationModal";
 
@@ -19,68 +26,96 @@ import EvaluationModal from "@/app/components/EvaluationModal";
  */
 
 
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
 const Setting = () => {
   const [activeTab, setActiveTab] = useState<"Profile" | "Uploads">("Profile");
-  const { resumeData, profileData, refreshResumes,refreshProfile,isLoadingResume,isLoadingProfile } = useResumeContext();
-  
+  const {
+    resumeData,
+    profileData,
+    refreshResumes,
+    refreshProfile,
+    isLoadingResume,
+    isLoadingProfile,
+  } = useResumeContext();
+
 
   return (
-    <div className="w-full h-full p-6 bg-[#ebf2fc]">
-      <EvaluationModal/>
-      <h2 className="text-2xl font-semibold">Settings</h2>
-      <p className="text-gray-500 mb-4">Manage your profile and account</p>
-      <hr className="border-t border-gray-400" />
+    <Box w="full" h="full" p="6" bg="#ebf2fc">
+      <EvaluationModal />
+      <Heading as="h2" fontSize="2xl" fontWeight="semibold">
+        Settings
+      </Heading>
+      <Text color="gray.500" mb="4">
+        Manage your profile and account
+      </Text>
+      <Box borderBottomWidth="1px" borderColor="gray.400" />
       {/* Profile and Manage uplaods buttons */}
-      <div className="flex justify-center p-6">
+      <Flex justify="center" p="6">
         {isLoadingProfile ? (
-          <Skeleton height={40} width={200} borderRadius={8} />
+          <Skeleton height="40px" width="200px" borderRadius="8px" />
         ) : (
-          <div className="flex rounded-lg overflow-hidden border w-fit">
+          <Flex borderWidth="1px" borderRadius="lg" overflow="hidden" w="fit-content">
             {/* Profile button */}
-            <button
+            <Button
               onClick={() => setActiveTab("Profile")}
-              className={`px-6 py-2 font-medium transition cursor-pointer  ${
+              px="6"
+              py="2"
+              fontWeight="medium"
+              borderRadius="0"
+              bg={activeTab === "Profile" ? "#06367a" : "gray.100"}
+              color={activeTab === "Profile" ? "white" : "gray.600"}
+              _hover={
                 activeTab === "Profile"
-                  ? "bg-[#06367a] text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+                  ? { bg: "#06367a" }
+                  : { bg: "gray.200" }
+              }
             >
               Profile
-            </button>
+            </Button>
 
             {/* Manage uploads button */}
-            <button
+            <Button
               onClick={() => setActiveTab("Uploads")}
-              className={`px-6 py-2 font-medium transition cursor-pointer  ${
+              px="6"
+              py="2"
+              fontWeight="medium"
+              borderRadius="0"
+              bg={activeTab === "Uploads" ? "#06367a" : "gray.100"}
+              color={activeTab === "Uploads" ? "white" : "gray.600"}
+              _hover={
                 activeTab === "Uploads"
-                  ? "bg-[#06367a] text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+                  ? { bg: "#06367a" }
+                  : { bg: "gray.200" }
+              }
             >
               Uploads
-            </button>
-          </div>
+            </Button>
+          </Flex>
         )}
-      </div>
+      </Flex>
 
       {/* Profile/ manageuplaods content */}
-      <div className="p-6 bg-white rounded-xl w-full shadow-md ">
+      <Box p="6" bg="white" borderRadius="xl" w="full" boxShadow="md">
         {activeTab === "Profile" && (
-          <div className="animate-fadeIn">
+          <Box animation={`${fadeIn} 0.4s ease-in-out`}>
             <Profile
               profileData={profileData}
               refresh={refreshProfile}
               isLoading={isLoadingProfile}
             />
-          </div>
+          </Box>
         )}
         {activeTab === "Uploads" && (
-          <div className="animate-fadeIn ">
+          <Box animation={`${fadeIn} 0.4s ease-in-out`}>
             <ManageUploads resumeData={resumeData} refresh={refreshResumes} />
-          </div>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

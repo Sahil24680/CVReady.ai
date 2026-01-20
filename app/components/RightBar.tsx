@@ -6,9 +6,14 @@ import { FolderIcon } from "@heroicons/react/24/solid";
 import { useResumeContext } from "@/contexts/ResumeContext";
 import { supabase } from "@/app/utils/supabase/client";
 import { toast } from "react-toastify";
-import Modal from "./Modal";
 import RolePickerModal from "./Uploadmodal";
-import Skeleton from "react-loading-skeleton";
+import {
+  Box,
+  Flex,
+  Skeleton,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 
 /**
  * Sidebar component for uploading and selecting resumes.
@@ -108,51 +113,82 @@ const RightBar = ({ setSelectedResume }: Rightbox_props) => {
   }, [refreshResumes]);
 
   return (
-    <div className="w-full h-full bg-white rounded-lg p-4 flex flex-col space-y-2">
+    <Stack w="full" h="full" bg="white" borderRadius="lg" p="4" gap="2">
       {/* Upload */}
-      <label
+      <Box
+        as="label"
         onClick={() => setOpen(true)}
-        className="w-full h-1/3 bg-[#f5f9fd] flex flex-col items-center justify-center rounded-lg space-y-2 cursor-pointer hover:bg-[#e8f1fb] transition"
+        w="full"
+        h="33%"
+        bg="#f5f9fd"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        borderRadius="lg"
+        gap="2"
+        cursor="pointer"
+        transition="background 0.2s"
+        _hover={{ bg: "#e8f1fb" }}
       >
-        <HardDriveUpload className="w-10 h-10 text-[#4382da]" />
-        <span className="text-[#8ea6c4] font-bold text-lg">Upload File</span>
+        <Box>
+          <HardDriveUpload size={40} color="#4382da" />
+        </Box>
+        <Text color="#8ea6c4" fontWeight="bold" fontSize="lg">
+          Upload File
+        </Text>
         <RolePickerModal
-        open={open}
-        onClose={() => setOpen(false)}
-        onSubmit={handleUpload}
-      />
-        
-      </label>
+          open={open}
+          onClose={() => setOpen(false)}
+          onSubmit={handleUpload}
+        />
+      </Box>
 
       {/* Uploaded Resumes */}
-      <div className="flex-1 min-h-0 w-full bg-[#f5f9fd] rounded-lg flex flex-col">
-        <div className="flex-shrink-0 flex gap-2 items-center justify-center py-4">
-          <FolderIcon className="w-7 h-7 flex-shrink-0 text-[#4382da]" />
-          <span className="text-[#8ea6c4] font-bold text-lg">Uploads</span>
-        </div>
+      <Stack flex="1" minH="0" w="full" bg="#f5f9fd" borderRadius="lg">
+        <Flex gap="2" align="center" justify="center" py="4" flexShrink={0}>
+          <Box color="#4382da" flexShrink={0}>
+            <FolderIcon className="h-7 w-7" />
+          </Box>
+          <Text color="#8ea6c4" fontWeight="bold" fontSize="lg">
+            Uploads
+          </Text>
+        </Flex>
 
-        <div className="flex-1 min-h-0 overflow-y-auto px-2 pb-2">
+        <Box flex="1" minH="0" overflowY="auto" px="2" pb="2">
           {isLoadingResume ? (
-            <div className="w-full h-full">
-              <Skeleton height="100%" width="100%" borderRadius={8} />
-            </div>
+            <Box w="full" h="full">
+              <Skeleton h="100%" w="100%" borderRadius="md" />
+            </Box>
           ) : (
-            <div>
+            <Stack>
               {resumeData.map((resume, index) => (
-                <p
+                <Text
                   key={index}
                   onClick={() => setSelectedResume(resume)}
-                  className="w-full text-center font-semibold text-lg  transition-colors hover:bg-[#e4ecf6] py-2 rounded cursor-pointer truncate px-2"
+                  w="full"
+                  textAlign="center"
+                  fontWeight="semibold"
+                  fontSize="lg"
+                  transition="background-color 0.2s"
+                  _hover={{ bg: "#e4ecf6" }}
+                  py="2"
+                  borderRadius="md"
+                  cursor="pointer"
+                  overflow="hidden"
+                  whiteSpace="nowrap"
+                  textOverflow="ellipsis"
+                  px="2"
                   title={resume.resume_name}
                 >
                   {resume.resume_name}
-                </p>
+                </Text>
               ))}
-            </div>
+            </Stack>
           )}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Stack>
+    </Stack>
   );
 };
 

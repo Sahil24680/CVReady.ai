@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Copy } from "lucide-react";
+import { Box, Stack, Flex, Text, Button } from "@chakra-ui/react";
 
 export default function TranscriptBox({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -13,21 +14,42 @@ export default function TranscriptBox({ text }: { text: string }) {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-gray-500 uppercase tracking-wide">Transcript</p>
-        <button
+    <Stack gap="3">
+      <Flex align="center" justify="space-between">
+        <Text fontSize="xs" color="gray.500" textTransform="uppercase" letterSpacing="wide">
+          Transcript
+        </Text>
+        <Button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 transition-colors duration-200 px-2 py-1 rounded hover:bg-blue-50"
+          variant="ghost"
+          fontSize="xs"
+          color="blue.600"
+          _hover={{ color: "blue.700", bg: "blue.50" }}
+          transition="colors 0.2s"
+          px="2"
+          py="1"
+          borderRadius="md"
           aria-label="Copy transcript"
         >
-          <Copy className="w-3.5 h-3.5" />
-          {copied ? "Copied!" : "Copy"}
-        </button>
-      </div>
-      <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 max-h-64 overflow-y-auto">
-        <p className="text-sm text-gray-800 leading-relaxed font-mono">{text}</p>
-      </div>
-    </div>
+          <Flex align="center" gap="1.5">
+            <Copy size={14} color="var(--chakra-colors-blue-600)" />
+            {copied ? "Copied!" : "Copy"}
+          </Flex>
+        </Button>
+      </Flex>
+      <Box
+        bg="gray.50"
+        borderRadius="lg"
+        p="4"
+        borderWidth="1px"
+        borderColor="gray.100"
+        maxH="64"
+        overflowY="auto"
+      >
+        <Text fontSize="sm" color="gray.800" lineHeight="relaxed" fontFamily="mono">
+          {text}
+        </Text>
+      </Box>
+    </Stack>
   );
 }

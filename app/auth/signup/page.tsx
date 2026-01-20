@@ -7,6 +7,16 @@ import {
 import { signup } from "@/app/utils/supabase/action";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import {
+  Box,
+  Flex,
+  Stack,
+  Heading,
+  Text,
+  Input,
+  Button,
+  Link,
+} from "@chakra-ui/react";
 
 export default function SignupPage() {
   const [accountCreated, setAccountCreated] = useState(false);
@@ -23,112 +33,245 @@ export default function SignupPage() {
 
   if (accountCreated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#EAF4FC] to-white p-6">
-        <div className="w-full max-w-md">
+      <Flex
+        minH="100vh"
+        align="center"
+        justify="center"
+        bgGradient="linear(to-br, #EAF4FC, white)"
+        p="6"
+      >
+        <Box w="full" maxW="md">
           {/* Company name */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold text-[#1D4ED8] tracking-tight">
-              CV<span className="text-[#1A3DB6]">ready</span>.ai
-            </h1>
-          </div>
+          <Box textAlign="center" mb="12">
+            <Heading
+              as="h1"
+              fontSize="4xl"
+              fontWeight="extrabold"
+              color="#1D4ED8"
+              letterSpacing="tight"
+            >
+              CV<Text as="span" color="#1A3DB6">ready</Text>.ai
+            </Heading>
+          </Box>
 
           {/* Card */}
-          <div className="bg-white rounded-2xl shadow-xl border border-blue-100 px-10 py-16 text-center">
+          <Box
+            bg="white"
+            borderRadius="2xl"
+            boxShadow="xl"
+            borderWidth="1px"
+            borderColor="blue.100"
+            px="10"
+            py="16"
+            textAlign="center"
+          >
             {/* Icon */}
-            <div className="mx-auto mb-8 w-20 h-20 bg-[#1D4ED8] rounded-full flex items-center justify-center shadow-lg shadow-blue-200">
-              <CheckCircleIcon className="h-10 w-10 text-white" />
-            </div>
+            <Flex
+              mx="auto"
+              mb="8"
+              w="20"
+              h="20"
+              bg="#1D4ED8"
+              borderRadius="full"
+              align="center"
+              justify="center"
+              boxShadow="lg"
+            >
+              <CheckCircleIcon style={{ height: '40px', width: '40px', color: 'white' }} />
+            </Flex>
 
             {/* Heading */}
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+            <Heading as="h2" fontSize="2xl" fontWeight="semibold" color="gray.900" mb="4">
               Account created!
-            </h2>
+            </Heading>
 
             {/* Description */}
-            <p className="text-gray-600 text-base leading-relaxed mb-10 max-w-sm mx-auto">
+            <Text
+              color="gray.600"
+              fontSize="base"
+              lineHeight="relaxed"
+              mb="10"
+              maxW="sm"
+              mx="auto"
+            >
               Check your email for a verification link. You can close this
               window.
-            </p>
+            </Text>
 
             {/* Sign in link */}
-            <p className="text-gray-500 text-sm">
+            <Text color="gray.500" fontSize="sm">
               Already a member?{" "}
-              <a
+              <Link
                 href="/auth/login"
-                className="text-[#1D4ED8] font-medium hover:text-[#1A3DB6] transition-colors duration-200"
+                color="#1D4ED8"
+                fontWeight="medium"
+                _hover={{ color: "#1A3DB6" }}
+                transition="colors 0.2s"
               >
                 Sign In
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
+              </Link>
+            </Text>
+          </Box>
+        </Box>
+      </Flex>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col lg:flex-row bg-[#EAF4FC]">
+    <Flex h="100vh" direction={{ base: "column", lg: "row" }} bg="#EAF4FC">
       {/* Signup UI */}
-      <div className="w-full lg:w-1/2 flex justify-center items-center order-1 lg:order-none">
-        <div className="mt-6 sm:w-full sm:max-w-[480px]">
-          <div className="bg-white px-8 py-10 sm:rounded-3xl sm:px-12 shadow-xl border border-gray-100">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
-              <p className="text-gray-600">Join us today and get started</p>
-            </div>
-  
-            <form action={handSignup} className="space-y-6">
-              <div className="relative">
-                <label htmlFor="signup-email" className="sr-only">Email address</label>
-                <span className="absolute inset-y-0 left-4 flex items-center text-gray-400">
-                  <EnvelopeIcon className="h-5 w-5" />
-                </span>
-                <input
-                  id="signup-email"
-                  name="email"
-                  type="email"
-                  placeholder="Email address"
-                  required
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                />
-              </div>
-              <div className="relative">
-                <label htmlFor="signup-password" className="sr-only">Password</label>
-                <span className="absolute inset-y-0 left-4 flex items-center text-gray-400">
-                  <LockClosedIcon className="h-5 w-5" />
-                </span>
-                <input
-                  id="signup-password"
-                  name="password"
-                  type="password"
-                  placeholder="Choose a password"
-                  required
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-[#1D4ED8] hover:bg-[#1A3DB6] text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] focus:ring-offset-2 transform hover:scale-[1.02]"
-              >
-                Create account
-              </button>
+      <Flex
+        w={{ base: "full", lg: "50%" }}
+        justify="center"
+        align="center"
+        order={{ base: 1, lg: "unset" }}
+      >
+        <Box mt="6" w="full" maxW="480px">
+          <Box
+            bg="white"
+            px={{ base: 8, sm: 12 }}
+            py="10"
+            borderRadius={{ base: "0", sm: "3xl" }}
+            boxShadow="xl"
+            borderWidth="1px"
+            borderColor="gray.100"
+          >
+            <Box textAlign="center" mb="8">
+              <Heading as="h2" fontSize="3xl" fontWeight="bold" color="gray.900" mb="2">
+                Create your account
+              </Heading>
+              <Text color="gray.600">Join us today and get started</Text>
+            </Box>
+
+            <form action={handSignup}>
+              <Stack gap="6">
+                <Box position="relative">
+                  <Box as="label" htmlFor="signup-email" srOnly>
+                    Email address
+                  </Box>
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="4"
+                    transform="translateY(-50%)"
+                    color="gray.400"
+                    pointerEvents="none"
+                  >
+                    <EnvelopeIcon style={{ height: "20px", width: "20px" }} />
+                  </Box>
+                  <Input
+                    id="signup-email"
+                    name="email"
+                    type="email"
+                    placeholder="Email address"
+                    required
+                    w="full"
+                    pl="12"
+                    pr="4"
+                    py="4"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="xl"
+                    color="gray.900"
+                    _placeholder={{ color: "gray.500" }}
+                    _focus={{
+                      outline: "2px solid #1D4ED8",
+                      borderColor: "transparent",
+                      bg: "white",
+                    }}
+                    transition="all 0.2s"
+                    bg="gray.50"
+                  />
+                </Box>
+
+                <Box position="relative">
+                  <Box as="label" htmlFor="signup-password" srOnly>
+                    Password
+                  </Box>
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="4"
+                    transform="translateY(-50%)"
+                    color="gray.400"
+                    pointerEvents="none"
+                  >
+                    <LockClosedIcon style={{ height: "20px", width: "20px" }} />
+                  </Box>
+                  <Input
+                    id="signup-password"
+                    name="password"
+                    type="password"
+                    placeholder="Choose a password"
+                    required
+                    w="full"
+                    pl="12"
+                    pr="4"
+                    py="4"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="xl"
+                    color="gray.900"
+                    _placeholder={{ color: "gray.500" }}
+                    _focus={{
+                      outline: "2px solid #1D4ED8",
+                      borderColor: "transparent",
+                      bg: "white",
+                    }}
+                    transition="all 0.2s"
+                    bg="gray.50"
+                  />
+                </Box>
+
+                <Button
+                  type="submit"
+                  w="full"
+                  bg="#1D4ED8"
+                  _hover={{ bg: "#1A3DB6", boxShadow: "xl", transform: "scale(1.02)" }}
+                  color="white"
+                  fontWeight="semibold"
+                  py="4"
+                  px="6"
+                  borderRadius="xl"
+                  transition="all 0.2s"
+                  boxShadow="lg"
+                  _focus={{
+                    outline: "2px solid #1D4ED8",
+                    outlineOffset: "2px",
+                  }}
+                >
+                  Create account
+                </Button>
+              </Stack>
             </form>
-            
-            <p className="mt-8 text-center text-sm text-gray-600">
+
+            <Text mt="8" textAlign="center" fontSize="sm" color="gray.600">
               Already have an account?{" "}
-              <a
+              <Link
                 href="/auth/login"
-                className="font-medium text-[#1D4ED8] hover:text-[#1A3DB6] transition-colors duration-200"
+                fontWeight="medium"
+                color="#1D4ED8"
+                _hover={{ color: "#1A3DB6" }}
+                transition="colors 0.2s"
               >
                 Sign in here
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
+              </Link>
+            </Text>
+          </Box>
+        </Box>
+      </Flex>
+
       {/* Image */}
-      <div className="w-full lg:w-1/2 h-64 lg:h-screen bg-[url('/images/signup.jpg')] bg-contain bg-bottom bg-no-repeat mix-blend-multiply order-2"></div>
-    </div>
+      <Box
+        w={{ base: "full", lg: "50%" }}
+        h={{ base: "64", lg: "100vh" }}
+        bgImage="url('/images/signup.jpg')"
+        bgSize="contain"
+        backgroundPosition="bottom"
+        bgRepeat="no-repeat"
+        mixBlendMode="multiply"
+        order={{ base: 2 }}
+      />
+    </Flex>
   );
-  
 }

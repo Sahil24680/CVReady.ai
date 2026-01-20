@@ -8,6 +8,7 @@ import {
 } from "@headlessui/react";
 import React, { Fragment } from "react";
 import { X } from "lucide-react";
+import { Box, Flex, Heading, IconButton } from "@chakra-ui/react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog as="div" style={{ position: 'relative', zIndex: 50 }} onClose={onClose}>
         {/* Background overlay */}
         <TransitionChild
           as={Fragment}
@@ -38,49 +39,84 @@ const Modal: React.FC<ModalProps> = ({
           leaveTo="opacity-0"
         >
           <div
-            className="fixed inset-0 bg-black/30 bg-opacity-50 transition-opacity"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              transition: 'opacity',
+            }}
             aria-hidden="true"
           />
         </TransitionChild>
 
-        {/* Modal panel wrapper */}
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <TransitionChild
-            as={Fragment}
-            enter="ease-out duration-200"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-150"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          >
-            <DialogPanel
-              data-testid="modal-panel"
-              className={`relative bg-white rounded-lg shadow-xl w-full max-w-[95vw] sm:max-w-2xl md:max-w-4xl lg:max-w-5xl mx-4 sm:mx-auto max-h-[90vh] overflow-hidden flex flex-col ${panelClassName}`}
+        {/* Modal panel wrapper - allows clicks to pass through */}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, overflow: 'auto' }}>
+          <div style={{ display: 'flex', minHeight: '100%', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+            <TransitionChild
+              as={Fragment}
+              enter="ease-out duration-200"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-150"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
             >
-              <div
-                className={`flex justify-between items-center p-4 sm:p-6 ${
-                  title ? "border-b border-gray-200" : ""
-                }`}
+              <DialogPanel
+                data-testid="modal-panel"
+                className={panelClassName}
               >
-                <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">
-                  {title}
-                </DialogTitle>
-                <button
-                  onClick={onClose}
-                  aria-label="Close"
-                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                <Box
+                  bg="white"
+                  borderRadius="xl"
+                  boxShadow="2xl"
+                  maxW={{ base: "90vw", sm: "2xl", md: "4xl", lg: "5xl" }}
+                  w="full"
+                  maxH="85vh"
+                  overflow="hidden"
+                  display="flex"
+                  flexDirection="column"
                 >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    px={{ base: 8, sm: 10 }}
+                    py={{ base: 6, sm: 7 }}
+                    borderBottomWidth={title ? "1px" : "0"}
+                    borderColor="gray.200"
+                  >
+                    <DialogTitle
+                      as={Heading}
+                      fontSize={{ base: "lg", sm: "xl" }}
+                      fontWeight="semibold"
+                      color="gray.900"
+                    >
+                      {title}
+                    </DialogTitle>
+                    <IconButton
+                      onClick={onClose}
+                      aria-label="Close"
+                      variant="ghost"
+                      color="gray.400"
+                      _hover={{ color: "gray.600" }}
+                      transition="colors 0.2s"
+                    >
+                      <X size={24} />
+                    </IconButton>
+                  </Flex>
 
-              {/* Body */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-                {children}
-              </div>
-            </DialogPanel>
-          </TransitionChild>
+                  {/* Body */}
+                  <Box
+                    flex="1"
+                    overflowY="auto"
+                    px={{ base: 8, sm: 10 }}
+                    py={{ base: 6, sm: 8 }}
+                  >
+                    {children}
+                  </Box>
+                </Box>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
         </div>
       </Dialog>
     </Transition>

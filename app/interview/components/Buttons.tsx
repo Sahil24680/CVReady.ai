@@ -1,50 +1,75 @@
 "use client";
 
 import React from "react";
+import { Button, Spinner, Flex } from "@chakra-ui/react";
 
 // GhostButton
 export function GhostButton(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  props: React.ComponentProps<typeof Button> & {
     icon?: React.ReactNode;
-    className?: string;
     children: React.ReactNode;
   }
 ) {
-  const { children, icon, className = "", ...rest } = props;
+  const { children, icon, ...rest } = props;
   return (
-    <button
-      className={`px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${className}`}
+    <Button
+      px="4"
+      py="2"
+      color="gray.600"
+      _hover={{ color: "gray.800", bg: "gray.50" }}
+      borderRadius="lg"
+      fontWeight="medium"
+      transition="all 0.2s"
+      variant="ghost"
       {...rest}
     >
-      {icon}
-      {children}
-    </button>
+      <Flex align="center" gap="2">
+        {icon}
+        {children}
+      </Flex>
+    </Button>
   );
 }
 
 // PrimaryButton
 export function PrimaryButton(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  props: React.ComponentProps<typeof Button> & {
     icon?: React.ReactNode;
     loading?: boolean;
-    className?: string;
     children: React.ReactNode;
   }
 ) {
-  const { children, icon, loading, className = "", ...rest } = props;
+  const { children, icon, loading, ...rest } = props;
   return (
-    <button
-      className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-medium shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${className}`}
+    <Button
+      px="6"
+      py="3"
+      bgGradient="linear(to-r, blue.600, blue.500)"
+      color="white"
+      borderRadius="xl"
+      fontWeight="medium"
+      boxShadow="lg"
+      _hover={{
+        boxShadow: "xl",
+        transform: "scale(1.05)",
+      }}
+      _active={{ transform: "scale(0.95)" }}
+      _disabled={{
+        opacity: 0.5,
+        cursor: "not-allowed",
+        transform: "scale(1)",
+      }}
+      transition="all 0.2s"
       {...rest}
     >
       {loading ? (
-        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        <Spinner size="sm" color="white" />
       ) : (
-        <>
+        <Flex align="center" justify="center" gap="2">
           {icon}
           {children}
-        </>
+        </Flex>
       )}
-    </button>
+    </Button>
   );
 }
