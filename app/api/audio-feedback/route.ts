@@ -3,7 +3,8 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-import { Report, ReportSchema } from "@/app/interview/components/schema";
+import { ReportSchema, SYSTEM_PROMPT } from "@/app/interview/_lib";
+import type { Report } from "@/app/interview/_lib";
 import { zodTextFormat } from "openai/helpers/zod";
 import {
   getUser,
@@ -12,7 +13,6 @@ import {
   release_request_lock,
 } from "@/app/utils/supabase/action";
 import { safe } from "@/lib/safe";
-import { SYSTEM_PROMPT } from "@/app/interview/components/prompts";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 
@@ -224,7 +224,7 @@ Return only the annotated transcript.`,
     const report: Report = {
       ...parsed,
       evaluation,
-      durationSeconds,
+      durationSeconds: durationSeconds ?? undefined,
       transcript: annotatedTranscript,
       createdAt: new Date().toISOString(),
       source: "upload",

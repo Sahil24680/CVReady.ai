@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Mic, RefreshCw, Square } from "lucide-react";
-import { GhostButton } from "./Buttons";
+import { GhostButton } from "../ui/Buttons";
 import { Box, Stack, Flex, Text, IconButton } from "@chakra-ui/react";
 
 export default function Recorder({

@@ -24,19 +24,30 @@ import {
   ListChecks,
   Lock,
 } from "lucide-react";
-import SectionCard from "./components/SectionCard";
-import MetricBar from "./components/MetricBar";
-import QuestionItem from "./components/QuestionItem";
-import SummaryDonut from "./components/SummaryDonut";
-import TranscriptBox from "./components/TranscriptBox";
-import { PrimaryButton, GhostButton } from "./components/Buttons";
-import Recorder from "./components/Recorder";
-import Uploader from "./components/Uploader";
-import type { Report } from "./components/types";
+import {
+  SectionCard,
+  MetricBar,
+  QuestionItem,
+  SummaryDonut,
+  TranscriptBox,
+  PrimaryButton,
+  GhostButton,
+  Recorder,
+  Uploader,
+  IconListItem,
+  BulletPoint,
+  SkeletonLoader,
+} from "./_components";
+import {
+  ALLOWED_AUDIO_TYPES,
+  PREPARATION_TIPS,
+  SAMPLE_QUESTIONS,
+  QUICK_TIPS,
+  type Report,
+} from "./_lib";
 
-// Animation strings for use with animation prop
+// Animation string for tooltip fade-in
 const fadeIn = "fadeIn 0.4s ease-in-out";
-const pulse = "pulse 2s ease-in-out infinite";
 
 // Inject keyframes into a style tag
 if (typeof document !== "undefined") {
@@ -58,66 +69,52 @@ if (typeof document !== "undefined") {
 }
 
 export default function InterviewPage() {
-  const [activeTab, setActiveTab] = useState<"record" | "upload">("upload");
+  const [inputMode, setInputMode] = useState<"record" | "upload">("upload");
   const [hasRecording, setHasRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [report, setReport] = useState<Report | null>(null);
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [feedbackReport, setFeedbackReport] = useState<Report | null>(null);
+  const [showHelpTooltip, setShowHelpTooltip] = useState(false);
 
-  const canSubmit = hasRecording || uploadedFile !== null;
+  const isReadyToSubmit = hasRecording || uploadedFile !== null;
 
-  async function uploadAudio(file: File) {
+  async function sendAudioToAPI(file: File) {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("/api/audio-feedback", {
+    const response = await fetch("/api/audio-feedback", {
       method: "POST",
       body: formData,
     });
 
-    if (!res.ok) {
-      let errorMsg = "Upload failed";
-      try {
-        const errData = await res.json();
-        errorMsg = errData.error || errorMsg;
-      } catch {}
-      throw new Error(errorMsg);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Upload failed");
     }
 
-    return res.json();
+    return response.json();
   }
 
-  const handleSubmit = async () => {
-    if (!uploadedFile && !hasRecording) {
+  const submitAudioForReview = async () => {
+    if (!isReadyToSubmit) {
       toast.error("Please upload or record audio first");
       return;
     }
-    if (uploadedFile) {
-      const allowedTypes = [
-        "audio/mpeg",
-        "audio/wav",
-        "audio/mp3",
-        "audio/webm",
-        "audio/x-m4a",
-        "audio/mp4",
-      ];
 
-      if (!allowedTypes.includes(uploadedFile.type)) {
-        toast.error(
-          "Unsupported file type. Please upload an audio file (MP3, WAV, M4A, or WebM).",
-        );
-        return;
-      }
+    if (uploadedFile && !ALLOWED_AUDIO_TYPES.includes(uploadedFile.type)) {
+      toast.error(
+        "Unsupported file type. Please upload an audio file (MP3, WAV, M4A, or WebM).",
+      );
+      return;
     }
-    setIsSubmitting(true);
-    try {
-      const fileToSend = uploadedFile!;
-      const data = await uploadAudio(fileToSend);
 
-      // assign real backend response
-      setReport({
+    setIsProcessing(true);
+    try {
+      const audioFile = uploadedFile!;
+      const data = await sendAudioToAPI(audioFile);
+
+      setFeedbackReport({
         transcript: data.transcript,
         evaluation: data.evaluation,
         createdAt: new Date().toISOString(),
@@ -125,24 +122,24 @@ export default function InterviewPage() {
           data.durationSeconds ??
           (hasRecording ? recordingDuration : undefined),
         source: hasRecording ? "recording" : "upload",
-        filename: data.filename ?? fileToSend.name,
+        filename: data.filename ?? audioFile.name,
       });
     } catch (error: unknown) {
-      const message =
+      const errorMessage =
         error instanceof Error ? error.message : "Failed to process audio";
-      console.error("Submit error:", message);
-      toast.error(message);
+      console.error("Submit error:", errorMessage);
+      toast.error(errorMessage);
     } finally {
-      setIsSubmitting(false);
+      setIsProcessing(false);
     }
   };
 
-  const handleReset = () => {
+  const resetInterview = () => {
     setHasRecording(false);
     setRecordingDuration(0);
     setUploadedFile(null);
-    setReport(null);
-    setActiveTab("upload");
+    setFeedbackReport(null);
+    setInputMode("upload");
   };
 
   return (
@@ -189,13 +186,13 @@ export default function InterviewPage() {
                 borderRadius="lg"
                 transition="colors 0.2s"
                 _hover={{ bg: "blue.50" }}
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-                onClick={() => setShowTooltip(!showTooltip)}
+                onMouseEnter={() => setShowHelpTooltip(true)}
+                onMouseLeave={() => setShowHelpTooltip(false)}
+                onClick={() => setShowHelpTooltip(!showHelpTooltip)}
               >
                 <Info size={20} />
               </IconButton>
-              {showTooltip && (
+              {showHelpTooltip && (
                 <Box
                   position="absolute"
                   right="0"
@@ -215,10 +212,9 @@ export default function InterviewPage() {
                     Quick Tips:
                   </Text>
                   <List.Root gap="1" listStylePosition="inside" m="0">
-                    <List.Item>Use the STAR method</List.Item>
-                    <List.Item>Keep answers 1-2 minutes</List.Item>
-                    <List.Item>Speak clearly and confidently</List.Item>
-                    <List.Item>Review feedback carefully</List.Item>
+                    {QUICK_TIPS.map((tip, index) => (
+                      <List.Item key={index}>{tip}</List.Item>
+                    ))}
                   </List.Root>
                 </Box>
               )}
@@ -241,44 +237,9 @@ export default function InterviewPage() {
               m="0"
               p="0"
             >
-              <HStack as="li" align="flex-start" gap="2">
-                <Box mt="0.5" flexShrink={0}>
-                  <CheckCircle2
-                    size={20}
-                    color="var(--chakra-colors-blue-600)"
-                  />
-                </Box>
-                <Text>Find a quiet space with minimal background noise</Text>
-              </HStack>
-              <HStack as="li" align="flex-start" gap="2">
-                <Box mt="0.5" flexShrink={0}>
-                  <CheckCircle2
-                    size={20}
-                    color="var(--chakra-colors-blue-600)"
-                  />
-                </Box>
-                <Text>Aim for 1-2 minute responses</Text>
-              </HStack>
-              <HStack as="li" align="flex-start" gap="2">
-                <Box mt="0.5" flexShrink={0}>
-                  <CheckCircle2
-                    size={20}
-                    color="var(--chakra-colors-blue-600)"
-                  />
-                </Box>
-                <Text>
-                  Use the STAR method (Situation, Task, Action, Result)
-                </Text>
-              </HStack>
-              <HStack as="li" align="flex-start" gap="2">
-                <Box mt="0.5" flexShrink={0}>
-                  <CheckCircle2
-                    size={20}
-                    color="var(--chakra-colors-blue-600)"
-                  />
-                </Box>
-                <Text>Speak clearly and at a moderate pace</Text>
-              </HStack>
+              {PREPARATION_TIPS.map((tip, index) => (
+                <IconListItem key={index}>{tip}</IconListItem>
+              ))}
             </SimpleGrid>
 
             <Box mt="4" pt="4" borderTopWidth="1px" borderColor="blue.100">
@@ -323,42 +284,9 @@ export default function InterviewPage() {
               m="0"
               p="0"
             >
-              <HStack as="li" align="flex-start" gap="2">
-                <Box mt="0.5" flexShrink={0}>
-                  <CheckCircle2
-                    size={20}
-                    color="var(--chakra-colors-blue-600)"
-                  />
-                </Box>
-                <Text>What are your strengths and weaknesses?</Text>
-              </HStack>
-              <HStack as="li" align="flex-start" gap="2">
-                <Box mt="0.5" flexShrink={0}>
-                  <CheckCircle2
-                    size={20}
-                    color="var(--chakra-colors-blue-600)"
-                  />
-                </Box>
-                <Text>Why do you want to work in Big Tech?</Text>
-              </HStack>
-              <HStack as="li" align="flex-start" gap="2">
-                <Box mt="0.5" flexShrink={0}>
-                  <CheckCircle2
-                    size={20}
-                    color="var(--chakra-colors-blue-600)"
-                  />
-                </Box>
-                <Text>What makes you a good candidate for this role?</Text>
-              </HStack>
-              <HStack as="li" align="flex-start" gap="2">
-                <Box mt="0.5" flexShrink={0}>
-                  <CheckCircle2
-                    size={20}
-                    color="var(--chakra-colors-blue-600)"
-                  />
-                </Box>
-                <Text>Tell us about your hobbies or interests.</Text>
-              </HStack>
+              {SAMPLE_QUESTIONS.map((question, index) => (
+                <IconListItem key={index}>{question}</IconListItem>
+              ))}
             </Stack>
             <Text fontSize="xs" color="gray.500" mt="3">
               ⏱ You’ll have up to{" "}
@@ -370,7 +298,7 @@ export default function InterviewPage() {
           </SectionCard>
 
           <SectionCard title="Your Response" icon={<AudioLines size={24} />}>
-            {activeTab === "record" ? (
+            {inputMode === "record" ? (
               <Recorder
                 onRecordingComplete={(duration) => {
                   setHasRecording(true);
@@ -393,19 +321,19 @@ export default function InterviewPage() {
             <Box mt="6" pt="6" borderTopWidth="1px" borderColor="blue.100">
               <PrimaryButton
                 icon={<Sparkles size={20} />}
-                color = "blue.500"
-                bg = {"Blue.700"}
-                onClick={handleSubmit}
-                disabled={!canSubmit || isSubmitting}
-                loading={isSubmitting}
+                onClick={submitAudioForReview}
+                disabled={!isReadyToSubmit || isProcessing}
+                loading={isProcessing}
+                bg={"blue.500"}
                 w="full"
+                color="white"
               >
-                {isSubmitting
+                {isProcessing
                   ? "Processing..."
                   : "Submit for Transcription & Review"}
               </PrimaryButton>
 
-              {!canSubmit && (
+              {!isReadyToSubmit && (
                 <HStack
                   mt="2"
                   fontSize="xs"
@@ -420,74 +348,12 @@ export default function InterviewPage() {
             </Box>
           </SectionCard>
 
-          {isSubmitting && (
-            <Stack gap="6">
-              <SectionCard>
-                <Stack gap="3">
-                  <Box
-                    h="6"
-                    w="32"
-                    bg="blue.100"
-                    borderRadius="md"
-                    animation={pulse}
-                  />
-                  <Box
-                    h="4"
-                    bg="gray.100"
-                    borderRadius="md"
-                    animation={pulse}
-                  />
-                  <Box
-                    h="4"
-                    w="85%"
-                    bg="gray.100"
-                    borderRadius="md"
-                    animation={pulse}
-                  />
-                  <Box
-                    h="4"
-                    w="66%"
-                    bg="gray.100"
-                    borderRadius="md"
-                    animation={pulse}
-                  />
-                </Stack>
-              </SectionCard>
-              <SectionCard>
-                <SimpleGrid columns={{ base: 1, sm: 2 }} gap="4">
-                  {[...Array(6)].map((_, i) => (
-                    <Stack key={i} gap="2">
-                      <Box
-                        h="4"
-                        w="24"
-                        bg="blue.100"
-                        borderRadius="md"
-                        animation={pulse}
-                      />
-                      <Box
-                        h="2"
-                        bg="gray.100"
-                        borderRadius="md"
-                        animation={pulse}
-                      />
-                      <Box
-                        h="3"
-                        w="85%"
-                        bg="gray.100"
-                        borderRadius="md"
-                        animation={pulse}
-                      />
-                    </Stack>
-                  ))}
-                </SimpleGrid>
-              </SectionCard>
-            </Stack>
-          )}
+          {isProcessing && <SkeletonLoader />}
 
-          {report && !isSubmitting && (
+          {feedbackReport && !isProcessing && (
             <Stack gap="6">
               <SectionCard title="Transcript" icon={<FileAudio size={24} />}>
-                <TranscriptBox text={report.transcript} />
+                <TranscriptBox text={feedbackReport.transcript} />
               </SectionCard>
 
               <SectionCard
@@ -495,12 +361,12 @@ export default function InterviewPage() {
                 icon={<Sparkles size={24} />}
               >
                 <SimpleGrid columns={{ base: 1, sm: 2 }} gap="6">
-                  {report.evaluation.metrics.map((m) => (
+                  {feedbackReport.evaluation.metrics.map((metric) => (
                     <MetricBar
-                      key={m.key}
-                      label={m.label}
-                      score={m.score}
-                      hint={m.feedback}
+                      key={metric.key}
+                      label={metric.label}
+                      score={metric.score}
+                      hint={metric.feedback}
                     />
                   ))}
                 </SimpleGrid>
@@ -511,12 +377,12 @@ export default function InterviewPage() {
                 icon={<CheckCircle2 size={24} />}
               >
                 <Stack gap="3">
-                  {report.evaluation.questions.map((q, idx) => (
+                  {feedbackReport.evaluation.questions.map((question, idx) => (
                     <QuestionItem
                       key={idx}
-                      question={q.question}
-                      answer={q.answerSnippet}
-                      suggestions={q.suggestions}
+                      question={question.question}
+                      answer={question.answerSnippet}
+                      suggestions={question.suggestions}
                     />
                   ))}
                 </Stack>
@@ -537,7 +403,9 @@ export default function InterviewPage() {
                     borderWidth="1px"
                     borderColor="blue.100"
                   >
-                    <SummaryDonut score={report.evaluation.overallScore} />
+                    <SummaryDonut
+                      score={feedbackReport.evaluation.overallScore}
+                    />
                     <Text
                       fontSize="sm"
                       color="gray.600"
@@ -564,21 +432,13 @@ export default function InterviewPage() {
                           </Text>
                         </HStack>
                         <Stack gap="1.5">
-                          {report.evaluation.strengths.map((s, i) => (
-                            <HStack key={i} align="flex-start" gap="3">
-                              <Box
-                                mt="2"
-                                w="2"
-                                h="2"
-                                bg="green.500"
-                                borderRadius="full"
-                                flexShrink={0}
-                              />
-                              <Text fontSize="sm" color="gray.700">
-                                {s}
-                              </Text>
-                            </HStack>
-                          ))}
+                          {feedbackReport.evaluation.strengths.map(
+                            (strength, i) => (
+                              <BulletPoint key={i} color="green.500">
+                                {strength}
+                              </BulletPoint>
+                            ),
+                          )}
                         </Stack>
                       </Box>
 
@@ -599,21 +459,13 @@ export default function InterviewPage() {
                           </Text>
                         </HStack>
                         <Stack gap="1.5">
-                          {report.evaluation.improvements.map((imp, i) => (
-                            <HStack key={i} align="flex-start" gap="3">
-                              <Box
-                                mt="2"
-                                w="2"
-                                h="2"
-                                bg="orange.400"
-                                borderRadius="full"
-                                flexShrink={0}
-                              />
-                              <Text fontSize="sm" color="gray.700">
-                                {imp}
-                              </Text>
-                            </HStack>
-                          ))}
+                          {feedbackReport.evaluation.improvements.map(
+                            (improvement, i) => (
+                              <BulletPoint key={i} color="orange.400">
+                                {improvement}
+                              </BulletPoint>
+                            ),
+                          )}
                         </Stack>
                       </Box>
 
@@ -634,21 +486,13 @@ export default function InterviewPage() {
                           </Text>
                         </HStack>
                         <Stack gap="1.5">
-                          {report.evaluation.nextSteps.map((step, i) => (
-                            <HStack key={i} align="flex-start" gap="3">
-                              <Box
-                                mt="2"
-                                w="2"
-                                h="2"
-                                bg="blue.500"
-                                borderRadius="full"
-                                flexShrink={0}
-                              />
-                              <Text fontSize="sm" color="gray.700">
+                          {feedbackReport.evaluation.nextSteps.map(
+                            (step, i) => (
+                              <BulletPoint key={i} color="blue.500">
                                 {step}
-                              </Text>
-                            </HStack>
-                          ))}
+                              </BulletPoint>
+                            ),
+                          )}
                         </Stack>
                       </Box>
                     </Stack>
@@ -662,14 +506,13 @@ export default function InterviewPage() {
                 justify="center"
               >
                 <GhostButton
-                  type="submit"
                   icon={
                     <RefreshCw
                       size={16}
                       color="var(--chakra-colors-gray-600)"
                     />
                   }
-                  onClick={handleReset}
+                  onClick={resetInterview}
                   colorScheme="blue"
                 >
                   Start New Interview

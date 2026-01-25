@@ -17,21 +17,29 @@ export default function Uploader({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
 
-      // duration check before accepting file
-      const audio = document.createElement("audio");
-      audio.src = URL.createObjectURL(selectedFile);
-      audio.onloadedmetadata = () => {
-        if (audio.duration > 180) {
-          // 180 seconds = 3 minutes
-          toast.error("Audio file must be under 3 minutes."); //  Added toast warning
-          return;
-        }
-        onFileSelect(selectedFile);
-      };
-    }
+    // Accept file immediately for better UX
+    onFileSelect(selectedFile);
+
+    // Check duration in background (non-blocking)
+    const audio = document.createElement("audio");
+    const audioUrl = URL.createObjectURL(selectedFile);
+    audio.src = audioUrl;
+
+    audio.onloadedmetadata = () => {
+      if (audio.duration > 180) {
+        toast.warning(
+          "⚠️ This audio is over 3 minutes. It may be rejected during submission."
+        );
+      }
+      URL.revokeObjectURL(audioUrl);
+    };
+
+    audio.onerror = () => {
+      URL.revokeObjectURL(audioUrl);
+    };
   };
 
   const formatFileSize = (bytes: number) => {
@@ -80,16 +88,9 @@ export default function Uploader({
 
   return (
     <Stack gap="4">
-      <Button
+      <Box
         as="label"
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            inputRef.current?.click();
-          }
-        }}
+        htmlFor="audio-upload"
         w="full"
         borderWidth="2px"
         borderStyle="dashed"
@@ -97,15 +98,12 @@ export default function Uploader({
         borderRadius="xl"
         p="8"
         textAlign="center"
-        transition="colors 0.2s"
+        transition="all 0.2s"
         cursor="pointer"
         _hover={{ borderColor: "blue.400", bg: "blue.50" }}
-        _focus={{ outline: "none", ringWidth: "2px", ringColor: "blue.300" }}
-        aria-label="Choose an audio file to upload"
-        variant="ghost"
-        h="auto"
       >
         <Input
+          id="audio-upload"
           ref={inputRef}
           type="file"
           accept="audio/*"
@@ -121,7 +119,7 @@ export default function Uploader({
             Supports MP3, WAV, M4A (max 50MB, under 3 minutes)
           </Text>
         </Stack>
-      </Button>
+      </Box>
     </Stack>
   );
 }

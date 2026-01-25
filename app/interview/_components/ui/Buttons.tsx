@@ -10,17 +10,14 @@ export function GhostButton(
     children: React.ReactNode;
   }
 ) {
-  const { children, icon, ...rest } = props;
+  const { children, icon, colorScheme, ...rest } = props;
   return (
     <Button
-      px="4"
-      py="2"
-      color="gray.600"
-      _hover={{ color: "gray.800", bg: "gray.50" }}
+      colorScheme={colorScheme || "gray"}
+      variant="outline"
+      size="md"
       borderRadius="lg"
       fontWeight="medium"
-      transition="all 0.2s"
-      variant="ghost"
       {...rest}
     >
       <Flex align="center" gap="2">
@@ -42,34 +39,19 @@ export function PrimaryButton(
   const { children, icon, loading, ...rest } = props;
   return (
     <Button
-      px="6"
-      py="3"
-      bgGradient="linear(to-r, blue.600, blue.500)"
-      color="white"
+      colorScheme="blue"
+      size="lg"
       borderRadius="xl"
       fontWeight="medium"
-      boxShadow="lg"
-      _hover={{
-        boxShadow: "xl",
-        transform: "scale(1.05)",
-      }}
-      _active={{ transform: "scale(0.95)" }}
-      _disabled={{
-        opacity: 0.5,
-        cursor: "not-allowed",
-        transform: "scale(1)",
-      }}
-      transition="all 0.2s"
+      _hover={{ transform: "scale(1.02)" }}
+      _active={{ transform: "scale(0.98)" }}
+      transition="transform 0.2s"
       {...rest}
     >
-      {loading ? (
-        <Spinner size="sm" color="white" />
-      ) : (
-        <Flex align="center" justify="center" gap="2">
-          {icon}
-          {children}
-        </Flex>
-      )}
+      <Flex align="center" justify="center" gap="2">
+        {loading ? <Spinner size="sm" /> : icon}
+        {children}
+      </Flex>
     </Button>
   );
 }
